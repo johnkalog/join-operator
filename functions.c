@@ -36,9 +36,7 @@ void relation_creation(relation *A,relation *B,char *argv[]){
   fclose(fp2);
 }
 
-void free_memory(relation *A,relation *B){
+void free_memory(relation *A){
   free(A->tuples);
-  free(B->tuples);
   free(A);
-  free(B);
 }

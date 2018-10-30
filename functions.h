@@ -12,5 +12,11 @@ typedef struct relation{
   uint32_t num_tuples;
 } relation;
 
+typedef struct result {
+  int NotDefinedYet;
+}result;
+
 void relation_creation(relation *A,relation *B,char *argv[]);
-void free_memory(relation *A,relation *B);
+void free_memory(relation *A);
+
+result* RadixHashJoin(relation *relR, relation *relS);
