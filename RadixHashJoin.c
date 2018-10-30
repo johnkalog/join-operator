@@ -6,8 +6,14 @@ typedef struct typeHist {
   uint32_t num;
 }typeHist;
 
+typedef struct HashBucket{
+  int *chain,*bucket;
+}HashBucket;
+
 uint32_t HashFunction(int32_t ,int );
 relation *FirstHash(relation*,typeHist **); //dhmioyrgei R'
+HashBucket *SecondHash(uint32_t,relation *relNewR,int);
+void free_hash_bucket(HashBucket *);
 
 result* RadixHashJoin(relation *relR, relation *relS) {
 
@@ -15,17 +21,45 @@ result* RadixHashJoin(relation *relR, relation *relS) {
   relation *relNewR = FirstHash(relR,&HistR);
   relation *relNewS = FirstHash(relS,&HistS);
 
-  int i;
+  int i,sizeR,sizeS;
   // for(i=0;i<relNewR->num_tuples;i++) {
   //   printf("key: %u   payload: %u\n",relNewR->tuples[i].key,relNewR->tuples[i].payload );
   // }
   // for ( i=0; i<4; i++ ){
   //   printf("cwcwecwecw %d\n",HistR[i].num);
   // }
+  HashBucket *fullBucket;
+  for ( i=0; i<relNewR->num_tuples; i++ ){
+    sizeR = HistR[i].num;
+    sizeS = HistS[i].num;
+    if ( sizeR<=sizeS ){
+      fullBucket=SecondHash(sizeR,relNewR,i);
+
+    }
+    else{
+      fullBucket=SecondHash(sizeS,relNewS,i);
+    }
+    free_hash_bucket(fullBucket);
+  }
 
   free_memory(relNewR);
   free_memory(relNewS);
   return NULL; //prosorino
+}
+
+void free_hash_bucket(HashBucket *fullBucket){
+  free(fullBucket->chain);
+  free(fullBucket->bucket);
+  free(fullBucket);
+}
+
+HashBucket *SecondHash(uint32_t size,relation *relNew,int index){
+  HashBucket *TheHashBucket=malloc(sizeof(HashBucket));
+  TheHashBucket->chain = malloc(size*sizeof(int));
+  TheHashBucket->bucket = malloc(size*sizeof(int));
+
+
+  return TheHashBucket;
 }
 
 relation *FirstHash(relation* relR,typeHist **Hist) {
@@ -71,7 +105,6 @@ relation *FirstHash(relation* relR,typeHist **Hist) {
     NewRel->tuples[Psum[box].num].key = relR->tuples[i].key;
     Psum[box].num++;
   }
-
 
   // free(Hist); //isws prosorino
   // free(Psum); //isws prosorino
