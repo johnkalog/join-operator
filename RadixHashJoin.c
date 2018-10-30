@@ -7,57 +7,60 @@ typedef struct typeHist {
 }typeHist;
 
 uint32_t HashFunction(int32_t ,int );
-relation *FirstHash(relation*); //dhmioyrgei R'
+relation *FirstHash(relation*,typeHist **); //dhmioyrgei R'
 
 result* RadixHashJoin(relation *relR, relation *relS) {
 
-
-  relation *relNewR = FirstHash(relR);
-  relation *relNewS = FirstHash(relS);
+  typeHist *HistR,*HistS;
+  relation *relNewR = FirstHash(relR,&HistR);
+  relation *relNewS = FirstHash(relS,&HistS);
 
   int i;
-  for(i=0;i<relNewR->num_tuples;i++) {
-    printf("key: %u   payload: %u\n",relNewR->tuples[i].key,relNewR->tuples[i].payload );
-  }
+  // for(i=0;i<relNewR->num_tuples;i++) {
+  //   printf("key: %u   payload: %u\n",relNewR->tuples[i].key,relNewR->tuples[i].payload );
+  // }
+  // for ( i=0; i<4; i++ ){
+  //   printf("cwcwecwecw %d\n",HistR[i].num);
+  // }
 
-  free_memory(relNewS);
   free_memory(relNewR);
+  free_memory(relNewS);
   return NULL; //prosorino
 }
 
-relation *FirstHash(relation* relR) {
+relation *FirstHash(relation* relR,typeHist **Hist) {
 
-  int n = 1;
+  int n = 2;
   int sizeHist = pow(2,n);
   relation *NewRel = malloc(sizeof(relation));
   NewRel->num_tuples = relR->num_tuples;
   NewRel->tuples = malloc(NewRel->num_tuples*sizeof(tuple));
 
-  typeHist *Hist = malloc(sizeHist*sizeof(typeHist));
+  *Hist = malloc(sizeHist*sizeof(typeHist));
   //bzero(Hist,sizeHist);
   int i;
   for(i=0;i<sizeHist;i++) {
-    Hist[i].box = i; //arxikopoihsh
-    Hist[i].num = 0;
+    (*Hist)[i].box = i; //arxikopoihsh
+    (*Hist)[i].num = 0;
   }
 
   for(i=0;i<relR->num_tuples;i++) {
     uint32_t box = HashFunction(relR->tuples[i].payload,n);
-    Hist[box].num++;
+    (*Hist)[box].num++;
     //printf("%u\n",box );
   }
 
-/*
+
   for(i=0;i<sizeHist;i++) {
-    printf("%u   is   %u\n",Hist[i].box, Hist[i].num );
+    printf("%u   is   %u\n",(*Hist)[i].box, (*Hist)[i].num );
   }
-*/
+
   typeHist *Psum = malloc(sizeHist*sizeof(typeHist));
-  Psum[0].box = Hist[0].box;
+  Psum[0].box = (*Hist)[0].box;
   Psum[0].num = 0;
   for(i=1;i<sizeHist;i++) {
-    Psum[i].box = Hist[i].box;
-    Psum[i].num = Psum[i-1].num + Hist[i-1].num;
+    Psum[i].box = (*Hist)[i].box;
+    Psum[i].num = Psum[i-1].num + (*Hist)[i-1].num;
 
   }
 
@@ -70,8 +73,8 @@ relation *FirstHash(relation* relR) {
   }
 
 
-  free(Hist); //isws prosorino
-  free(Psum); //isws prosorino
+  // free(Hist); //isws prosorino
+  // free(Psum); //isws prosorino
   return NewRel;
 }
 
