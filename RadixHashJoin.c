@@ -21,7 +21,7 @@ result* RadixHashJoin(relation *relR, relation *relS) {
   relation *relNewR = FirstHash(relR,&HistR);
   relation *relNewS = FirstHash(relS,&HistS);
 
-  int i,sizeR,sizeS;
+  int i,sizeR,sizeS,current_indexR=0,current_indexS=0;
   // for(i=0;i<relNewR->num_tuples;i++) {
   //   printf("key: %u   payload: %u\n",relNewR->tuples[i].key,relNewR->tuples[i].payload );
   // }
@@ -29,21 +29,25 @@ result* RadixHashJoin(relation *relR, relation *relS) {
   //   printf("cwcwecwecw %d\n",HistR[i].num);
   // }
   HashBucket *fullBucket;
-  for ( i=0; i<relNewR->num_tuples; i++ ){
+  for ( i=0; i<4; i++ ){  //size tou bucket
     sizeR = HistR[i].num;
     sizeS = HistS[i].num;
     if ( sizeR<=sizeS ){
-      fullBucket=SecondHash(sizeR,relNewR,i);
+      fullBucket=SecondHash(sizeR,relNewR,current_indexR);
 
     }
     else{
-      fullBucket=SecondHash(sizeS,relNewS,i);
+      fullBucket=SecondHash(sizeS,relNewS,current_indexS);
     }
+    current_indexR += HistR[i].num;  //arxh tou bucket
+    current_indexS += HistS[i].num;
     free_hash_bucket(fullBucket);
   }
 
   free_memory(relNewR);
   free_memory(relNewS);
+  free(HistR);
+  free(HistS);
   return NULL; //prosorino
 }
 
@@ -53,11 +57,26 @@ void free_hash_bucket(HashBucket *fullBucket){
   free(fullBucket);
 }
 
-HashBucket *SecondHash(uint32_t size,relation *relNew,int index){
+HashBucket *SecondHash(uint32_t size,relation *relNew,int start_index){
+  int i,n=11,bucket_index,previous_last; //for mod
   HashBucket *TheHashBucket=malloc(sizeof(HashBucket));
   TheHashBucket->chain = malloc(size*sizeof(int));
-  TheHashBucket->bucket = malloc(size*sizeof(int));
-
+  TheHashBucket->bucket = malloc((n-1)*sizeof(int));
+  for ( i=0; i<n-1; i++ ){
+    TheHashBucket->bucket[i] = -1; //arxika -1
+  }
+  for ( i=0; i<size; i++ ){
+    bucket_index = relNew->tuples[start_index+i].key%n;
+     if ( TheHashBucket->bucket[bucket_index]==-1 ){
+       TheHashBucket->bucket[bucket_index] == i;
+       //TheHashBucket->chain[i-1] = 0; //san arithmhsh apo 1 kai to 0 na einai gia thn fhlwsh tou tipota
+     }
+     // else{
+     //   previous_last = TheHashBucket->bucket[bucket_index];
+     //   TheHashBucket->bucket[bucket_index] == i;
+     //   TheHashBucket->chain[i-1] = previous_last-1;
+     // }
+  }
 
   return TheHashBucket;
 }
@@ -107,7 +126,7 @@ relation *FirstHash(relation* relR,typeHist **Hist) {
   }
 
   // free(Hist); //isws prosorino
-  // free(Psum); //isws prosorino
+  free(Psum); //isws prosorino
   return NewRel;
 }
 
