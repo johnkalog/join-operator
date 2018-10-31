@@ -1,6 +1,8 @@
 #include "functions.h"
 #include <math.h>
 
+#define Hash_number 2
+
 typedef struct typeHist {
   uint32_t box;
   uint32_t num;
@@ -29,7 +31,7 @@ result* RadixHashJoin(relation *relR, relation *relS) {
   //   printf("cwcwecwecw %d\n",HistR[i].num);
   // }
   HashBucket *fullBucket;
-  for ( i=0; i<4; i++ ){  //size tou bucket
+  for ( i=0; i<Hash_number; i++ ){  //size tou bucket
     sizeR = HistR[i].num;
     sizeS = HistS[i].num;
     if ( sizeR<=sizeS ){
@@ -58,7 +60,8 @@ void free_hash_bucket(HashBucket *fullBucket){
 }
 
 HashBucket *SecondHash(uint32_t size,relation *relNew,int start_index){
-  int i,n=11,bucket_index,previous_last; //for mod
+  int i,bucket_index,previous_last; //for mod
+  int n=Hash_number*5+1;
   HashBucket *TheHashBucket=malloc(sizeof(HashBucket));
   TheHashBucket->chain = malloc(size*sizeof(int));
   TheHashBucket->bucket = malloc((n-1)*sizeof(int));
@@ -83,8 +86,8 @@ HashBucket *SecondHash(uint32_t size,relation *relNew,int start_index){
 
 relation *FirstHash(relation* relR,typeHist **Hist) {
 
-  int n = 2;
-  int sizeHist = pow(2,n);
+  //int n = 2;
+  int sizeHist = pow(2,Hash_number);
   relation *NewRel = malloc(sizeof(relation));
   NewRel->num_tuples = relR->num_tuples;
   NewRel->tuples = malloc(NewRel->num_tuples*sizeof(tuple));
