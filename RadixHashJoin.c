@@ -104,7 +104,7 @@ HashBucket *SecondHash(uint32_t size,relation *relNew,int start_index){
   for ( i=0; i<size; i++ ){
     bucket_index = HashFunction(relNew->tuples[(size-1)+start_index-i].key,SecondHash_number);   //relNew->tuples[start_index+i].key%n;
      if ( TheHashBucket->bucket[bucket_index]==-1 ){
-       TheHashBucket->bucket[bucket_index] = i;
+       TheHashBucket->bucket[bucket_index] = (size-1)-i;
        //TheHashBucket->chain[i-1] = 0; //san arithmhsh apo 1 kai to 0 na einai gia thn fhlwsh tou tipota
      }
       else{
@@ -112,7 +112,7 @@ HashBucket *SecondHash(uint32_t size,relation *relNew,int start_index){
         while(TheHashBucket->chain[position]!=-1){
           position = TheHashBucket->chain[position];
         }
-        TheHashBucket->chain[position] = i;
+        TheHashBucket->chain[position] = (size-1)-i;
       }
      //   TheHashBucket->bucket[bucket_index] == i;
      //   TheHashBucket->chain[i-1] = previous_last-1;
