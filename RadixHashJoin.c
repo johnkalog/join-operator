@@ -34,6 +34,27 @@ result* RadixHashJoin(relation *relR, relation *relS) {
   // }
   HashBucket *fullBucket;
   int Hash_number = pow(2,FirstHash_number);
+  printf("---------------------buckets relR------------------------------\n");
+  for ( i=0; i<Hash_number; i++ ){
+    sizeR = HistR[i].num;
+    printf("  Bucket %d box %d:\n",i,HistR[i].box);
+    for ( int j=0; j<sizeR; j++ ){
+      printf("    value %d\n",relNewR->tuples[current_indexR+j].payload);
+    }
+    current_indexR += HistR[i].num;
+  }
+  printf("-----------------------end buckets relR-------------------------\n");
+  printf("---------------------buckets rels------------------------------\n");
+  for ( i=0; i<Hash_number; i++ ){
+    sizeS = HistS[i].num;
+    printf("  Bucket %d box %d:\n",i,HistS[i].box);
+    for ( int j=0; j<sizeS; j++ ){
+      printf("    value %d\n",relNewS->tuples[current_indexS+j].payload);
+    }
+    current_indexS += HistS[i].num;
+  }
+  printf("-----------------------end buckets relS-------------------------\n");
+  current_indexR = current_indexS = 0;
   for ( i=0; i<Hash_number; i++ ){  //size tou bucket
     sizeR = HistR[i].num;
     sizeS = HistS[i].num;
