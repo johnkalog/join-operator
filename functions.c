@@ -40,3 +40,11 @@ void free_memory(relation *A){
   free(A->tuples);
   free(A);
 }
+
+result* result_init(){
+  result *Result=malloc(sizeof(result));
+  Result->size = 0;
+  Result->Head = NULL;
+  Result->Tail = NULL;
+  return Result;
+}

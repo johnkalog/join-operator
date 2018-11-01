@@ -18,9 +18,11 @@ uint32_t HashFunction(int32_t ,int );
 relation *FirstHash(relation*,typeHist **); //dhmioyrgei R'
 HashBucket *SecondHash(uint32_t,relation *relNewR,int);
 void free_hash_bucket(HashBucket *);
-void Scan_Buckets(HashBucket*,relation*,relation*,int,int,int,int);
+void Scan_Buckets(result *,HashBucket*,relation*,relation*,int,int,int,int);
 
 result* RadixHashJoin(relation *relR, relation *relS) {
+
+  result *Result=result_init();
 
   typeHist *HistR,*HistS;
   relation *relNewR = FirstHash(relR,&HistR);
@@ -49,12 +51,12 @@ result* RadixHashJoin(relation *relR, relation *relS) {
     if ( sizeR<=sizeS ){
       printf("\n\nscan S\n");
       fullBucket=SecondHash(sizeR,relNewR,current_indexR);
-      Scan_Buckets(fullBucket,relNewR,relNewS,current_indexR,current_indexS,sizeR,sizeS);
+      Scan_Buckets(Result,fullBucket,relNewR,relNewS,current_indexR,current_indexS,sizeR,sizeS);
     }
     else{
       printf("\n\nscan R\n");
       fullBucket=SecondHash(sizeS,relNewS,current_indexS);
-      Scan_Buckets(fullBucket,relNewS,relNewR,current_indexS,current_indexR,sizeS,sizeR);
+      Scan_Buckets(Result,fullBucket,relNewS,relNewR,current_indexS,current_indexR,sizeS,sizeR);
     }
     /////////////
     current_indexR += HistR[i].num;  //arxh tou bucket
@@ -67,7 +69,7 @@ result* RadixHashJoin(relation *relR, relation *relS) {
   free_memory(relNewS);
   free(HistR);
   free(HistS);
-  return NULL; //prosorino
+  return Result; //prosorino
 }
 
 void print_buckets(int Hash_number,typeHist *Hist,relation *relNew){
@@ -83,7 +85,7 @@ void print_buckets(int Hash_number,typeHist *Hist,relation *relNew){
 }
 
 
-void Scan_Buckets(HashBucket *fullBucket,relation *RelHash,relation *RelScan,int startHash,int startScan,int sizeHash,int sizeScan){
+void Scan_Buckets(result *Result,HashBucket *fullBucket,relation *RelHash,relation *RelScan,int startHash,int startScan,int sizeHash,int sizeScan){
 ///////////
   int  i,bucket_index,chain_index;
   for(i=0;i<sizeScan;i++){

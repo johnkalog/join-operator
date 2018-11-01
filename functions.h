@@ -15,17 +15,18 @@ typedef struct relation{
   uint32_t num_tuples;
 } relation;
 
-typedef struct result{
-  int buffer[bufferRows][2];  //h sto heap?
-  struct result *next;
-}result;
+typedef struct result_node{
+  int *buffer[2];  //h sto heap?
+  struct result_node *next;
+}result_node;
 
-typedef struct resultInfo{
+typedef struct result{
   int size;
-  result *Head;
-}resultInfo;
+  result_node *Head,*Tail;
+}result;
 
 void relation_creation(relation *A,relation *B,char *argv[]);
 void free_memory(relation *A);
+result* result_init();
 
 result* RadixHashJoin(relation *relR, relation *relS);
