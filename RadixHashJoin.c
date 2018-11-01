@@ -32,6 +32,7 @@ result* RadixHashJoin(relation *relR, relation *relS) {
   // for ( i=0; i<4; i++ ){
   //   printf("cwcwecwecw %d\n",HistR[i].num);
   // }
+  int Hash_number = pow(2,FirstHash_number);
   printf("---------------------buckets relR------------------------------\n");
   for ( i=0; i<Hash_number; i++ ){
     sizeR = HistR[i].num;
@@ -54,7 +55,6 @@ result* RadixHashJoin(relation *relR, relation *relS) {
   printf("-----------------------end buckets relS-------------------------\n");
   current_indexR = current_indexS = 0;
   HashBucket *fullBucket;
-  int Hash_number = pow(2,FirstHash_number);
   for ( i=0; i<Hash_number; i++ ){  //size tou bucket
     sizeR = HistR[i].num;
     sizeS = HistS[i].num;
