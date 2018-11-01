@@ -26,7 +26,9 @@ result* RadixHashJoin(relation *relR, relation *relS) {
   relation *relNewR = FirstHash(relR,&HistR);
   relation *relNewS = FirstHash(relS,&HistS);
 
-  int i,sizeR,sizeS,current_indexR=0,current_indexS=0;
+  int i,sizeR,sizeS;
+  int current_indexR=0;
+  int current_indexS=0;
   // for(i=0;i<relNewR->num_tuples;i++) {
   //   printf("key: %u   payload: %u\n",relNewR->tuples[i].key,relNewR->tuples[i].payload );
   // }
@@ -45,10 +47,12 @@ result* RadixHashJoin(relation *relR, relation *relS) {
     sizeR = HistR[i].num;
     sizeS = HistS[i].num;
     if ( sizeR<=sizeS ){
+      printf("\n\nscan S\n");
       fullBucket=SecondHash(sizeR,relNewR,current_indexR);
       Scan_Buckets(fullBucket,relNewR,relNewS,current_indexR,current_indexS,sizeR,sizeS);
     }
     else{
+      printf("\n\nscan R\n");
       fullBucket=SecondHash(sizeS,relNewS,current_indexS);
       Scan_Buckets(fullBucket,relNewS,relNewR,current_indexS,current_indexR,sizeS,sizeR);
     }
@@ -82,15 +86,16 @@ void Scan_Buckets(HashBucket *fullBucket,relation *RelHash,relation *RelScan,int
 ///////////
   int  i,bucket_index,chain_index;
   for(i=0;i<sizeScan;i++){
-    int32_t payload= RelScan->tuples[startScan+i].payload;
+    int32_t payload = RelScan->tuples[startScan+i].payload;
     bucket_index = HashFunction(payload,SecondHash_number);
   //  printf("scan buckets -> %d\n",bucket_index );
+    printf("payload %d\n",payload );
     if(fullBucket->bucket[bucket_index]!=-1){
-      //// ------  elegxos lupei ---------------
+      //// ------  elegxos ---------------
       chain_index = fullBucket->bucket[bucket_index];
 
       while(chain_index != -1) {
-        //elegxos edw
+        //elegxos
         if(payload == RelHash->tuples[startHash + chain_index].payload) {
           printf("I found something %d \n",payload );
         }
