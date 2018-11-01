@@ -13,6 +13,7 @@ typedef struct HashBucket{
   int *chain,*bucket;
 }HashBucket;
 
+void print_buckets(int,typeHist *,relation *);
 uint32_t HashFunction(int32_t ,int );
 relation *FirstHash(relation*,typeHist **); //dhmioyrgei R'
 HashBucket *SecondHash(uint32_t,relation *relNewR,int);
@@ -34,26 +35,11 @@ result* RadixHashJoin(relation *relR, relation *relS) {
   // }
   int Hash_number = pow(2,FirstHash_number);
   printf("---------------------buckets relR------------------------------\n");
-  for ( i=0; i<Hash_number; i++ ){
-    sizeR = HistR[i].num;
-    printf("  Bucket %d box %d:\n",i,HistR[i].box);
-    for ( int j=0; j<sizeR; j++ ){
-      printf("    value %d\n",relNewR->tuples[current_indexR+j].payload);
-    }
-    current_indexR += HistR[i].num;
-  }
+  print_buckets(Hash_number,HistR,relNewR);
   printf("-----------------------end buckets relR-------------------------\n");
   printf("---------------------buckets rels------------------------------\n");
-  for ( i=0; i<Hash_number; i++ ){
-    sizeS = HistS[i].num;
-    printf("  Bucket %d box %d:\n",i,HistS[i].box);
-    for ( int j=0; j<sizeS; j++ ){
-      printf("    value %d\n",relNewS->tuples[current_indexS+j].payload);
-    }
-    current_indexS += HistS[i].num;
-  }
+  print_buckets(Hash_number,HistS,relNewS);
   printf("-----------------------end buckets relS-------------------------\n");
-  current_indexR = current_indexS = 0;
   HashBucket *fullBucket;
   for ( i=0; i<Hash_number; i++ ){  //size tou bucket
     sizeR = HistR[i].num;
@@ -78,6 +64,19 @@ result* RadixHashJoin(relation *relR, relation *relS) {
   free(HistS);
   return NULL; //prosorino
 }
+
+void print_buckets(int Hash_number,typeHist *Hist,relation *relNew){
+  int i,j,size,current_index=0;
+  for ( i=0; i<Hash_number; i++ ){
+    size = Hist[i].num;
+    printf("  Bucket %d box %d:\n",i,Hist[i].box);
+    for ( int j=0; j<size; j++ ){
+      printf("    value %d\n",relNew->tuples[current_index+j].payload);
+    }
+    current_index += Hist[i].num;
+  }
+}
+
 
 void Scan_Buckets(HashBucket *fullBucket,relation *RelHash,relation *RelScan,int startHash,int startScan,int sizeHash,int sizeScan){
 ///////////
