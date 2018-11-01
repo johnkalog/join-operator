@@ -101,6 +101,7 @@ void Scan_Buckets(result *Result,HashBucket *fullBucket,relation *RelHash,relati
         //elegxos
         if(payload == RelHash->tuples[startHash + chain_index].payload) {
           printf("I found something %d \n",payload );
+          insert(Result,payload,RelHash->tuples[startHash + chain_index].payload);
         }
         chain_index = fullBucket->chain[chain_index];
 
