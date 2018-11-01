@@ -50,7 +50,7 @@ result* RadixHashJoin(relation *relR, relation *relS) {
     }
     else{
       fullBucket=SecondHash(sizeS,relNewS,current_indexS);
-      Scan_Buckets(fullBucket,relNewS,relNewR,current_indexR,current_indexS,sizeS,sizeR);
+      Scan_Buckets(fullBucket,relNewS,relNewR,current_indexS,current_indexR,sizeS,sizeR);
     }
     /////////////
     current_indexR += HistR[i].num;  //arxh tou bucket
