@@ -41,7 +41,7 @@ void free_memory(relation *A){
   free(A);
 }
 
-void insert(result *Result,int key1,int key2){
+void insert(result *Result,int key1,int key2){  //negative numbers?
   if ( Result->Head==NULL ){
     Result->Head = node_init();
     Result->Head->buffer[0][Result->Head->pos] = key1;
