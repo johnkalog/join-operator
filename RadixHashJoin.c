@@ -32,8 +32,6 @@ result* RadixHashJoin(relation *relR, relation *relS) {
   // for ( i=0; i<4; i++ ){
   //   printf("cwcwecwecw %d\n",HistR[i].num);
   // }
-  HashBucket *fullBucket;
-  int Hash_number = pow(2,FirstHash_number);
   printf("---------------------buckets relR------------------------------\n");
   for ( i=0; i<Hash_number; i++ ){
     sizeR = HistR[i].num;
@@ -55,6 +53,8 @@ result* RadixHashJoin(relation *relR, relation *relS) {
   }
   printf("-----------------------end buckets relS-------------------------\n");
   current_indexR = current_indexS = 0;
+  HashBucket *fullBucket;
+  int Hash_number = pow(2,FirstHash_number);
   for ( i=0; i<Hash_number; i++ ){  //size tou bucket
     sizeR = HistR[i].num;
     sizeS = HistS[i].num;
@@ -123,7 +123,7 @@ HashBucket *SecondHash(uint32_t size,relation *relNew,int start_index){
   TheHashBucket->chain[i] = -1; //arxika -1
   }
   for ( i=0; i<size; i++ ){
-    bucket_index = HashFunction(relNew->tuples[(size-1)+start_index-i].key,SecondHash_number);   //relNew->tuples[start_index+i].key%n;
+    bucket_index = HashFunction(relNew->tuples[(size-1)+start_index-i].payload,SecondHash_number);   //relNew->tuples[start_index+i].key%n;
      if ( TheHashBucket->bucket[bucket_index]==-1 ){
        TheHashBucket->bucket[bucket_index] = (size-1)-i;
        //TheHashBucket->chain[i-1] = 0; //san arithmhsh apo 1 kai to 0 na einai gia thn fhlwsh tou tipota
