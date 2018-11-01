@@ -115,7 +115,7 @@ void free_hash_bucket(HashBucket *fullBucket){
 }
 
 HashBucket *SecondHash(uint32_t size,relation *relNew,int start_index){
-  int i,bucket_index,previous_last,position; //for mod
+  int i,bucket_index,previous_last,tmp; //for mod
   int sizeBucket=pow(2,SecondHash_number);
   HashBucket *TheHashBucket=malloc(sizeof(HashBucket));
   TheHashBucket->chain = malloc(size*sizeof(int));
@@ -124,20 +124,18 @@ HashBucket *SecondHash(uint32_t size,relation *relNew,int start_index){
     TheHashBucket->bucket[i] = -1; //arxika -1
   }
   for(i=0; i<size;i++){
-  TheHashBucket->chain[i] = -1; //arxika -1
+    TheHashBucket->chain[i] = -1; //arxika -1
   }
   for ( i=0; i<size; i++ ){
-    bucket_index = HashFunction(relNew->tuples[(size-1)+start_index-i].payload,SecondHash_number);   //relNew->tuples[start_index+i].key%n;
+    bucket_index = HashFunction(relNew->tuples[start_index+i].payload,SecondHash_number);   //relNew->tuples[start_index+i].key%n;
      if ( TheHashBucket->bucket[bucket_index]==-1 ){
-       TheHashBucket->bucket[bucket_index] = (size-1)-i;
+       TheHashBucket->bucket[bucket_index] = i;
        //TheHashBucket->chain[i-1] = 0; //san arithmhsh apo 1 kai to 0 na einai gia thn fhlwsh tou tipota
      }
       else{
-        position = TheHashBucket->bucket[bucket_index];
-        while(TheHashBucket->chain[position]!=-1){
-          position = TheHashBucket->chain[position];
-        }
-        TheHashBucket->chain[position] = (size-1)-i;
+        tmp = TheHashBucket->bucket[bucket_index];
+        TheHashBucket->bucket[bucket_index] = i;
+        TheHashBucket->chain[i] = tmp;
       }
      //   TheHashBucket->bucket[bucket_index] == i;
      //   TheHashBucket->chain[i-1] = previous_last-1;
