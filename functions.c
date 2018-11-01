@@ -41,6 +41,42 @@ void free_memory(relation *A){
   free(A);
 }
 
+void insert(result *Result,int key1,int key2){
+  if ( Result->Head==NULL ){
+    Result->Head = node_init();
+    Result->Head->buffer[0][Result->Head->pos] = key1;
+    Result->Head->buffer[1][Result->Head->pos] = key2;
+    Result->Head->pos ++;
+    Result->Tail = Result->Head;
+    Result->size ++;
+  }
+  else{
+    if ( Result->Tail->pos<bufferRows ){
+      Result->Tail->buffer[0][Result->Tail->pos] = key1;
+      Result->Tail->buffer[1][Result->Tail->pos] = key2;
+    }
+    else{
+      Result->Tail->next = node_init();
+      Result->Tail->next->buffer[0][Result->Tail->next->pos] = key1;
+      Result->Tail->next->buffer[1][Result->Tail->next->pos] = key2;
+      Result->Tail->next->pos ++;
+      Result->size ++;
+      Result->Tail = Result->Tail->next;
+    }
+  }
+}
+
+result_node *node_init(){
+  int i;
+  result_node *node=malloc(sizeof(result_node));
+  node->buffer = malloc(2*sizeof(int *));
+  for ( i=0; i<2; i++ ){
+    node->buffer[i] = malloc(bufferRows*sizeof(int));
+  }
+  node->pos = 0;
+  return node;
+}
+
 result* result_init(){
   result *Result=malloc(sizeof(result));
   Result->size = 0;

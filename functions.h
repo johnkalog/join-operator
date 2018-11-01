@@ -16,7 +16,7 @@ typedef struct relation{
 } relation;
 
 typedef struct result_node{
-  int *buffer[2];  //h sto heap?
+  int **buffer,pos;  //h sto heap?
   struct result_node *next;
 }result_node;
 
@@ -28,5 +28,7 @@ typedef struct result{
 void relation_creation(relation *A,relation *B,char *argv[]);
 void free_memory(relation *A);
 result* result_init();
+void insert(result *,int,int);
+result_node *node_init();
 
 result* RadixHashJoin(relation *relR, relation *relS);
