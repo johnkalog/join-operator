@@ -62,6 +62,7 @@ result* RadixHashJoin(relation *relR, relation *relS) {
     free_hash_bucket(fullBucket);
   }
 
+  printf("sssssssssssssssssssssfwe %d\n",bufferRows);
   free_memory(relNewR);
   free_memory(relNewS);
   free(HistR);
