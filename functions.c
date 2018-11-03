@@ -54,6 +54,7 @@ void insert(result *Result,int key1,int key2){  //negative numbers?
     if ( Result->Tail->pos<bufferRows ){
       Result->Tail->buffer[0][Result->Tail->pos] = key1;
       Result->Tail->buffer[1][Result->Tail->pos] = key2;
+      Result->Tail->pos++;
     }
     else{
       Result->Tail->next = node_init();
@@ -91,6 +92,7 @@ void result_print(result *Result){
   result_node *tmp=Result->Head;
   while ( tmp!=NULL ){
     printf("---------------node %d--------------------\n",i);
+    printf("tmp pos %d\n",tmp->pos );
     for ( j=0; j<tmp->pos; j++ ){
       printf("index in array %d, elements %d %d\n",j,tmp->buffer[0][j],tmp->buffer[1][j]);
     }
