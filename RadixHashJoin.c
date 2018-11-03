@@ -89,7 +89,7 @@ void Scan_Buckets(result *Result,HashBucket *fullBucket,relation *RelHash,relati
 ///////////
   int  i,bucket_index,chain_index;
   for(i=0;i<sizeScan;i++){
-    int32_t payload = RelScan->tuples[startScan+i].payload;
+    int32_t payload = RelScan->tuples[startScan+i].payload,key=RelScan->tuples[startScan+i].key;
     bucket_index = HashFunction(payload,SecondHash_number);
   //  printf("scan buckets -> %d\n",bucket_index );
     printf("payload %d\n",payload );
@@ -101,7 +101,7 @@ void Scan_Buckets(result *Result,HashBucket *fullBucket,relation *RelHash,relati
         //elegxos
         if(payload == RelHash->tuples[startHash + chain_index].payload) {
           printf("I found something %d \n",payload );
-          insert(Result,payload,RelHash->tuples[startHash + chain_index].payload);
+          insert(Result,key,RelHash->tuples[startHash + chain_index].key);
         }
         chain_index = fullBucket->chain[chain_index];
 
