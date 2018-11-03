@@ -30,5 +30,8 @@ void free_memory(relation *A);
 result* result_init();
 void insert(result *,int,int);
 result_node *node_init();
+void result_print(result *);
+void result_free(result *);
+void result_node_free(result_node *);
 
 result* RadixHashJoin(relation *relR, relation *relS);

@@ -74,6 +74,7 @@ result_node *node_init(){
     node->buffer[i] = malloc(bufferRows*sizeof(int));
   }
   node->pos = 0;
+  node->next = NULL;
   return node;
 }
 
@@ -83,4 +84,31 @@ result* result_init(){
   Result->Head = NULL;
   Result->Tail = NULL;
   return Result;
+}
+
+void result_print(result *Result){
+  int o;
+}
+
+void result_free(result *Result){
+  if ( Result->Head==NULL ){
+    return;
+  }
+  result_node *tmp=Result->Head;
+  while ( tmp!=NULL ){
+    Result->Head = tmp->next;
+    result_node_free(tmp);
+    Result->size --;
+    tmp = Result->Head;
+  }
+  free(Result);
+}
+
+void result_node_free(result_node *tmp){
+  int i;
+  for ( i=0; i<2; i++ ){
+    free(tmp->buffer[i]);
+  }
+  free(tmp->buffer);
+  free(tmp);
 }
