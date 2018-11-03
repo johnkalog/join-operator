@@ -87,7 +87,16 @@ result* result_init(){
 }
 
 void result_print(result *Result){
-  int o;
+  int i=0,j;
+  result_node *tmp=Result->Head;
+  while ( tmp!=NULL ){
+    printf("---------------node %d--------------------\n",i);
+    for ( j=0; j<tmp->pos; j++ ){
+      printf("index in array %d, elements %d %d\n",j,tmp->buffer[0][j],tmp->buffer[1][j]);
+    }
+    tmp = tmp->next;
+    i++;
+  }
 }
 
 void result_free(result *Result){
