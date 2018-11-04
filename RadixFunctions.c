@@ -10,7 +10,7 @@ void Scan_Buckets(result *Result,HashBucket *fullBucket,relation *RelHash,relati
   for(i=0;i<sizeScan;i++){
     // payload timh ston RelScan
     int32_t payload = RelScan->tuples[startScan+i].payload,key=RelScan->tuples[startScan+i].key;
-    bucket_index = HashFunction(payload,SecondHash_number);
+    bucket_index = SecondHashFunction(payload,FirstHash_number,SecondHash_number);
 
     //printf("payload %d\n",payload );
     if(fullBucket->bucket[bucket_index]!=-1){ // uparxei tetoio stoixeio sto fullBucket diatrexontas to chain?
@@ -34,17 +34,33 @@ void free_hash_bucket(HashBucket *fullBucket){  //eleutherwsh xwrou
   free(fullBucket);
 }
 
-HashBucket *SecondHash(uint32_t size,relation *relNew,int start_index){
+void SecondHash(uint32_t size,relation *relNew,int start_index,HashBucket *TheHashBucket){
   // deutero Hash
   // dhmiourgia chain kai bucket (HashBucket)
 
   int i,bucket_index,previous_last,tmp;
   int sizeBucket=pow(2,SecondHash_number);
-  HashBucket *TheHashBucket=malloc(sizeof(HashBucket));
   TheHashBucket->chain = malloc(size*sizeof(int));
-  TheHashBucket->bucket = malloc(sizeBucket*sizeof(int));
 
   // arxikopoihsh me -1
+  // if ( size<=sizeBucket ){
+  //   for(i=0; i<size;i++){
+  //     TheHashBucket->chain[i] = -1; //arxika -1
+  //     TheHashBucket->bucket[i] = -1; //arxika -1
+  //   }
+  //   for ( i=size; i<sizeBucket; i++ ){
+  //     TheHashBucket->bucket[i] = -1; //arxika -1
+  //   }
+  // }
+  // else{
+  //   for(i=0; i<sizeBucket;i++){
+  //     TheHashBucket->chain[i] = -1; //arxika -1
+  //     TheHashBucket->bucket[i] = -1; //arxika -1
+  //   }
+  //   for ( i=sizeBucket; i<sizeBucket; i++ ){
+  //     TheHashBucket->chain[i] = -1; //arxika -1
+  //   }
+  // }
   for ( i=0; i<sizeBucket; i++ ){
     TheHashBucket->bucket[i] = -1; //arxika -1
   }
@@ -52,7 +68,7 @@ HashBucket *SecondHash(uint32_t size,relation *relNew,int start_index){
     TheHashBucket->chain[i] = -1; //arxika -1
   }
   for ( i=0; i<size; i++ ){
-    bucket_index = HashFunction(relNew->tuples[start_index+i].payload,SecondHash_number);
+    bucket_index = SecondHashFunction(relNew->tuples[start_index+i].payload,FirstHash_number,SecondHash_number);   //relNew->tuples[start_index+i].key%n;
      if ( TheHashBucket->bucket[bucket_index]==-1 ){
        TheHashBucket->bucket[bucket_index] = i;
      }
@@ -62,8 +78,6 @@ HashBucket *SecondHash(uint32_t size,relation *relNew,int start_index){
         TheHashBucket->chain[i] = tmp;
       }
   }
-
-  return TheHashBucket;
 }
 
 relation *FirstHash(relation* relR,typeHist **Hist) {
@@ -90,7 +104,7 @@ relation *FirstHash(relation* relR,typeHist **Hist) {
   for(i=0;i<relR->num_tuples;i++) {
     // gia kathe stoixeio des se poia kathgoria anoikei kai auksise
     // to Hist num ths analoghs kathgorias
-    uint32_t box = HashFunction(relR->tuples[i].payload,FirstHash_number);
+    uint32_t box = FirstHashFunction(relR->tuples[i].payload,FirstHash_number);
     (*Hist)[box].num++;
     //printf("%u\n",box );
   }
@@ -112,7 +126,7 @@ relation *FirstHash(relation* relR,typeHist **Hist) {
 
   //dhmiourgia relNewR
   for(i=0;i<relR->num_tuples;i++) {
-    uint32_t box = HashFunction(relR->tuples[i].payload,FirstHash_number); // pou anoikei to kathe stoixeio
+    uint32_t box = FirstHashFunction(relR->tuples[i].payload,FirstHash_number); // pou anoikei to kathe stoixeio
     // eisagwgh analoga me to Psum
     NewRel->tuples[Psum[box].num].payload = relR->tuples[i].payload;
     NewRel->tuples[Psum[box].num].key = relR->tuples[i].key;
@@ -123,8 +137,16 @@ relation *FirstHash(relation* relR,typeHist **Hist) {
   return NewRel;
 }
 
-uint32_t HashFunction(int32_t value,int n) {
-  // gyrnaei ta teleutaia(deksia) n bits
+uint32_t SecondHashFunction(int32_t value,int n1,int n2) {
+  // gyrnaei ta  n2 bits amesws meta ta n1 apo aristera//
+  uint32_t temp = value << (sizeof(int32_t)*8)-(n1+n2);
+  temp = temp >> (sizeof(int32_t)*8)-n2;
+  //printf("%u\n",temp );
+  return temp;
+}
+
+uint32_t FirstHashFunction(int32_t value,int n) {
+  // gyrnaei ta teleutaia n bits
   uint32_t temp = value << (sizeof(int32_t)*8)-n;
   temp = temp >> (sizeof(int32_t)*8)-n;
   //printf("%u\n",temp );
