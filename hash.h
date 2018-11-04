@@ -1,3 +1,4 @@
+#include "list_result.h"
 #define FirstHash_number 2
 #define SecondHash_number 3
 

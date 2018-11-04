@@ -1,20 +1,22 @@
-#include "functions.h"
 #include "hash.h"
 #include <math.h>
 
+
 void Scan_Buckets(result *Result,HashBucket *fullBucket,relation *RelHash,relation *RelScan,int startHash,int startScan,int sizeHash,int sizeScan){
-///////////
+  ///// scan bucket RelScan kai briskei ta koina me to fullBucket /////
+  ///// apothikeuei ta rowids sto Result //////
+
   int  i,bucket_index,chain_index;
   for(i=0;i<sizeScan;i++){
+    // payload timh stou RelScan
     int32_t payload = RelScan->tuples[startScan+i].payload,key=RelScan->tuples[startScan+i].key;
     bucket_index = HashFunction(payload,SecondHash_number);
-  //  printf("scan buckets -> %d\n",bucket_index );
-    printf("payload %d\n",payload );
-    if(fullBucket->bucket[bucket_index]!=-1){
-      //// ------  elegxos ---------------
+
+    //printf("payload %d\n",payload );
+    if(fullBucket->bucket[bucket_index]!=-1){ // uparxei tetoio stoixeio sto fullBucket
       chain_index = fullBucket->bucket[bucket_index];
 
-      while(chain_index != -1) {
+      while(chain_index != -1) { // bres ola ta koina
         //elegxos
         if(payload == RelHash->tuples[startHash + chain_index].payload) {
           printf("I found something %d \n",payload );
@@ -23,7 +25,6 @@ void Scan_Buckets(result *Result,HashBucket *fullBucket,relation *RelHash,relati
         chain_index = fullBucket->chain[chain_index];
 
       }
-      //telos?
     }
   }
 
@@ -127,7 +128,6 @@ relation *FirstHash(relation* relR,typeHist **Hist) {
   free(Psum);
   return NewRel;
 }
-
 
 uint32_t HashFunction(int32_t value,int n) {
   // gyrnaei ta teleutaia n bits

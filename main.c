@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "functions.h"
 #include "hash.h"
 
 int main(int argc, char *argv[])

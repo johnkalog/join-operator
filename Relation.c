@@ -1,4 +1,3 @@
-#include "functions.h"
 #include "hash.h"
 
 void relation_creation(relation *A,relation *B,char *argv[]){

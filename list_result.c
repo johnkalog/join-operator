@@ -1,4 +1,6 @@
-#include "functions.h"
+#include "list_result.h"
+
+#define bufferRows 1024*1024/8
 
 void insert(result *Result,int key1,int key2){  //negative numbers?
   if ( Result->Head==NULL ){
@@ -39,6 +41,7 @@ result_node *node_init(){
 }
 
 result* result_init(){
+  // arxikopohsh result
   result *Result=malloc(sizeof(result));
   Result->size = 0;
   Result->Head = NULL;

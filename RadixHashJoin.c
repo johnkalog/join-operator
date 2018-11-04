@@ -1,38 +1,49 @@
-#include "functions.h"
 #include "hash.h"
 #include <math.h>
 
 
 result* RadixHashJoin(relation *relR, relation *relS) {
+  // returns result
+  // result: tupos listas pou kathe kombos exei ena 2d array
 
-  result *Result=result_init();
+  result *Result=result_init(); // arxikopoihsh result
 
   typeHist *HistR,*HistS;
+  // dhmiourgia newn pinakwn relation
+  // FirstHash epistrfei kai to Hist
   relation *relNewR = FirstHash(relR,&HistR);
   relation *relNewS = FirstHash(relS,&HistS);
 
-  int i,sizeR,sizeS;
-  int current_indexR=0;
+  int i,sizeR,sizeS; // sizeR - sizeS megethos kathe bucket
+  int current_indexR=0; // current_index deixnei thn arxh tou kathe
   int current_indexS=0;
 
   int Hash_number = pow(2,FirstHash_number);
-  printf("---------------------buckets relR------------------------------\n");
-  print_buckets(Hash_number,HistR,relNewR);
-  printf("-----------------------end buckets relR-------------------------\n");
-  printf("---------------------buckets rels------------------------------\n");
-  print_buckets(Hash_number,HistS,relNewS);
-  printf("-----------------------end buckets relS-------------------------\n");
+
+  ///------------- print buckets for debug  ------------///
+  //printf("---------------------buckets relR------------------------------\n");
+  //print_buckets(Hash_number,HistR,relNewR);
+  //printf("-----------------------end buckets relR-------------------------\n");
+  //printf("---------------------buckets rels------------------------------\n");
+  //print_buckets(Hash_number,HistS,relNewS);
+  //printf("-----------------------end buckets relS-------------------------\n");
+  /// -------------------------------------------------///
+
+
   HashBucket *fullBucket;
   for ( i=0; i<Hash_number; i++ ){  //size tou bucket
-    sizeR = HistR[i].num;
+    sizeR = HistR[i].num; // current size
     sizeS = HistS[i].num;
     if ( sizeR<=sizeS ){
-      printf("\n\nscan S\n");
+      // ean bucket R < bucket S (=)
+      // printf("\n\nscan S\n");
+      // Second Hash dhmiourgei to Chain kai to bucket sto struct fullBucket
       fullBucket=SecondHash(sizeR,relNewR,current_indexR);
       Scan_Buckets(Result,fullBucket,relNewR,relNewS,current_indexR,current_indexS,sizeR,sizeS);
     }
     else{
-      printf("\n\nscan R\n");
+      // ean bucket S < bucket R
+      // printf("\n\nscan R\n");
       fullBucket=SecondHash(sizeS,relNewS,current_indexS);
       Scan_Buckets(Result,fullBucket,relNewS,relNewR,current_indexS,current_indexR,sizeS,sizeR);
     }
@@ -42,10 +53,9 @@ result* RadixHashJoin(relation *relR, relation *relS) {
     free_hash_bucket(fullBucket);
   }
 
-  printf("sssssssssssssssssssssfwe %d\n",bufferRows);
   free_memory(relNewR);
   free_memory(relNewS);
   free(HistR);
   free(HistS);
-  return Result; //prosorino
+  return Result;
 }
