@@ -4,6 +4,10 @@ void relation_creation(relation *A,relation *B,char *argv[]){ //diabasma apo arx
   int num1=0,num2=0,tmp,i;
   char *filename1=argv[1],*filename2=argv[2];
   FILE *fp1=fopen(filename1,"r"),*fp2=fopen(filename2,"r");
+  if ( fp1==NULL || fp2==NULL ){
+    printf("Error in fopen\n");
+    exit(1);
+  }
   while ( fscanf(fp1,"%d",&tmp)!=EOF ) {
     num1 ++;
   }
@@ -15,7 +19,7 @@ void relation_creation(relation *A,relation *B,char *argv[]){ //diabasma apo arx
   //----------------------------A relation---------------------------------
   A->num_tuples = num1;
   A->tuples = malloc(A->num_tuples*sizeof(tuple));
-  // while ( fscanf(fp1,"%d",&tmp)!=EOF ) { h for?
+  // while ( fscanf(fp1,"%d",&tmp)!=EOF ) {
   //   printf("%d\n",tmp);
   // }
   for ( i=0; i<A->num_tuples; i++ ){

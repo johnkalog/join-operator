@@ -1,9 +1,9 @@
 #include "list_result.h"
 
-#define bufferRows 1024*1024/8
+#define bufferRows 1024*1024/8  //plhthos eggrafwn result_node
 
 void insert(result *Result,int key1,int key2){
-  if ( Result->Head==NULL ){
+  if ( Result->Head==NULL ){  //kanenas kombos sthn lista
     Result->Head = node_init();
     Result->Head->buffer[0][Result->Head->pos] = key1;
     Result->Head->buffer[1][Result->Head->pos] = key2;
@@ -12,7 +12,7 @@ void insert(result *Result,int key1,int key2){
     Result->size ++;
   }
   else{
-    if ( Result->Tail->pos<bufferRows ){
+    if ( Result->Tail->pos<bufferRows ){  //an o pinakas tou kombou exei gemisei
       Result->Tail->buffer[0][Result->Tail->pos] = key1;
       Result->Tail->buffer[1][Result->Tail->pos] = key2;
       Result->Tail->pos++;
@@ -28,7 +28,7 @@ void insert(result *Result,int key1,int key2){
   }
 }
 
-result_node *node_init(){
+result_node *node_init(){ //arxikopoihsh result_node
   int i;
   result_node *node=malloc(sizeof(result_node));
   node->buffer = malloc(2*sizeof(int *));

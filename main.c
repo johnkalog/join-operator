@@ -4,6 +4,14 @@
 
 int main(int argc, char *argv[])
 {
+  if ( argc<3 ){
+    printf("Less arguments\n");
+    return 1;
+  }
+  else if ( argc>3 ){
+    printf("More argments\n");
+    return 1;
+  }
   relation *A=malloc(sizeof(relation)),*B=malloc(sizeof(relation));
   relation_creation(A,B,argv);
 

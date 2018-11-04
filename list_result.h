@@ -4,7 +4,7 @@
 
 
 typedef struct result_node{
-  int **buffer,pos;  // 2d array me ta rowids
+  int **buffer,pos;  // 2d array me ta rowids, pos deinxnei thn prwth eleytherh thesi ston pinaka gia eisagwgh
   struct result_node *next;
 }result_node;
 
