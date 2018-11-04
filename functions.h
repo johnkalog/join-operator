@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-
 #define bufferRows 1024*1024/8
 
 typedef struct tuple{
@@ -33,5 +32,3 @@ result_node *node_init();
 void result_print(result *);
 void result_free(result *);
 void result_node_free(result_node *);
-
-result* RadixHashJoin(relation *relR, relation *relS);
