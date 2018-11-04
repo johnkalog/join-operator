@@ -1,6 +1,6 @@
 #include "list_result.h"
-#define FirstHash_number 2
-#define SecondHash_number 3
+#define FirstHash_number 5
+#define SecondHash_number 7
 
 typedef struct tuple{
   int32_t key;
@@ -26,9 +26,10 @@ typedef struct HashBucket{
 void relation_creation(relation *A,relation *B,char *argv[]);
 void relation_print(relation *);
 void print_buckets(int,typeHist *,relation *);
-uint32_t HashFunction(int32_t ,int );
+uint32_t FirstHashFunction(int32_t ,int );
+uint32_t SecondHashFunction(int32_t ,int ,int);
 relation *FirstHash(relation*,typeHist **); //dhmioyrgei R'
-HashBucket *SecondHash(uint32_t,relation *relNewR,int);
+void SecondHash(uint32_t,relation *relNewR,int,HashBucket *);
 void Scan_Buckets(result *,HashBucket*,relation*,relation*,int,int,int,int);
 result* RadixHashJoin(relation *relR, relation *relS);
 void free_hash_bucket(HashBucket *);
