@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "functions.h"
-
-void relation_print(relation *);
+#include "hash.h"
 
 int main(int argc, char *argv[])
 {
@@ -18,14 +17,4 @@ int main(int argc, char *argv[])
   result_print(Result);
   result_free(Result);
   return 0;
-}
-
-
-void relation_print(relation *A) {
-  //printf("num of tuples %d\n",A->num_tuples);
-  int i;
-  for(i=0;i<A->num_tuples;i++) {
-    printf("%d -/-/- %d \n",A->tuples[i].key,A->tuples[i].payload );
-  }
-
 }
