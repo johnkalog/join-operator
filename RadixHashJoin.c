@@ -29,12 +29,7 @@ result* RadixHashJoin(relation *relR, relation *relS) {
   int i,sizeR,sizeS;
   int current_indexR=0;
   int current_indexS=0;
-  // for(i=0;i<relNewR->num_tuples;i++) {
-  //   printf("key: %u   payload: %u\n",relNewR->tuples[i].key,relNewR->tuples[i].payload );
-  // }
-  // for ( i=0; i<4; i++ ){
-  //   printf("cwcwecwecw %d\n",HistR[i].num);
-  // }
+
   int Hash_number = pow(2,FirstHash_number);
   printf("---------------------buckets relR------------------------------\n");
   print_buckets(Hash_number,HistR,relNewR);
