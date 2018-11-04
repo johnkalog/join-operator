@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "functions.h"
-
+#include "hash.h"
 void relation_print(relation *);
 
 int main(int argc, char *argv[])

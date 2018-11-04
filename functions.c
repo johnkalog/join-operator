@@ -80,6 +80,7 @@ result_node *node_init(){
 }
 
 result* result_init(){
+  // arxikopohsh result
   result *Result=malloc(sizeof(result));
   Result->size = 0;
   Result->Head = NULL;

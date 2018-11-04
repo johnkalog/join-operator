@@ -6,35 +6,47 @@
 #define SecondHash_number 3
 
 result* RadixHashJoin(relation *relR, relation *relS) {
+  // returns result
+  // result: tupos listas pou kathe kombos exei ena 2d array
 
-  result *Result=result_init();
+  result *Result=result_init(); // arxikopoihsh result
 
   typeHist *HistR,*HistS;
+  // dhmiourgia newn pinakwn relation
+  // FirstHash epistrfei kai to Hist
   relation *relNewR = FirstHash(relR,&HistR);
   relation *relNewS = FirstHash(relS,&HistS);
 
-  int i,sizeR,sizeS;
-  int current_indexR=0;
+  int i,sizeR,sizeS; // sizeR - sizeS megethos kathe bucket
+  int current_indexR=0; // current_index deixnei thn arxh tou kathe
   int current_indexS=0;
 
   int Hash_number = pow(2,FirstHash_number);
-  printf("---------------------buckets relR------------------------------\n");
-  print_buckets(Hash_number,HistR,relNewR);
-  printf("-----------------------end buckets relR-------------------------\n");
-  printf("---------------------buckets rels------------------------------\n");
-  print_buckets(Hash_number,HistS,relNewS);
-  printf("-----------------------end buckets relS-------------------------\n");
+
+  ///------------- print buckets for debug  ------------///
+  //printf("---------------------buckets relR------------------------------\n");
+  //print_buckets(Hash_number,HistR,relNewR);
+  //printf("-----------------------end buckets relR-------------------------\n");
+  //printf("---------------------buckets rels------------------------------\n");
+  //print_buckets(Hash_number,HistS,relNewS);
+  //printf("-----------------------end buckets relS-------------------------\n");
+  /// -------------------------------------------------///
+
+
   HashBucket *fullBucket;
   for ( i=0; i<Hash_number; i++ ){  //size tou bucket
-    sizeR = HistR[i].num;
+    sizeR = HistR[i].num; // current size
     sizeS = HistS[i].num;
     if ( sizeR<=sizeS ){
-      printf("\n\nscan S\n");
+      // ean bucket R < bucket S (=)
+      // printf("\n\nscan S\n");
+      // Second Hash dhmiourgei to Chain kai to bucket sto struct fullBucket
       fullBucket=SecondHash(sizeR,relNewR,current_indexR);
       Scan_Buckets(Result,fullBucket,relNewR,relNewS,current_indexR,current_indexS,sizeR,sizeS);
     }
     else{
-      printf("\n\nscan R\n");
+      // ean bucket S < bucket R
+      // printf("\n\nscan R\n");
       fullBucket=SecondHash(sizeS,relNewS,current_indexS);
       Scan_Buckets(Result,fullBucket,relNewS,relNewR,current_indexS,current_indexR,sizeS,sizeR);
     }
@@ -44,12 +56,12 @@ result* RadixHashJoin(relation *relR, relation *relS) {
     free_hash_bucket(fullBucket);
   }
 
-  printf("sssssssssssssssssssssfwe %d\n",bufferRows);
+  //printf("bufferRows: %d\n",bufferRows);
   free_memory(relNewR);
   free_memory(relNewS);
   free(HistR);
   free(HistS);
-  return Result; //prosorino
+  return Result;
 }
 
 void print_buckets(int Hash_number,typeHist *Hist,relation *relNew){
@@ -66,18 +78,20 @@ void print_buckets(int Hash_number,typeHist *Hist,relation *relNew){
 
 
 void Scan_Buckets(result *Result,HashBucket *fullBucket,relation *RelHash,relation *RelScan,int startHash,int startScan,int sizeHash,int sizeScan){
-///////////
+  ///// scan bucket RelScan kai briskei ta koina me to fullBucket /////
+  ///// apothikeuei ta rowids sto Result //////
+
   int  i,bucket_index,chain_index;
   for(i=0;i<sizeScan;i++){
+    // payload timh stou RelScan
     int32_t payload = RelScan->tuples[startScan+i].payload,key=RelScan->tuples[startScan+i].key;
     bucket_index = HashFunction(payload,SecondHash_number);
-  //  printf("scan buckets -> %d\n",bucket_index );
-    printf("payload %d\n",payload );
-    if(fullBucket->bucket[bucket_index]!=-1){
-      //// ------  elegxos ---------------
+
+    //printf("payload %d\n",payload );
+    if(fullBucket->bucket[bucket_index]!=-1){ // uparxei tetoio stoixeio sto fullBucket
       chain_index = fullBucket->bucket[bucket_index];
 
-      while(chain_index != -1) {
+      while(chain_index != -1) { // bres ola ta koina
         //elegxos
         if(payload == RelHash->tuples[startHash + chain_index].payload) {
           printf("I found something %d \n",payload );
@@ -86,7 +100,6 @@ void Scan_Buckets(result *Result,HashBucket *fullBucket,relation *RelHash,relati
         chain_index = fullBucket->chain[chain_index];
 
       }
-      //telos?
     }
   }
 

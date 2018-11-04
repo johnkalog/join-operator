@@ -15,13 +15,13 @@ typedef struct relation{
 } relation;
 
 typedef struct result_node{
-  int **buffer,pos;  //h sto heap?
+  int **buffer,pos;  // 2d array me ta rowids
   struct result_node *next;
 }result_node;
 
 typedef struct result{
-  int size;
-  result_node *Head,*Tail;
+  int size; // arithmos kombwn
+  result_node *Head,*Tail; // arxh kai telos listas
 }result;
 
 void relation_creation(relation *A,relation *B,char *argv[]);
