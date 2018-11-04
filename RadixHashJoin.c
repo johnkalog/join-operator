@@ -4,21 +4,21 @@
 
 result* RadixHashJoin(relation *relR, relation *relS) {
   // returns result
-  // result: tupos listas pou kathe kombos exei ena 2d array
+  // result: InfoNode se tupo listas pou kathe kombos exei ena 2d array
 
   result *Result=result_init(); // arxikopoihsh result
 
   typeHist *HistR,*HistS;
   // dhmiourgia newn pinakwn relation
-  // FirstHash epistrfei kai to Hist
+  // FirstHash dhmiourgei kai to Hist
   relation *relNewR = FirstHash(relR,&HistR);
   relation *relNewS = FirstHash(relS,&HistS);
 
   int i,sizeR,sizeS; // sizeR - sizeS megethos kathe bucket
-  int current_indexR=0; // current_index deixnei thn arxh tou kathe
+  int current_indexR=0; // current_index deixnei thn arxh tou kathe bucket sto relation
   int current_indexS=0;
 
-  int Hash_number = pow(2,FirstHash_number);
+  int Hash_number = pow(2,FirstHash_number);  //arithmos twn bucket
 
   ///------------- print buckets for debug  ------------///
   //printf("---------------------buckets relR------------------------------\n");
@@ -31,8 +31,8 @@ result* RadixHashJoin(relation *relR, relation *relS) {
 
 
   HashBucket *fullBucket;
-  for ( i=0; i<Hash_number; i++ ){  //size tou bucket
-    sizeR = HistR[i].num; // current size
+  for ( i=0; i<Hash_number; i++ ){
+    sizeR = HistR[i].num; // current size tou bucket
     sizeS = HistS[i].num;
     if ( sizeR<=sizeS ){
       // ean bucket R < bucket S (=)

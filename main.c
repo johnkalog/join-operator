@@ -8,6 +8,7 @@ int main(int argc, char *argv[])
   relation_creation(A,B,argv);
 
   //relation_print(A);
+  //relation_print(B);
   result *Result=RadixHashJoin(A,B);
 
   free_memory(A);

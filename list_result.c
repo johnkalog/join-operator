@@ -2,7 +2,7 @@
 
 #define bufferRows 1024*1024/8
 
-void insert(result *Result,int key1,int key2){  //negative numbers?
+void insert(result *Result,int key1,int key2){
   if ( Result->Head==NULL ){
     Result->Head = node_init();
     Result->Head->buffer[0][Result->Head->pos] = key1;
@@ -56,7 +56,7 @@ void result_print(result *Result){
     printf("---------------node %d--------------------\n",i);
     printf("tmp pos %d\n",tmp->pos );
     for ( j=0; j<tmp->pos; j++ ){
-      printf("index in array %d, elements %d %d\n",j,tmp->buffer[0][j],tmp->buffer[1][j]);
+      printf("In node: %d, with index in array %d, elements %d %d\n",i,j,tmp->buffer[0][j],tmp->buffer[1][j]);
     }
     tmp = tmp->next;
     i++;

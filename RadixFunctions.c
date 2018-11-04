@@ -8,29 +8,27 @@ void Scan_Buckets(result *Result,HashBucket *fullBucket,relation *RelHash,relati
 
   int  i,bucket_index,chain_index;
   for(i=0;i<sizeScan;i++){
-    // payload timh stou RelScan
+    // payload timh ston RelScan
     int32_t payload = RelScan->tuples[startScan+i].payload,key=RelScan->tuples[startScan+i].key;
     bucket_index = HashFunction(payload,SecondHash_number);
 
     //printf("payload %d\n",payload );
-    if(fullBucket->bucket[bucket_index]!=-1){ // uparxei tetoio stoixeio sto fullBucket
+    if(fullBucket->bucket[bucket_index]!=-1){ // uparxei tetoio stoixeio sto fullBucket diatrexontas to chain?
       chain_index = fullBucket->bucket[bucket_index];
 
       while(chain_index != -1) { // bres ola ta koina
         //elegxos
         if(payload == RelHash->tuples[startHash + chain_index].payload) {
-          printf("I found something %d \n",payload );
-          insert(Result,key,RelHash->tuples[startHash + chain_index].key);
+          //printf("I found something %d \n",payload );
+          insert(Result,key,RelHash->tuples[startHash + chain_index].key);  //eisagwgh sto result
         }
         chain_index = fullBucket->chain[chain_index];
-
       }
     }
   }
-
 }
 
-void free_hash_bucket(HashBucket *fullBucket){
+void free_hash_bucket(HashBucket *fullBucket){  //eleutherwsh xwrou
   free(fullBucket->chain);
   free(fullBucket->bucket);
   free(fullBucket);
@@ -40,7 +38,7 @@ HashBucket *SecondHash(uint32_t size,relation *relNew,int start_index){
   // deutero Hash
   // dhmiourgia chain kai bucket (HashBucket)
 
-  int i,bucket_index,previous_last,tmp; //for mod
+  int i,bucket_index,previous_last,tmp;
   int sizeBucket=pow(2,SecondHash_number);
   HashBucket *TheHashBucket=malloc(sizeof(HashBucket));
   TheHashBucket->chain = malloc(size*sizeof(int));
@@ -54,19 +52,15 @@ HashBucket *SecondHash(uint32_t size,relation *relNew,int start_index){
     TheHashBucket->chain[i] = -1; //arxika -1
   }
   for ( i=0; i<size; i++ ){
-    bucket_index = HashFunction(relNew->tuples[start_index+i].payload,SecondHash_number);   //relNew->tuples[start_index+i].key%n;
+    bucket_index = HashFunction(relNew->tuples[start_index+i].payload,SecondHash_number);
      if ( TheHashBucket->bucket[bucket_index]==-1 ){
        TheHashBucket->bucket[bucket_index] = i;
-       //TheHashBucket->chain[i-1] = 0; //san arithmhsh apo 1 kai to 0 na einai gia thn fhlwsh tou tipota
      }
       else{
         tmp = TheHashBucket->bucket[bucket_index];
         TheHashBucket->bucket[bucket_index] = i;
         TheHashBucket->chain[i] = tmp;
       }
-     //   TheHashBucket->bucket[bucket_index] == i;
-     //   TheHashBucket->chain[i-1] = previous_last-1;
-     // }
   }
 
   return TheHashBucket;
@@ -79,7 +73,7 @@ relation *FirstHash(relation* relR,typeHist **Hist) {
 
   int sizeHist = pow(2,FirstHash_number);
   // dhmiourgia neou relation
-  //pou apothikeuei ta stoixeia me thn epithimhth seira
+  //pou apothikeuei ta stoixeia me thn epithimhth seira organmena se buckets
   relation *NewRel = malloc(sizeof(relation));
   NewRel->num_tuples = relR->num_tuples;
   NewRel->tuples = malloc(NewRel->num_tuples*sizeof(tuple));
@@ -102,9 +96,9 @@ relation *FirstHash(relation* relR,typeHist **Hist) {
   }
 
   // print Hist
-  for(i=0;i<sizeHist;i++) {
-    printf("%u   is   %u\n",(*Hist)[i].box, (*Hist)[i].num );
-  }
+  // for(i=0;i<sizeHist;i++) {
+  //   printf("%u   is   %u\n",(*Hist)[i].box, (*Hist)[i].num );
+  // }
 
   // dhmiourgia Psum
   typeHist *Psum = malloc(sizeHist*sizeof(typeHist));
@@ -130,7 +124,7 @@ relation *FirstHash(relation* relR,typeHist **Hist) {
 }
 
 uint32_t HashFunction(int32_t value,int n) {
-  // gyrnaei ta teleutaia n bits
+  // gyrnaei ta teleutaia(deksia) n bits
   uint32_t temp = value << (sizeof(int32_t)*8)-n;
   temp = temp >> (sizeof(int32_t)*8)-n;
   //printf("%u\n",temp );
