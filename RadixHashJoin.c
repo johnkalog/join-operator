@@ -5,9 +5,9 @@
 #define SecondHash_number 3
 
 typedef struct typeHist {
-  uint32_t box;
-  uint32_t num;
-}typeHist;
+  uint32_t box; // aritmos koutiou, meta apo hash function
+  uint32_t num; // analoga Psum - Hist
+}typeHist; // idio gia Hist kai Psum
 
 typedef struct HashBucket{
   int *chain,*bucket;
@@ -114,11 +114,16 @@ void free_hash_bucket(HashBucket *fullBucket){
 }
 
 HashBucket *SecondHash(uint32_t size,relation *relNew,int start_index){
+  // deutero Hash
+  // dhmiourgia chain kai bucket (HashBucket)
+
   int i,bucket_index,previous_last,tmp; //for mod
   int sizeBucket=pow(2,SecondHash_number);
   HashBucket *TheHashBucket=malloc(sizeof(HashBucket));
   TheHashBucket->chain = malloc(size*sizeof(int));
   TheHashBucket->bucket = malloc(sizeBucket*sizeof(int));
+
+  // arxikopoihsh me -1
   for ( i=0; i<sizeBucket; i++ ){
     TheHashBucket->bucket[i] = -1; //arxika -1
   }
@@ -145,32 +150,40 @@ HashBucket *SecondHash(uint32_t size,relation *relNew,int start_index){
 }
 
 relation *FirstHash(relation* relR,typeHist **Hist) {
+  // prwto Hash
+  // dhmiourgia Hist kai Psum
 
-  //int n = 2;
+
   int sizeHist = pow(2,FirstHash_number);
+  // dhmiourgia neou relation
+  //pou apothikeuei ta stoixeia me thn epithimhth seira
   relation *NewRel = malloc(sizeof(relation));
   NewRel->num_tuples = relR->num_tuples;
   NewRel->tuples = malloc(NewRel->num_tuples*sizeof(tuple));
 
   *Hist = malloc(sizeHist*sizeof(typeHist));
-  //bzero(Hist,sizeHist);
+
   int i;
   for(i=0;i<sizeHist;i++) {
-    (*Hist)[i].box = i; //arxikopoihsh
+    // arxikopoihsh
+    (*Hist)[i].box = i;
     (*Hist)[i].num = 0;
   }
 
   for(i=0;i<relR->num_tuples;i++) {
+    // gia kathe stoixeio des se poia kathgoria anoikei kai auksise
+    // to Hist num ths analoghs kathgorias
     uint32_t box = HashFunction(relR->tuples[i].payload,FirstHash_number);
     (*Hist)[box].num++;
     //printf("%u\n",box );
   }
 
-
+  // print Hist
   for(i=0;i<sizeHist;i++) {
     printf("%u   is   %u\n",(*Hist)[i].box, (*Hist)[i].num );
   }
 
+  // dhmiourgia Psum
   typeHist *Psum = malloc(sizeHist*sizeof(typeHist));
   Psum[0].box = (*Hist)[0].box;
   Psum[0].num = 0;
@@ -182,19 +195,20 @@ relation *FirstHash(relation* relR,typeHist **Hist) {
 
   //dhmiourgia relNewR
   for(i=0;i<relR->num_tuples;i++) {
-    uint32_t box = HashFunction(relR->tuples[i].payload,FirstHash_number);
+    uint32_t box = HashFunction(relR->tuples[i].payload,FirstHash_number); // pou anoikei to kathe stoixeio
+    // eisagwgh analoga me to Psum
     NewRel->tuples[Psum[box].num].payload = relR->tuples[i].payload;
     NewRel->tuples[Psum[box].num].key = relR->tuples[i].key;
-    Psum[box].num++;
+    Psum[box].num++; // auskise th epomenh thesh tou Psum
   }
 
-  // free(Hist); //isws prosorino
-  free(Psum); //isws prosorino
+  free(Psum);
   return NewRel;
 }
 
 
 uint32_t HashFunction(int32_t value,int n) {
+  // gyrnaei ta teleutaia n bits
   uint32_t temp = value << (sizeof(int32_t)*8)-n;
   temp = temp >> (sizeof(int32_t)*8)-n;
   //printf("%u\n",temp );
