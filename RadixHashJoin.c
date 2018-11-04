@@ -29,9 +29,6 @@ result* RadixHashJoin(relation *relR, relation *relS) {
   //printf("-----------------------end buckets relS-------------------------\n");
   /// -------------------------------------------------///
 
-
-
-
   int sizeBucket=pow(2,SecondHash_number);
   HashBucket *TheHashBucket=malloc(sizeof(HashBucket));
   TheHashBucket->chain = NULL;
@@ -58,7 +55,6 @@ result* RadixHashJoin(relation *relR, relation *relS) {
     current_indexS += HistS[i].num;
     free(TheHashBucket->chain);
   }
-
 
   free_memory(relNewR);
   free_memory(relNewS);
