@@ -10,10 +10,13 @@ int main(int argc, char *argv[])
   relation_creation(A,B,argv);
 
   //relation_print(A);
-  RadixHashJoin(A,B);
+  result *Result=RadixHashJoin(A,B);
 
   free_memory(A);
   free_memory(B);
+
+  result_print(Result);
+  result_free(Result);
   return 0;
 }
 

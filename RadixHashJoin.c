@@ -18,9 +18,11 @@ uint32_t HashFunction(int32_t ,int );
 relation *FirstHash(relation*,typeHist **); //dhmioyrgei R'
 HashBucket *SecondHash(uint32_t,relation *relNewR,int);
 void free_hash_bucket(HashBucket *);
-void Scan_Buckets(HashBucket*,relation*,relation*,int,int,int,int);
+void Scan_Buckets(result *,HashBucket*,relation*,relation*,int,int,int,int);
 
 result* RadixHashJoin(relation *relR, relation *relS) {
+
+  result *Result=result_init();
 
   typeHist *HistR,*HistS;
   relation *relNewR = FirstHash(relR,&HistR);
@@ -44,12 +46,12 @@ result* RadixHashJoin(relation *relR, relation *relS) {
     if ( sizeR<=sizeS ){
       printf("\n\nscan S\n");
       fullBucket=SecondHash(sizeR,relNewR,current_indexR);
-      Scan_Buckets(fullBucket,relNewR,relNewS,current_indexR,current_indexS,sizeR,sizeS);
+      Scan_Buckets(Result,fullBucket,relNewR,relNewS,current_indexR,current_indexS,sizeR,sizeS);
     }
     else{
       printf("\n\nscan R\n");
       fullBucket=SecondHash(sizeS,relNewS,current_indexS);
-      Scan_Buckets(fullBucket,relNewS,relNewR,current_indexS,current_indexR,sizeS,sizeR);
+      Scan_Buckets(Result,fullBucket,relNewS,relNewR,current_indexS,current_indexR,sizeS,sizeR);
     }
     /////////////
     current_indexR += HistR[i].num;  //arxh tou bucket
@@ -57,11 +59,12 @@ result* RadixHashJoin(relation *relR, relation *relS) {
     free_hash_bucket(fullBucket);
   }
 
+  printf("sssssssssssssssssssssfwe %d\n",bufferRows);
   free_memory(relNewR);
   free_memory(relNewS);
   free(HistR);
   free(HistS);
-  return NULL; //prosorino
+  return Result; //prosorino
 }
 
 void print_buckets(int Hash_number,typeHist *Hist,relation *relNew){
@@ -77,11 +80,11 @@ void print_buckets(int Hash_number,typeHist *Hist,relation *relNew){
 }
 
 
-void Scan_Buckets(HashBucket *fullBucket,relation *RelHash,relation *RelScan,int startHash,int startScan,int sizeHash,int sizeScan){
+void Scan_Buckets(result *Result,HashBucket *fullBucket,relation *RelHash,relation *RelScan,int startHash,int startScan,int sizeHash,int sizeScan){
 ///////////
   int  i,bucket_index,chain_index;
   for(i=0;i<sizeScan;i++){
-    int32_t payload = RelScan->tuples[startScan+i].payload;
+    int32_t payload = RelScan->tuples[startScan+i].payload,key=RelScan->tuples[startScan+i].key;
     bucket_index = HashFunction(payload,SecondHash_number);
   //  printf("scan buckets -> %d\n",bucket_index );
     printf("payload %d\n",payload );
@@ -93,6 +96,7 @@ void Scan_Buckets(HashBucket *fullBucket,relation *RelHash,relation *RelScan,int
         //elegxos
         if(payload == RelHash->tuples[startHash + chain_index].payload) {
           printf("I found something %d \n",payload );
+          insert(Result,key,RelHash->tuples[startHash + chain_index].key);
         }
         chain_index = fullBucket->chain[chain_index];
 
@@ -110,7 +114,7 @@ void free_hash_bucket(HashBucket *fullBucket){
 }
 
 HashBucket *SecondHash(uint32_t size,relation *relNew,int start_index){
-  int i,bucket_index,previous_last,position; //for mod
+  int i,bucket_index,previous_last,tmp; //for mod
   int sizeBucket=pow(2,SecondHash_number);
   HashBucket *TheHashBucket=malloc(sizeof(HashBucket));
   TheHashBucket->chain = malloc(size*sizeof(int));
@@ -119,20 +123,18 @@ HashBucket *SecondHash(uint32_t size,relation *relNew,int start_index){
     TheHashBucket->bucket[i] = -1; //arxika -1
   }
   for(i=0; i<size;i++){
-  TheHashBucket->chain[i] = -1; //arxika -1
+    TheHashBucket->chain[i] = -1; //arxika -1
   }
   for ( i=0; i<size; i++ ){
-    bucket_index = HashFunction(relNew->tuples[(size-1)+start_index-i].payload,SecondHash_number);   //relNew->tuples[start_index+i].key%n;
+    bucket_index = HashFunction(relNew->tuples[start_index+i].payload,SecondHash_number);   //relNew->tuples[start_index+i].key%n;
      if ( TheHashBucket->bucket[bucket_index]==-1 ){
-       TheHashBucket->bucket[bucket_index] = (size-1)-i;
+       TheHashBucket->bucket[bucket_index] = i;
        //TheHashBucket->chain[i-1] = 0; //san arithmhsh apo 1 kai to 0 na einai gia thn fhlwsh tou tipota
      }
       else{
-        position = TheHashBucket->bucket[bucket_index];
-        while(TheHashBucket->chain[position]!=-1){
-          position = TheHashBucket->chain[position];
-        }
-        TheHashBucket->chain[position] = (size-1)-i;
+        tmp = TheHashBucket->bucket[bucket_index];
+        TheHashBucket->bucket[bucket_index] = i;
+        TheHashBucket->chain[i] = tmp;
       }
      //   TheHashBucket->bucket[bucket_index] == i;
      //   TheHashBucket->chain[i-1] = previous_last-1;
