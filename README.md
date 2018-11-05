@@ -1,5 +1,6 @@
-# project 1
-project
+# project part 1
 
+Υλοποίηση αλγορίθμου **Radix Hash Join (RHJ)**
 
-### Επεξήγηση
+### Χειμερινό εξάμηνο 2018-2019
+
