@@ -1,7 +1,7 @@
 #include "list_result.h"
 
-#define FirstHash_number 11
-#define SecondHash_number 17
+#define FirstHash_number 9
+#define SecondHash_number 11
 
 typedef struct tuple{
   int32_t key;
