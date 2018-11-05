@@ -2,7 +2,7 @@
 #include <math.h>
 
 
-void Scan_Buckets(result *Result,HashBucket *fullBucket,relation *RelHash,relation *RelScan,int startHash,int startScan,int sizeHash,int sizeScan){
+void Scan_Buckets(result *Result,HashBucket *fullBucket,relation *RelHash,relation *RelScan,int startHash,int startScan,int sizeHash,int sizeScan, int current_loop){
   ///// scan bucket RelScan kai briskei ta koina me to fullBucket /////
   ///// apothikeuei ta rowids sto Result //////
 
@@ -13,8 +13,8 @@ void Scan_Buckets(result *Result,HashBucket *fullBucket,relation *RelHash,relati
     bucket_index = SecondHashFunction(payload,FirstHash_number,SecondHash_number);
 
     //printf("payload %d\n",payload );
-    if(fullBucket->bucket[bucket_index]!=-1){ // uparxei tetoio stoixeio sto fullBucket diatrexontas to chain?
-      chain_index = fullBucket->bucket[bucket_index];
+    if(fullBucket->bucket[bucket_index].loop==current_loop){ // uparxei tetoio stoixeio sto fullBucket diatrexontas to chain?
+      chain_index = fullBucket->bucket[bucket_index].value;
 
       while(chain_index != -1) { // bres ola ta koina
         //elegxos
@@ -34,47 +34,26 @@ void free_hash_bucket(HashBucket *fullBucket){  //eleutherwsh xwrou
   free(fullBucket);
 }
 
-void SecondHash(uint32_t size,relation *relNew,int start_index,HashBucket *TheHashBucket){
+void SecondHash(uint32_t size,relation *relNew,int start_index,HashBucket *TheHashBucket,int current_loop){
   // deutero Hash
   // dhmiourgia chain kai bucket (HashBucket)
 
   int i,bucket_index,previous_last,tmp;
   int sizeBucket=pow(2,SecondHash_number);
   TheHashBucket->chain = malloc(size*sizeof(int));
-
-  // arxikopoihsh me -1
-  // if ( size<=sizeBucket ){
-  //   for(i=0; i<size;i++){
-  //     TheHashBucket->chain[i] = -1; //arxika -1
-  //     TheHashBucket->bucket[i] = -1; //arxika -1
-  //   }
-  //   for ( i=size; i<sizeBucket; i++ ){
-  //     TheHashBucket->bucket[i] = -1; //arxika -1
-  //   }
-  // }
-  // else{
-  //   for(i=0; i<sizeBucket;i++){
-  //     TheHashBucket->chain[i] = -1; //arxika -1
-  //     TheHashBucket->bucket[i] = -1; //arxika -1
-  //   }
-  //   for ( i=sizeBucket; i<sizeBucket; i++ ){
-  //     TheHashBucket->chain[i] = -1; //arxika -1
-  //   }
-  // }
-  for ( i=0; i<sizeBucket; i++ ){
-    TheHashBucket->bucket[i] = -1; //arxika -1
-  }
+  
   for(i=0; i<size;i++){
     TheHashBucket->chain[i] = -1; //arxika -1
   }
   for ( i=0; i<size; i++ ){
     bucket_index = SecondHashFunction(relNew->tuples[start_index+i].payload,FirstHash_number,SecondHash_number);   //relNew->tuples[start_index+i].key%n;
-     if ( TheHashBucket->bucket[bucket_index]==-1 ){
-       TheHashBucket->bucket[bucket_index] = i;
+     if ( TheHashBucket->bucket[bucket_index].loop!=current_loop ){
+       TheHashBucket->bucket[bucket_index].loop = current_loop;
+       TheHashBucket->bucket[bucket_index].value = i;
      }
       else{
-        tmp = TheHashBucket->bucket[bucket_index];
-        TheHashBucket->bucket[bucket_index] = i;
+        tmp = TheHashBucket->bucket[bucket_index].value;
+        TheHashBucket->bucket[bucket_index].value = i;
         TheHashBucket->chain[i] = tmp;
       }
   }

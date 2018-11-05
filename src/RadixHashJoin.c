@@ -32,7 +32,10 @@ result* RadixHashJoin(relation *relR, relation *relS) {
   int sizeBucket=pow(2,SecondHash_number);
   HashBucket *TheHashBucket=malloc(sizeof(HashBucket));
   TheHashBucket->chain = NULL;
-  TheHashBucket->bucket = malloc(sizeBucket*sizeof(int));
+  TheHashBucket->bucket = malloc(sizeBucket*sizeof(bucket));
+  for ( i=0; i<sizeBucket; i++ ){
+    TheHashBucket->bucket[i].loop = -1; //arxika -1
+  }
 
   for ( i=0; i<Hash_number; i++ ){
     sizeR = HistR[i].num; // current size tou bucket
@@ -41,14 +44,14 @@ result* RadixHashJoin(relation *relR, relation *relS) {
       // ean bucket R < bucket S (=)
       // printf("\n\nscan S\n");
       // Second Hash dhmiourgei to Chain kai to bucket sto struct TheHashBucket
-      SecondHash(sizeR,relNewR,current_indexR,TheHashBucket);
-      Scan_Buckets(Result,TheHashBucket,relNewR,relNewS,current_indexR,current_indexS,sizeR,sizeS);
+      SecondHash(sizeR,relNewR,current_indexR,TheHashBucket,i);
+      Scan_Buckets(Result,TheHashBucket,relNewR,relNewS,current_indexR,current_indexS,sizeR,sizeS,i);
     }
     else{
       // ean bucket S < bucket R
       // printf("\n\nscan R\n");
-      SecondHash(sizeS,relNewS,current_indexS,TheHashBucket);
-      Scan_Buckets(Result,TheHashBucket,relNewS,relNewR,current_indexS,current_indexR,sizeS,sizeR);
+      SecondHash(sizeS,relNewS,current_indexS,TheHashBucket,i);
+      Scan_Buckets(Result,TheHashBucket,relNewS,relNewR,current_indexS,current_indexR,sizeS,sizeR,i);
     }
     /////////////
     current_indexR += HistR[i].num;  //arxh tou bucket
