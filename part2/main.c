@@ -1,12 +1,7 @@
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
 //#define __STDC_FORMAT_MACROS
 #include <inttypes.h>
 #include <string.h>
-
-
-unsigned int line_count(FILE *);
+#include "Full_Relation.h"
 
 int main(int argc,char *argv[]) {
     if(argc<3){
@@ -65,15 +60,4 @@ int main(int argc,char *argv[]) {
 
     fclose(fp);
     return 0;
-}
-
-unsigned int line_count(FILE *n) {
-  char c;
-  unsigned int lines = 0;
-
-  while ((c = fgetc(n)) != EOF) {
-    if (c == '\n') ++lines;
-  }
-  fseek(n,0,SEEK_SET);
-  return lines;
 }

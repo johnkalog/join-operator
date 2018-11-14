@@ -24,14 +24,14 @@ void relation_creation(relation *A,relation *B,char *argv[]){ //diabasma apo arx
   // }
   for ( i=0; i<A->num_tuples; i++ ){
     A->tuples[i].key = i+1;  //aritmhsh apo 1
-    fscanf(fp1,"%d",&A->tuples[i].payload);
+    fscanf(fp1,"%ld",&A->tuples[i].payload);
   }
   //---------------------------B relation------------------------------------
   B->num_tuples = num2;
   B->tuples = malloc(B->num_tuples*sizeof(tuple));
   for ( i=0; i<B->num_tuples; i++ ){
     B->tuples[i].key = i+1;
-    fscanf(fp2,"%d",&B->tuples[i].payload);
+    fscanf(fp2,"%ld",&B->tuples[i].payload);
   }
   // for ( i=0; i<A->num_tuples; i++ ){
   //   printf("%d %d\n",A->tuples[i].key,A->tuples[i].payload);
@@ -44,7 +44,7 @@ void relation_print(relation *A) {
   //printf("num of tuples %d\n",A->num_tuples);
   int i;
   for(i=0;i<A->num_tuples;i++) {
-    printf("%d -/-/- %d \n",A->tuples[i].key,A->tuples[i].payload );
+    printf("%d -/-/- %ld \n",A->tuples[i].key,A->tuples[i].payload );
   }
 }
 

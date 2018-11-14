@@ -41,7 +41,7 @@ void SecondHash(uint32_t size,relation *relNew,int start_index,HashBucket *TheHa
   int i,bucket_index,previous_last,tmp;
   int sizeBucket=pow(2,SecondHash_number);
   TheHashBucket->chain = malloc(size*sizeof(int));
-  
+
   for ( i=0; i<sizeBucket; i++ ){
     TheHashBucket->bucket[i] = -1; //arxika -1
   }
@@ -140,7 +140,7 @@ void print_buckets(int Hash_number,typeHist *Hist,relation *relNew){
     size = Hist[i].num;
     printf("  Bucket %d box %d:\n",i,Hist[i].box);
     for ( int j=0; j<size; j++ ){
-      printf("    value %d\n",relNew->tuples[current_index+j].payload);
+      printf("    value %ld\n",relNew->tuples[current_index+j].payload);
     }
     current_index += Hist[i].num;
   }
