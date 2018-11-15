@@ -14,7 +14,9 @@ typedef struct full_relation{
 
 unsigned int line_count(FILE *);
 
-void full_relation_creation(full_relation *,char *,unsigned int *);
+
+full_relation *full_relation_creation(char *,unsigned int *);
+
 
 void print_relation(full_relation);
 

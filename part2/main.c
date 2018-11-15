@@ -12,7 +12,9 @@ int main(int argc,char *argv[]) {
     full_relation *relations_array = NULL;
     //tuple **tuple_arrays;
 
-    full_relation_creation(relations_array,argv[1],&num_lines);
+
+    relations_array=full_relation_creation(argv[1],&num_lines);
+
     //print_relation(relations_array[0]);
     free_structs(relations_array,num_lines);
     return 0;

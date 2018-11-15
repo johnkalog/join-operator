@@ -11,7 +11,11 @@ unsigned int line_count(FILE *n) {
   return lines;
 }
 
-void full_relation_creation(full_relation *relations_array,char *path_file,unsigned int *num_lines){
+
+full_relation *full_relation_creation(char *path_file,unsigned int *num_lines){
+
+  full_relation *relations_array;
+
 
   FILE *fp=NULL,*fp_binary=NULL;
   fp = fopen(path_file,"r");
@@ -94,6 +98,7 @@ void full_relation_creation(full_relation *relations_array,char *path_file,unsig
   free(line);
   free(pre_path);
   fclose(fp);
+  return relations_array;
 }
 
 void print_relation(full_relation tmp){
@@ -106,7 +111,8 @@ void free_structs(full_relation *relations_array,unsigned int num_lines){
   int i;
  for ( i=0; i<num_lines; i++ ){
 
-   free((relations_array[i].my_relations));
+   free(relations_array[i].my_relations[0].tuples);
+   free(relations_array[i].my_relations);
       //for ( j=0; j<relations_array[i].my_metadata.num_columns; j++ ){
   //   //   relations_array[i].my_relations[j].tuples = NULL;
   //   // }
