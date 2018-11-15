@@ -11,7 +11,10 @@ unsigned int line_count(FILE *n) {
   return lines;
 }
 
-void full_relation_creation(full_relation *relations_array,tuple **tuple_arrays,char *argv[],unsigned int *num_lines){
+full_relation *full_relation_creation(char *argv[],unsigned int *num_lines){
+
+  full_relation *relations_array;
+  tuple **tuple_arrays;
 
   FILE *fp=NULL,*fp_binary=NULL;
   fp = fopen(argv[1],"r");
@@ -94,6 +97,7 @@ void full_relation_creation(full_relation *relations_array,tuple **tuple_arrays,
   free(line);
   free(pre_path);
   fclose(fp);
+  return relations_array;
 }
 
 void print_relation(full_relation tmp){
