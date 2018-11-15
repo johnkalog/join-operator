@@ -25,8 +25,8 @@ void full_relation_creation(full_relation *relations_array,tuple **tuple_arrays,
   *num_lines = line_count(fp);
   printf("num lines of filess %u\n",*num_lines );
 
-  relations_array=malloc(*num_lines*sizeof(full_relation));
-  tuple_arrays=malloc(*num_lines*sizeof(tuple *));
+  relations_array=malloc((*num_lines)*sizeof(full_relation));
+  tuple_arrays=malloc((*num_lines)*sizeof(tuple *));
 
   int i,j,k,l;
   char* line = NULL,*pre_path=NULL,*path=NULL;
@@ -58,10 +58,11 @@ void full_relation_creation(full_relation *relations_array,tuple **tuple_arrays,
       fread(&num_of_cols,sizeof(uint64_t),1,fp_binary);
       relations_array[k].my_metadata.num_tuples = num_of_tuples;
       relations_array[k].my_metadata.num_columns = num_of_cols;
+      printf("%ld %ld\n",relations_array[k].my_metadata.num_tuples,relations_array[k].my_metadata.num_columns);
       relations_array[k].my_relations = malloc(relations_array[k].my_metadata.num_columns*sizeof(relation));
       tuple_arrays[k] = malloc(num_of_tuples*num_of_cols*sizeof(tuple));
 
-      //  printf("%"PRIu64" - %"PRIu64"\n",num_of_tuples,num_of_cols );
+      //printf("%"PRIu64" - %"PRIu64"\n",num_of_tuples,num_of_cols );
 
       for(i=0;i<num_of_cols;i++){
           for(j=0;j<num_of_tuples;j++){
@@ -95,11 +96,18 @@ void full_relation_creation(full_relation *relations_array,tuple **tuple_arrays,
   fclose(fp);
 }
 
+void print_relation(full_relation tmp){
+
+}
+
 void free_structs(full_relation *relations_array,tuple **tuple_arrays,unsigned int num_lines){
 
-  int i;
+  int i,j;
 
   // for ( i=0; i<num_lines; i++ ){
+  //   // for ( j=0; j<relations_array[i].my_metadata.num_columns; j++ ){
+  //   //   relations_array[i].my_relations[j].tuples = NULL;
+  //   // }
   //   free(relations_array[i].my_relations);
   // }
   //free(relations_array);

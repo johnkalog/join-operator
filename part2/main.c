@@ -13,7 +13,7 @@ int main(int argc,char *argv[]) {
     tuple **tuple_arrays;
 
     full_relation_creation(relations_array,tuple_arrays,argv,&num_lines);
-
+    //print_relation(relations_array[0]);
     free_structs(relations_array,tuple_arrays,num_lines);
     return 0;
 }
