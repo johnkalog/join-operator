@@ -34,7 +34,7 @@ void full_relation_creation(full_relation *relations_array,tuple **tuple_arrays,
   ssize_t read;
   uint64_t num64,num_of_tuples,num_of_cols;
 
-  int input_filename_length=0; //../small.small.init krataei to small_init length
+  int input_filename_length=0; //../small/small.init krataei to small_init length
   for ( i=strlen(argv[1]); argv[1][i-1]!='/'; i--){
     input_filename_length ++;
   }
@@ -67,10 +67,10 @@ void full_relation_creation(full_relation *relations_array,tuple **tuple_arrays,
       for(i=0;i<num_of_cols;i++){
           for(j=0;j<num_of_tuples;j++){
               fread(&num64,sizeof(uint64_t),1,fp_binary);
-              tuple_arrays[k][i*num_of_cols+j].key = j+1;
-              tuple_arrays[k][i*num_of_cols+j].payload = num64;
+              tuple_arrays[k][i*num_of_tuples+j].key = j+1;
+              tuple_arrays[k][i*num_of_tuples+j].payload = num64;
               // if ( k==0 ){
-              //   printf("dwqdqw %ld\n",i*num_of_cols+j);
+              //   printf("dwqdqw %ld\n",i*num_of_tuples+j);
               // }
               ///// FILL STRUCTS FILL STRUCTS FILL STRUCTS
           }
