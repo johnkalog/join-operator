@@ -21,4 +21,6 @@ full_relation *full_relation_creation(char *,unsigned int *);
 
 void print_relation(full_relation);
 
+result* RHJcaller(full_relation *,int,int,int,int);
+
 void free_structs(full_relation *,unsigned int);

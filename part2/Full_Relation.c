@@ -112,6 +112,10 @@ void print_relation(full_relation tmp){
   }
 }
 
+result* RHJcaller(full_relation *relations_array,int relAindex,int relBindex,int relAcol,int relBcol){
+  return RadixHashJoin(&relations_array[relAindex].my_relations[relAcol],&relations_array[relBindex].my_relations[relBcol]);
+}
+
 void free_structs(full_relation *relations_array,unsigned int num_lines){
 
   //int i,j;
