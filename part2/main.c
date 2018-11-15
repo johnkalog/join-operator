@@ -1,5 +1,4 @@
 //#define __STDC_FORMAT_MACROS
-#include <inttypes.h>
 #include "Full_Relation.h"
 
 int main(int argc,char *argv[]) {
@@ -15,7 +14,7 @@ int main(int argc,char *argv[]) {
 
     relations_array=full_relation_creation(argv[1],&num_lines);
 
-    //print_relation(relations_array[0]);
+    print_relation(relations_array[0]);
     free_structs(relations_array,num_lines);
     return 0;
 }

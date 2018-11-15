@@ -27,7 +27,7 @@ full_relation *full_relation_creation(char *path_file,unsigned int *num_lines){
   //fseek(fp, 0L, SEEK_END);
   //long int num_lines = ftell(fp);
   *num_lines = line_count(fp);
-  printf("num lines of filess %u\n",*num_lines );
+  //printf("num lines of filess %u\n",*num_lines );
 
   relations_array=malloc((*num_lines)*sizeof(full_relation));
   //tuple_arrays=malloc((*num_lines)*sizeof(tuple *));
@@ -45,7 +45,7 @@ full_relation *full_relation_creation(char *path_file,unsigned int *num_lines){
   pre_path = malloc((strlen(path_file)-input_filename_length+1)*sizeof(char));
   bzero(pre_path,strlen(path_file)-input_filename_length+1);
   strncpy(pre_path,path_file,strlen(path_file)-input_filename_length);
-  printf("ferfwef %d %d %s\n",input_filename_length,(int)strlen(path_file),pre_path);
+  //printf("ferfwef %d %d %s\n",input_filename_length,(int)strlen(path_file),pre_path);
 
   k = 0;
   while((read = getline(&line, &len, fp)) != -1) {
@@ -56,13 +56,13 @@ full_relation *full_relation_creation(char *path_file,unsigned int *num_lines){
       path=malloc((strlen(line)+strlen(pre_path)+1)*sizeof(char));
       strcpy(path,pre_path);
       strcat(path,line);
-      printf("path: %s\n",path);
+      //printf("path: %s\n",path);
       fp_binary = fopen(path,"rb");
       fread(&num_of_tuples,sizeof(uint64_t),1,fp_binary);
       fread(&num_of_cols,sizeof(uint64_t),1,fp_binary);
       relations_array[k].my_metadata.num_tuples = num_of_tuples;
       relations_array[k].my_metadata.num_columns = num_of_cols;
-      printf("%ld %ld\n",relations_array[k].my_metadata.num_tuples,relations_array[k].my_metadata.num_columns);
+      //printf("%ld %ld\n",relations_array[k].my_metadata.num_tuples,relations_array[k].my_metadata.num_columns);
       relations_array[k].my_relations = malloc(relations_array[k].my_metadata.num_columns*sizeof(relation));
       tuple *tuple_array = malloc(num_of_tuples*num_of_cols*sizeof(tuple));
 
@@ -103,6 +103,13 @@ full_relation *full_relation_creation(char *path_file,unsigned int *num_lines){
 
 void print_relation(full_relation tmp){
 
+  int i,j;
+  for ( i=0; i<tmp.my_metadata.num_tuples; i++ ){
+    for ( j=0; j<tmp.my_metadata.num_columns; j++ ){
+      printf("%ld|",tmp.my_relations[j].tuples[i].payload);
+    }
+    printf("\n");
+  }
 }
 
 void free_structs(full_relation *relations_array,unsigned int num_lines){

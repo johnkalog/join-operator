@@ -1,6 +1,7 @@
 
 #include <string.h>
-#include "../src/hash.h"
+#include <inttypes.h>
+#include "../part1/hash.h"
 
 typedef struct metadata{
   uint64_t num_tuples,num_columns;
