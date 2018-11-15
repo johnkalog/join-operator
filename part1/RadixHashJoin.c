@@ -2,7 +2,7 @@
 #include <math.h>
 
 
-result* RadixHashJoin(relation *relR, relation *relS) {
+result* RadixHashJoin(relation *relR, relation *relS,int operator) {
   // returns result
   // result: InfoNode se tupo listas pou kathe kombos exei ena 2d array
 
@@ -42,13 +42,13 @@ result* RadixHashJoin(relation *relR, relation *relS) {
       // printf("\n\nscan S\n");
       // Second Hash dhmiourgei to Chain kai to bucket sto struct TheHashBucket
       SecondHash(sizeR,relNewR,current_indexR,TheHashBucket);
-      Scan_Buckets(Result,TheHashBucket,relNewR,relNewS,current_indexR,current_indexS,sizeR,sizeS);
+      Scan_Buckets(Result,TheHashBucket,relNewR,relNewS,current_indexR,current_indexS,sizeR,sizeS,0,operator);
     }
     else{
       // ean bucket S < bucket R
       // printf("\n\nscan R\n");
       SecondHash(sizeS,relNewS,current_indexS,TheHashBucket);
-      Scan_Buckets(Result,TheHashBucket,relNewS,relNewR,current_indexS,current_indexR,sizeS,sizeR);
+      Scan_Buckets(Result,TheHashBucket,relNewS,relNewR,current_indexS,current_indexR,sizeS,sizeR,1,operator);
     }
     /////////////
     current_indexR += HistR[i].num;  //arxh tou bucket

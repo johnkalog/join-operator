@@ -65,6 +65,7 @@ void result_print(result *Result){
 
 void result_free(result *Result){
   if ( Result->Head==NULL ){
+    free(Result);
     return;
   }
   result_node *tmp=Result->Head;
