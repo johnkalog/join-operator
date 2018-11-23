@@ -18,6 +18,8 @@ int main(int argc,char *argv[]) {
     int relAindex=atoi(argv[2]),relBindex=atoi(argv[3]),relAcol=atoi(argv[4]),relBcol=atoi(argv[5]);
     // 0 for > 1 for < 2 for =
 
+    sql_reader("../small/small.work");
+
     result *Result=RHJcaller(relations_array,relAindex,relBindex,relAcol,relBcol);
     free_structs(relations_array,num_lines);
 
