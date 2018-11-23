@@ -1,4 +1,4 @@
-OBJS     = main.o list_result.o RadixHashJoin.o RadixFunctions.o Relation.o Full_Relation.o SQL_Read.o
+OBJS     = main.o list_result.o RadixHashJoin.o RadixFunctions.o Relation.o Full_Relation.o Sql_queries.o
 OUT      = run
 CC       = gcc
 FLAGS    = -g -c
@@ -25,8 +25,8 @@ Relation.o:../part1/Relation.c
 Full_Relation.o:Full_Relation.c
 	$(CC) $(FLAGS) Full_Relation.c
 
-SQL_Read.o:SQL_Read.c
-	$(CC) $(FLAGS) SQL_Read.c
+Sql_queries.o:Sql_queries.c
+	$(CC) $(FLAGS) Sql_queries.c
 
 clean:
 	rm -f $(OBJS) $(OUT)

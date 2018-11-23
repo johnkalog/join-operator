@@ -24,6 +24,4 @@ void print_relation(full_relation);
 
 result* RHJcaller(full_relation *,int,int,int,int);
 
-void sql_reader(char *);
-
 void free_structs(full_relation *,unsigned int);

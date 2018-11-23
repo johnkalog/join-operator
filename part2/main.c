@@ -1,10 +1,10 @@
 //#define __STDC_FORMAT_MACROS
-#include "Full_Relation.h"
+#include "Sql_queries.h"
 
 int main(int argc,char *argv[]) {
 
-    if(argc!=7){
-        printf("Need 6 arguments\n");
+    if(argc!=3){
+        printf("Need 2 arguments\n");
         exit(1);
     }
     unsigned int num_lines;
@@ -15,20 +15,14 @@ int main(int argc,char *argv[]) {
 
     //print_relation(relations_array[0]);
 
-    //char str[50] = "0 2 4|0.1=1.2&1.0=2.1&0.1>3000|0.0 1.1";
-    int relAindex=atoi(argv[3]),relBindex=atoi(argv[4]),relAcol=atoi(argv[5]),relBcol=atoi(argv[6]);
+    // printf("Press Enter\n");
+    // getchar();
+    // sleep(1);
+    // printf("Done\n");
 
-    sql_reader(argv[2]);
+    sql_queries(argv[2],relations_array);
 
-    result *Result=RHJcaller(relations_array,relAindex,relBindex,relAcol,relBcol);
     free_structs(relations_array,num_lines);
 
-    printf("Press Enter\n");
-    getchar();
-    sleep(1);
-    printf("Done\n");
-    result_print(Result);
-
-    result_free(Result);
     return 0;
 }
