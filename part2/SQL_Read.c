@@ -1,7 +1,7 @@
 #include "Full_Relation.h"
 
 void sql_reader(char *filepath){
-    char *line=NULL;
+    char *line=NULL,*query=NULL;
     size_t len = 0;
     ssize_t nread;
     FILE *fp;
@@ -15,7 +15,13 @@ void sql_reader(char *filepath){
         if(line[0]=='F'){
             printf("It's F, new batch!\n");
         }
-        printf("%s",line );
+        else{
+            printf("%s",line );
+            query=strtok(line,"|");
+            ////
+            query=strtok(NULL,"|");
+
+        }
     }
 
 }
