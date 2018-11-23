@@ -2,14 +2,15 @@
 #include <math.h>
 
 
-void Scan_Buckets(result *Result,HashBucket *fullBucket,relation *RelHash,relation *RelScan,int startHash,int startScan,int sizeHash,int sizeScan,int first,int operator){
+void Scan_Buckets(result *Result,HashBucket *fullBucket,relation *RelHash,relation *RelScan,int startHash,int startScan,int sizeHash,int sizeScan,int first){
   ///// scan bucket RelScan kai briskei ta koina me to fullBucket /////
   ///// apothikeuei ta rowids sto Result //////
 
   int  i,bucket_index,chain_index;
   for(i=0;i<sizeScan;i++){
     // payload timh ston RelScan
-    int32_t payload = RelScan->tuples[startScan+i].payload,key=RelScan->tuples[startScan+i].key;
+    int32_t payload = RelScan->tuples[startScan+i].payload;
+    int32_t key=RelScan->tuples[startScan+i].key;
     bucket_index = SecondHashFunction(payload,FirstHash_number,SecondHash_number);
 
     //printf("payload %d\n",payload );
@@ -19,48 +20,17 @@ void Scan_Buckets(result *Result,HashBucket *fullBucket,relation *RelHash,relati
       while(chain_index != -1) { // bres ola ta koina
         //elegxos
         //first==0 R is smaller
-        switch (operator) {
-          case 0:
-            if ( first==0 ){
-              if(RelHash->tuples[startHash + chain_index].payload > payload) {
-                //printf("I found something %d \n",payload );
-                insert(Result,RelHash->tuples[startHash + chain_index].key,key);  //eisagwgh sto result
-              }
-            }
-            else if ( first==1 ){
-              if(payload > RelHash->tuples[startHash + chain_index].payload) {
-                //printf("I found something %d \n",payload );
-                insert(Result,key,RelHash->tuples[startHash + chain_index].key);  //eisagwgh sto result
-              }
-            }
-            break;
-          case 1:
-            if ( first==0 ){
-              if(RelHash->tuples[startHash + chain_index].payload < payload) {
-                //printf("I found something %d \n",payload );
-                insert(Result,RelHash->tuples[startHash + chain_index].key,key);  //eisagwgh sto result
-              }
-            }
-            else if ( first==1 ){
-              if(payload < RelHash->tuples[startHash + chain_index].payload) {
-                //printf("I found something %d \n",payload );
-                insert(Result,key,RelHash->tuples[startHash + chain_index].key);  //eisagwgh sto result
-              }
-            }
-            break;
-          case 2:
-            if(payload == RelHash->tuples[startHash + chain_index].payload){
-              if ( first==0 ){
-                insert(Result,RelHash->tuples[startHash + chain_index].key,key);  //eisagwgh sto result
-              }
-              else if ( first==1 ){
-                insert(Result,key,RelHash->tuples[startHash + chain_index].key);  //eisagwgh sto result
-              }
-            }
-            break;
+        if(payload == RelHash->tuples[startHash + chain_index].payload){
+          if ( first==0 ){
+            insert(Result,RelHash->tuples[startHash + chain_index].key,key);  //eisagwgh sto result
+          }
+          else if ( first==1 ){
+            insert(Result,key,RelHash->tuples[startHash + chain_index].key);  //eisagwgh sto result
+          }
         }
-        chain_index = fullBucket->chain[chain_index];
+        break;
       }
+        chain_index = fullBucket->chain[chain_index];
     }
   }
 }
