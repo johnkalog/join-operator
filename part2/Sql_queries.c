@@ -55,16 +55,20 @@ void sql_queries(char *filepath,full_relation *relations_array){
             free(cp_tok2);
             rel_condition = malloc(condition_num*sizeof(char *));
             condition = strtok(tok2,"&");
-            for ( i=0; i<rel_num; i++ ) {
+            for ( i=0; i<condition_num; i++ ) {
               if ( condition==NULL ){
                 printf("ssssssssssssssssfwefrtyu\n");
               }
-              rel_condition[i] = condition;
+              rel_condition[i] = malloc((strlen(condition)+1)*sizeof(char));
+              strcpy(rel_condition[i],condition);
               condition = strtok(NULL,"&");
             }
 
             for ( i=0; i<condition_num; i++ ) {
               printf("fefwef %s\n",rel_condition[i]);
+            }
+            for(i=0;i<condition_num;i++){
+                free(rel_condition[i]);
             }
             free(rel_condition);
             //-----------------------------select------------------------------
