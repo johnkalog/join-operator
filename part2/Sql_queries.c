@@ -59,8 +59,9 @@ void sql_queries(char *filepath,full_relation *relations_array){
               if ( condition==NULL ){
                 printf("ssssssssssssssssfwefrtyu\n");
               }
-              rel_condition[i] = malloc((strlen(condition)+1)*sizeof(char));
-              strcpy(rel_condition[i],condition);
+              // rel_condition[i] = malloc((strlen(condition)+1)*sizeof(char));
+              // strcpy(rel_condition[i],condition);
+              rel_condition[i] = strdup(condition);
               condition = strtok(NULL,"&");
             }
 
@@ -88,12 +89,15 @@ void sql_queries(char *filepath,full_relation *relations_array){
               if ( selection==NULL ){
                 printf("fewwefwefwwef\n");
               }
-              rel_selection[i] = selection;
+              rel_selection[i] = strdup(selection);
               selection = strtok(NULL," ");
             }
 
             for ( i=0; i<selection_num; i++ ) {
               printf("fefwef %s\n",rel_selection[i]);
+            }
+            for(i=0;i<selection_num;i++){
+                free(rel_selection[i]);
             }
             free(rel_selection);
             //int relAindex=atoi(argv[3]),relBindex=atoi(argv[4]),relAcol=atoi(argv[5]),relBcol=atoi(argv[6]);
@@ -103,5 +107,6 @@ void sql_queries(char *filepath,full_relation *relations_array){
             // result_free(Result);
         }
     }
+    free(line);
     fclose(fp);
 }
