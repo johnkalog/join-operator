@@ -30,7 +30,7 @@ void sql_queries(char *filepath,full_relation *relations_array){
             predicate* rel_predicate = string2predicate(tok2,&condition_num);
 
             for ( i=0; i<condition_num; i++ ) {
-              printf("rel_predicate i operation : %c\n",rel_predicate[i].operation);
+              printf("rel_predicate i operation : %c left: %d,%d \n",rel_predicate[i].operation,rel_predicate[i].left.row,rel_predicate[i].left.column);
             }
             for(i=0;i<condition_num;i++){
                 //free(rel_condition[i]);
@@ -60,7 +60,7 @@ predicate *string2predicate(char* str,int *condition_num) {
     (*condition_num)++;
     condition = strtok(NULL,"&");
   }
-  //free(str);
+
   predicate *rel_predicate = malloc((*condition_num)*sizeof(predicate));
 
   char **rel_condition = NULL;
@@ -72,6 +72,7 @@ predicate *string2predicate(char* str,int *condition_num) {
       printf("condition not NULL\n");
     }
     rel_condition[i] = strdup(condition);
+    printf("rel_condition %s\n",rel_condition[i] );
 
     condition = strtok(NULL,"&");
   }
@@ -89,28 +90,29 @@ predicate *string2predicate(char* str,int *condition_num) {
     else{
       printf("Wrong operation \n");
     }
+
     char *rest;
     char *tok = strtok_r(rel_condition[i],&rel_predicate[i].operation,&rest);
     if(strchr(tok,'.')!=NULL) {
       rel_predicate[i].left.row = atoi(strtok(tok,"."));
-      //rel_predicate[i].left.column = atoi(strtok(NULL,"."));
+      rel_predicate[i].left.column = atoi(strtok(NULL,"."));
       rel_predicate[i].flag = 1;
     }
     else {
       rel_predicate[i].number = atoi(tok);
       rel_predicate[i].flag = 0;
     }
+
     if(strchr(rest,'.')!=NULL) {
-      rel_predicate[i].left.row = atoi(strtok(tok,"."));
+      tok = strtok(rest,".");
+      rel_predicate[i].right.row = atoi(tok);
       tok = strtok(NULL,".");
-      //printf("wrong %s\n",tok );
-      //fflush(stdout);
-      //rel_predicate[i].left.column = atoi(tok);
+      rel_predicate[i].right.column = atoi(tok);
 
       rel_predicate[i].flag = 1;
     }
     else {
-      rel_predicate[i].number = atoi(tok);
+      rel_predicate[i].number = atoi(rest);
       rel_predicate[i].flag = 0;
     }
 
@@ -119,6 +121,8 @@ predicate *string2predicate(char* str,int *condition_num) {
   for(i=0;i<*condition_num;i++){
       free(rel_condition[i]);
   }
+
+  free(cp_tok2);
   free(rel_condition);
 
   return rel_predicate;
