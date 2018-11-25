@@ -1,6 +1,8 @@
 //#define __STDC_FORMAT_MACROS
 #include "Sql_queries.h"
 
+//0 ta indexes?
+
 int main(int argc,char *argv[]) {
 
     if(argc!=3){

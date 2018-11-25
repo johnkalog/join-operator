@@ -22,28 +22,10 @@ void sql_queries(char *filepath,full_relation *relations_array){
             char *tok3 = strtok(NULL,"|");
 
             //----------------------------from--------------------------
-            int i;
-            char *cp_tok1 = strdup(tok1);
-            full_relation **rel_pointers=NULL;
-            int rel_num=0;
-            char *rel_id=strtok(cp_tok1," ");
-            while ( rel_id!=NULL ) {
-              rel_num ++;
-              rel_id = strtok(NULL," ");
-            }
-            free(cp_tok1);
-            rel_pointers = malloc(rel_num*sizeof(full_relation *));
-            rel_id=strtok(tok1," ");
-            for ( i=0; i<rel_num; i++ ) {
-              rel_pointers[i] = &relations_array[atoi(rel_id)];
-              rel_id = strtok(NULL," ");
-            }
-            for ( i=0; i<rel_num; i++ ) {
-              printf("fefwef %ld\n",rel_pointers[i]->my_metadata.num_columns);
-
-            }
+            full_relation **rel_pointers=string2rel_pointers(relations_array,tok1);
             free(rel_pointers);
             //--------------------------where--------------------------------
+            int i;
             char *cp_tok2 = strdup(tok2);
             char **rel_condition=NULL;
             int condition_num=0;
@@ -109,4 +91,28 @@ void sql_queries(char *filepath,full_relation *relations_array){
     }
     free(line);
     fclose(fp);
+}
+
+full_relation **string2rel_pointers(full_relation *relations_array,char *tok1){
+  int i;
+  char *cp_tok1 = strdup(tok1);
+  full_relation **rel_pointers=NULL;
+  int rel_num=0;
+  char *rel_id=strtok(cp_tok1," ");
+  while ( rel_id!=NULL ) {
+    rel_num ++;
+    rel_id = strtok(NULL," ");
+  }
+  free(cp_tok1);
+  rel_pointers = malloc(rel_num*sizeof(full_relation *));
+  rel_id=strtok(tok1," ");
+  for ( i=0; i<rel_num; i++ ) {
+    rel_pointers[i] = &relations_array[atoi(rel_id)];
+    rel_id = strtok(NULL," ");
+  }
+  for ( i=0; i<rel_num; i++ ) {
+    printf("fefwef %ld\n",rel_pointers[i]->my_metadata.num_columns);
+
+  }
+  return rel_pointers;
 }
