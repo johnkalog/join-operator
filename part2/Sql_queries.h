@@ -16,3 +16,5 @@ typedef struct predicate{
 void sql_queries(char *,full_relation *);
 
 full_relation **string2rel_pointers(full_relation *,char *);
+
+point *string2rel_selection(char *);

@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "Sql_queries.h"
 
 void sql_queries(char *filepath,full_relation *relations_array){
@@ -55,32 +56,7 @@ void sql_queries(char *filepath,full_relation *relations_array){
             }
             free(rel_condition);
             //-----------------------------select------------------------------
-            char *cp_tok3 = strdup(tok3);
-            char **rel_selection=NULL;
-            int selection_num=0;
-            char *selection=strtok(cp_tok3," ");
-            while ( selection!=NULL ) {
-              selection_num ++;
-              selection = strtok(NULL," ");
-            }
-            free(cp_tok3);
-            printf("dewfewfw %d\n",selection_num);
-            rel_selection = malloc(selection_num*sizeof(char *));
-            selection = strtok(tok3," ");
-            for ( i=0; i<selection_num; i++ ) {
-              if ( selection==NULL ){
-                printf("fewwefwefwwef\n");
-              }
-              rel_selection[i] = strdup(selection);
-              selection = strtok(NULL," ");
-            }
-
-            for ( i=0; i<selection_num; i++ ) {
-              printf("fefwef %s\n",rel_selection[i]);
-            }
-            for(i=0;i<selection_num;i++){
-                free(rel_selection[i]);
-            }
+            point *rel_selection=string2rel_selection(tok3);
             free(rel_selection);
             //int relAindex=atoi(argv[3]),relBindex=atoi(argv[4]),relAcol=atoi(argv[5]),relBcol=atoi(argv[6]);
             //result *Result=RHJcaller(relations_array,relAindex,relBindex,relAcol,relBcol);
@@ -115,4 +91,28 @@ full_relation **string2rel_pointers(full_relation *relations_array,char *tok1){
 
   }
   return rel_pointers;
+}
+
+point *string2rel_selection(char *tok3){
+  int i,selection_num=0;
+  char *cp_tok3 = strdup(tok3);
+  char *selection=strtok(cp_tok3," ");
+  while ( selection!=NULL ) {
+    selection_num ++;
+    selection = strtok(NULL," ");
+  }
+  free(cp_tok3);
+  printf("dewfewfw %d\n",selection_num);
+  point *rel_selection = malloc(selection_num*sizeof(point));
+  selection = strtok(tok3," ");
+  for ( i=0; i<selection_num; i++ ) {
+    rel_selection[i].row = atoi(&selection[0]);
+    rel_selection[i].column = atoi(&selection[2]);
+    selection = strtok(NULL," ");
+  }
+
+  for ( i=0; i<selection_num; i++ ) {
+    printf("row %d column %d\n",rel_selection[i].row,rel_selection[i].column);
+  }
+  return rel_selection;
 }
