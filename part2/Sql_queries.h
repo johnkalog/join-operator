@@ -11,10 +11,13 @@ typedef struct predicate{
   char operation;
   int metric;
   int flag; //compare with number 0 or join 1
+  int number;
 }predicate;
 
 void sql_queries(char *,full_relation *);
 
 full_relation **string2rel_pointers(full_relation *,char *);
+
+predicate *string2predicate(char *,int *);
 
 point *string2rel_selection(char *);

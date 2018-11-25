@@ -26,35 +26,16 @@ void sql_queries(char *filepath,full_relation *relations_array){
             full_relation **rel_pointers=string2rel_pointers(relations_array,tok1);
             free(rel_pointers);
             //--------------------------where--------------------------------
-            int i;
-            char *cp_tok2 = strdup(tok2);
-            char **rel_condition=NULL;
-            int condition_num=0;
-            char *condition=strtok(cp_tok2,"&");
-            while ( condition!=NULL ) {
-              condition_num ++;
-              condition = strtok(NULL,"&");
-            }
-            free(cp_tok2);
-            rel_condition = malloc(condition_num*sizeof(char *));
-            condition = strtok(tok2,"&");
-            for ( i=0; i<condition_num; i++ ) {
-              if ( condition==NULL ){
-                printf("ssssssssssssssssfwefrtyu\n");
-              }
-              // rel_condition[i] = malloc((strlen(condition)+1)*sizeof(char));
-              // strcpy(rel_condition[i],condition);
-              rel_condition[i] = strdup(condition);
-              condition = strtok(NULL,"&");
-            }
+            int condition_num,i;
+            predicate* rel_predicate = string2predicate(tok2,&condition_num);
 
             for ( i=0; i<condition_num; i++ ) {
-              printf("fefwef %s\n",rel_condition[i]);
+              printf("rel_predicate i operation : %c\n",rel_predicate[i].operation);
             }
             for(i=0;i<condition_num;i++){
-                free(rel_condition[i]);
+                //free(rel_condition[i]);
             }
-            free(rel_condition);
+            free(rel_predicate);
             //-----------------------------select------------------------------
             point *rel_selection=string2rel_selection(tok3);
             free(rel_selection);
@@ -67,6 +48,80 @@ void sql_queries(char *filepath,full_relation *relations_array){
     }
     free(line);
     fclose(fp);
+}
+
+predicate *string2predicate(char* str,int *condition_num) {
+
+  char *cp_tok2 = strdup(str);
+
+  *condition_num=0;
+  char *condition=strtok(cp_tok2,"&");
+  while ( condition!=NULL ) {
+    (*condition_num)++;
+    condition = strtok(NULL,"&");
+  }
+  //free(str);
+  predicate *rel_predicate = malloc((*condition_num)*sizeof(predicate));
+
+  char **rel_condition = NULL;
+  rel_condition = malloc((*condition_num)*sizeof(char *));
+  int i;
+  condition = strtok(str,"&");
+  for ( i=0; i<(*condition_num); i++ ) {
+    if ( condition==NULL ){
+      printf("condition not NULL\n");
+    }
+    rel_condition[i] = strdup(condition);
+
+    condition = strtok(NULL,"&");
+  }
+
+  for ( i=0; i<(*condition_num); i++ ) {
+    if(strchr(rel_condition[i],'=')!=NULL) {
+      rel_predicate[i].operation = '=';
+    }
+    else if(strchr(rel_condition[i],'<')!=NULL) {
+      rel_predicate[i].operation = '<';
+    }
+    else if(strchr(rel_condition[i],'>')!=NULL) {
+      rel_predicate[i].operation = '>';
+    }
+    else{
+      printf("Wrong operation \n");
+    }
+    char *rest;
+    char *tok = strtok_r(rel_condition[i],&rel_predicate[i].operation,&rest);
+    if(strchr(tok,'.')!=NULL) {
+      rel_predicate[i].left.row = atoi(strtok(tok,"."));
+      //rel_predicate[i].left.column = atoi(strtok(NULL,"."));
+      rel_predicate[i].flag = 1;
+    }
+    else {
+      rel_predicate[i].number = atoi(tok);
+      rel_predicate[i].flag = 0;
+    }
+    if(strchr(rest,'.')!=NULL) {
+      rel_predicate[i].left.row = atoi(strtok(tok,"."));
+      tok = strtok(NULL,".");
+      //printf("wrong %s\n",tok );
+      //fflush(stdout);
+      //rel_predicate[i].left.column = atoi(tok);
+
+      rel_predicate[i].flag = 1;
+    }
+    else {
+      rel_predicate[i].number = atoi(tok);
+      rel_predicate[i].flag = 0;
+    }
+
+  }
+
+  for(i=0;i<*condition_num;i++){
+      free(rel_condition[i]);
+  }
+  free(rel_condition);
+
+  return rel_predicate;
 }
 
 full_relation **string2rel_pointers(full_relation *relations_array,char *tok1){
