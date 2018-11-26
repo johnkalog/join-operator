@@ -36,3 +36,5 @@ int search_list(list *,int);
 int empty_list(list *);
 
 void freeList(list *);
+
+void calculate_metric(predicate,full_relation **);

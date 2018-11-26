@@ -56,8 +56,12 @@ void sql_queries(char *filepath,full_relation *relations_array){
             for(i=0;i<condition_num;i++){
                 //free(rel_condition[i]);
             }
-            freeList(head);
+            for(i=0;i<condition_num;i++){
+                //calculate_metric(rel_predicate[i],rel_pointers);
+                printf("]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]metric here is: %d\n",rel_predicate[i].metric);
+            }
             free(rel_predicate);
+            freeList(head);
             //-----------------------------select------------------------------
             int selection_num;
             point *rel_selection=string2rel_selection(tok3,&selection_num);
@@ -66,10 +70,6 @@ void sql_queries(char *filepath,full_relation *relations_array){
               printf("row %d column %d\n",rel_selection[i].row,rel_selection[i].column);
             }
             free(rel_selection);
-            //int relAindex=atoi(argv[3]),relBindex=atoi(argv[4]),relAcol=atoi(argv[5]),relBcol=atoi(argv[6]);
-            // result_print(Result);
-            //result *Result=RHJcaller(relations_array,relAindex,relBindex,relAcol,relBcol);
-            // result_free(Result);
         }
     }
     free(line);
@@ -92,6 +92,7 @@ predicate *string2predicate(char* str,int *condition_num) {
 
   char **rel_condition = NULL;
   rel_condition = malloc((*condition_num)*sizeof(char *));
+  //bzero(rel_condition,(*condition_num)*sizeof(char *));
   int i;
 
   condition = strtok(str,"&");
@@ -172,6 +173,7 @@ full_relation **string2rel_pointers(full_relation *relations_array,char *tok1,in
   }
   free(cp_tok1);
   rel_pointers = malloc((*rel_num)*sizeof(full_relation *));
+  bzero(rel_pointers,(*rel_num)*sizeof(full_relation *));
   rel_id=strtok(tok1," ");
   for ( i=0; i<(*rel_num); i++ ) {
     rel_pointers[i] = &relations_array[atoi(rel_id)];
@@ -199,4 +201,67 @@ point *string2rel_selection(char *tok3,int *selection_num){
   }
 
   return rel_selection;
+}
+
+void calculate_metric(predicate the_predicate,full_relation **rel_pointers){
+  int tmp,min,max;
+  if ( the_predicate.flag==0 ){
+    // if ( rel_pointers[the_predicate.left.row]==rel_pointers[the_predicate.right.row] ){
+    //   printf("same----------------------\n");
+    //   the_predicate.metric += 500;
+    // }
+  }
+  else{
+    if ( the_predicate.flag==1 ){
+      min = rel_pointers[the_predicate.right.row]->my_metadata.statistics_array[the_predicate.right.column].min;
+      max = rel_pointers[the_predicate.right.row]->my_metadata.statistics_array[the_predicate.right.column].max;
+      if ( the_predicate.operation=='>' ){
+        tmp = (the_predicate.number-min)/(max-min);
+        if ( tmp<=0 ){  //kanena stoixeio den pernaei elegexos meta?
+          tmp = 1;
+        }
+        else if( tmp>1 ){
+          tmp = 0;
+          return;
+        }
+      }
+      else if ( the_predicate.operation=='<' ){
+        tmp = (max-the_predicate.number)/(max-min);
+        if ( tmp>=1 ){
+          tmp = 1;
+        }
+        else if( tmp<0 ){
+          tmp = 0;
+          return;
+        }
+      }
+    }
+    else if ( the_predicate.flag==2 ){
+      printf("left row :%d left column:%d number:%d flag:%d operation%c\n",the_predicate.left.row,the_predicate.left.column,the_predicate.number,the_predicate.flag,the_predicate.operation);
+      min = rel_pointers[the_predicate.left.row]->my_metadata.statistics_array[the_predicate.left.column].min;
+      max = rel_pointers[the_predicate.left.row]->my_metadata.statistics_array[the_predicate.left.column].max;
+    //   if ( the_predicate.operation=='>' ){
+    //     tmp = (max-the_predicate.number)/(max-min);
+    //     if ( tmp>=1 ){
+    //       tmp = 1;
+    //     }
+    //     else if( tmp<0 ){
+    //       tmp = 0;
+    //       return;
+    //     }
+    //   }
+    //   else if ( the_predicate.operation=='<'){
+    //     tmp = (the_predicate.number-min)/(max-min);
+    //     if ( tmp<=0 ){
+    //       tmp = 1;
+    //     }
+    //     else if( tmp>1 ){
+    //       tmp = 0;
+    //       return;
+    //     }
+    //   }
+     }
+  }
+  the_predicate.metric += (1.0/(double)tmp)*500.0;
+
 }

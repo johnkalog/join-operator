@@ -30,7 +30,11 @@ int main(int argc,char *argv[]) {
     push_list(&head,3);
     search_list(head,2);
     printf("xd %d\n",head->val );
-
+    // int relAindex=0,relBindex=3,relAcol=1,relBcol=1;
+    // result *Result=RHJcaller(relations_array,relAindex,relBindex,relAcol,relBcol);
+    // result_print(Result);
+    //
+    // result_free(Result);
     free_structs(relations_array,num_lines);
 
     return 0;
