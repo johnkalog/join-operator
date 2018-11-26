@@ -217,7 +217,7 @@ void calculate_metric(predicate the_predicate,full_relation **rel_pointers){
       max = rel_pointers[the_predicate.right.row]->my_metadata.statistics_array[the_predicate.right.column].max;
       if ( the_predicate.operation=='>' ){
         tmp = (the_predicate.number-min)/(max-min);
-        if ( tmp<=0 ){  //kanena stoixeio den pernaei elegexos meta?
+        if ( tmp<=0 ){  //kanena stoixeio den pernaei elegexos eta?
           tmp = 1;
         }
         else if( tmp>1 ){
