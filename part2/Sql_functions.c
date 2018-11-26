@@ -23,9 +23,9 @@ int findNextPredicate(predicate* rel_predicate,int size,list *head) {
       }
       int rows = 0;
       if(rel_predicate[i].flag == 0 && rel_predicate[best_pos].flag == 0) {
-        int max_rows = search_list(head,rel_predicate[best_pos].left.row) + search_list(head,rel_predicate[best_pos].right.row);
+        int best_rows = search_list(head,rel_predicate[best_pos].left.row) + search_list(head,rel_predicate[best_pos].right.row);
         int rows = search_list(head,rel_predicate[i].left.row) + search_list(head,rel_predicate[i].right.row);
-        if((rows > max_rows) || (max_rows == rows && rel_predicate[i].metric > rel_predicate[best_pos].metric)) {
+        if((rows > best_rows) || (best_rows == rows && rel_predicate[i].metric > rel_predicate[best_pos].metric)) {
           best_pos = i;
         }
       }

@@ -46,10 +46,10 @@ void sql_queries(char *filepath,full_relation *relations_array){
                 push_list(&head,rel_predicate[best_pos].right.row);
               }
               else if(rel_predicate[best_pos].flag == 1) {
-                push_list(&head,rel_predicate[best_pos].left.row);
+                push_list(&head,rel_predicate[best_pos].right.row);
               }
               else {
-                push_list(&head,rel_predicate[best_pos].right.row);
+                push_list(&head,rel_predicate[best_pos].left.row);
               }
               rel_predicate[best_pos].metric = -1;
             }
