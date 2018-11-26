@@ -30,34 +30,33 @@ void sql_queries(char *filepath,full_relation *relations_array){
               printf("relation number columns: %ld\n",rel_pointers[i]->my_metadata.num_columns);
 
             }
-            free(rel_pointers);
             //--------------------------where--------------------------------
             int condition_num;
             predicate* rel_predicate = string2predicate(tok2,&condition_num);
 
             list *head = NULL;
-            for ( i=0; i<condition_num; i++ ) {
-              printf("rel_predicate i operation : %c left: %d,%d and the flag %d\n",rel_predicate[i].operation,rel_predicate[i].left.row,rel_predicate[i].left.column,rel_predicate[i].flag);
-              int best_pos = findNextPredicate(rel_predicate,condition_num,head);
-              printf("best next pos is %d\n",best_pos );
-
-              if(rel_predicate[best_pos].flag == 0) {
-                push_list(&head,rel_predicate[best_pos].left.row);
-                push_list(&head,rel_predicate[best_pos].right.row);
-              }
-              else if(rel_predicate[best_pos].flag == 1) {
-                push_list(&head,rel_predicate[best_pos].right.row);
-              }
-              else {
-                push_list(&head,rel_predicate[best_pos].left.row);
-              }
-              rel_predicate[best_pos].metric = -1;
-            }
+            // for ( i=0; i<condition_num; i++ ) {
+            //   printf("rel_predicate i operation : %c left: %d,%d and the flag %d\n",rel_predicate[i].operation,rel_predicate[i].left.row,rel_predicate[i].left.column,rel_predicate[i].flag);
+            //   int best_pos = findNextPredicate(rel_predicate,condition_num,head);
+            //   printf("best next pos is %d\n",best_pos );
+            //
+            //   if(rel_predicate[best_pos].flag == 0) {
+            //     push_list(&head,rel_predicate[best_pos].left.row);
+            //     push_list(&head,rel_predicate[best_pos].right.row);
+            //   }
+            //   else if(rel_predicate[best_pos].flag == 1) {
+            //     push_list(&head,rel_predicate[best_pos].right.row);
+            //   }
+            //   else {
+            //     push_list(&head,rel_predicate[best_pos].left.row);
+            //   }
+            //   rel_predicate[best_pos].metric = -1;
+            // }
             for(i=0;i<condition_num;i++){
                 //free(rel_condition[i]);
             }
             for(i=0;i<condition_num;i++){
-                //calculate_metric(rel_predicate[i],rel_pointers);
+                calculate_metric(rel_predicate[i],rel_pointers);
                 printf("]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]metric here is: %d\n",rel_predicate[i].metric);
             }
             free(rel_predicate);
@@ -69,6 +68,7 @@ void sql_queries(char *filepath,full_relation *relations_array){
             for ( i=0; i<selection_num; i++ ) {
               printf("row %d column %d\n",rel_selection[i].row,rel_selection[i].column);
             }
+            free(rel_pointers);
             free(rel_selection);
         }
     }
@@ -206,10 +206,10 @@ point *string2rel_selection(char *tok3,int *selection_num){
 void calculate_metric(predicate the_predicate,full_relation **rel_pointers){
   int tmp,min,max;
   if ( the_predicate.flag==0 ){
-    // if ( rel_pointers[the_predicate.left.row]==rel_pointers[the_predicate.right.row] ){
-    //   printf("same----------------------\n");
-    //   the_predicate.metric += 500;
-    // }
+    if ( rel_pointers[the_predicate.left.row]==rel_pointers[the_predicate.right.row] ){
+      printf("same-----------------------\n");
+      the_predicate.metric += 500;
+    }
   }
   else{
     if ( the_predicate.flag==1 ){
@@ -240,27 +240,27 @@ void calculate_metric(predicate the_predicate,full_relation **rel_pointers){
       printf("left row :%d left column:%d number:%d flag:%d operation%c\n",the_predicate.left.row,the_predicate.left.column,the_predicate.number,the_predicate.flag,the_predicate.operation);
       min = rel_pointers[the_predicate.left.row]->my_metadata.statistics_array[the_predicate.left.column].min;
       max = rel_pointers[the_predicate.left.row]->my_metadata.statistics_array[the_predicate.left.column].max;
-    //   if ( the_predicate.operation=='>' ){
-    //     tmp = (max-the_predicate.number)/(max-min);
-    //     if ( tmp>=1 ){
-    //       tmp = 1;
-    //     }
-    //     else if( tmp<0 ){
-    //       tmp = 0;
-    //       return;
-    //     }
-    //   }
-    //   else if ( the_predicate.operation=='<'){
-    //     tmp = (the_predicate.number-min)/(max-min);
-    //     if ( tmp<=0 ){
-    //       tmp = 1;
-    //     }
-    //     else if( tmp>1 ){
-    //       tmp = 0;
-    //       return;
-    //     }
-    //   }
-     }
+      if ( the_predicate.operation=='>' ){
+        tmp = (max-the_predicate.number)/(max-min);
+        if ( tmp>=1 ){
+          tmp = 1;
+        }
+        else if( tmp<0 ){
+          tmp = 0;
+          return;
+        }
+      }
+      else if ( the_predicate.operation=='<'){
+        tmp = (the_predicate.number-min)/(max-min);
+        if ( tmp<=0 ){
+          tmp = 1;
+        }
+        else if( tmp>1 ){
+          tmp = 0;
+          return;
+        }
+      }
+    }
   }
   the_predicate.metric += (1.0/(double)tmp)*500.0;
 
