@@ -118,7 +118,7 @@ uint64_t calculate_min(tuple *my_small_array,int num_tuples){
     }
   }
   //printf("min %ld\n",min);
-  return 1;
+  return min;
 }
 
 uint64_t calculate_max(tuple *my_small_array,int num_tuples){
@@ -130,8 +130,8 @@ uint64_t calculate_max(tuple *my_small_array,int num_tuples){
       max = tmp;
     }
   }
-  printf("max %ld\n",max);
-  return 1;
+  //printf("max %ld\n",max);
+  return max;
 }
 
 void print_relation(full_relation tmp){

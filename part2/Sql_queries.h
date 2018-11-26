@@ -21,3 +21,5 @@ full_relation **string2rel_pointers(full_relation *,char *,int *);
 predicate *string2predicate(char *,int *);
 
 point *string2rel_selection(char *,int *);
+
+void calculate_metric(predicate,full_relation **);
