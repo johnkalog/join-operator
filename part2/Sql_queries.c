@@ -50,11 +50,6 @@ void sql_queries(char *filepath,full_relation *relations_array){
               printf("row %d column %d\n",rel_selection[i].row,rel_selection[i].column);
             }
             free(rel_selection);
-            //int relAindex=atoi(argv[3]),relBindex=atoi(argv[4]),relAcol=atoi(argv[5]),relBcol=atoi(argv[6]);
-            //result *Result=RHJcaller(relations_array,relAindex,relBindex,relAcol,relBcol);
-            // result_print(Result);
-            //
-            // result_free(Result);
         }
     }
     free(line);

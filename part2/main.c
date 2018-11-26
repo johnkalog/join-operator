@@ -24,6 +24,12 @@ int main(int argc,char *argv[]) {
 
     sql_queries(argv[2],relations_array);
 
+    // int relAindex=0,relBindex=3,relAcol=1,relBcol=1;
+    // result *Result=RHJcaller(relations_array,relAindex,relBindex,relAcol,relBcol);
+    // result_print(Result);
+    //
+    // result_free(Result);
+
     free_structs(relations_array,num_lines);
 
     return 0;
