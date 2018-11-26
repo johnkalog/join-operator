@@ -73,6 +73,7 @@ predicate *string2predicate(char* str,int *condition_num) {
   }
 
   predicate *rel_predicate = malloc((*condition_num)*sizeof(predicate));
+  bzero(rel_predicate,(*condition_num)*sizeof(predicate));
 
   char **rel_condition = NULL;
   rel_condition = malloc((*condition_num)*sizeof(char *));
@@ -103,7 +104,7 @@ predicate *string2predicate(char* str,int *condition_num) {
       printf("Wrong operation \n");
     }
 
-    char *rest;
+    char *rest=NULL;
     char *tok = strtok_r(rel_condition[i],&rel_predicate[i].operation,&rest);
     if(strchr(tok,'.')!=NULL) {
       rel_predicate[i].left.row = atoi(strtok(tok,"."));
