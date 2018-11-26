@@ -14,6 +14,11 @@ typedef struct predicate{
   int number;
 }predicate;
 
+typedef struct list {
+    int val;
+    struct list *next;
+} list;
+
 void sql_queries(char *,full_relation *);
 
 full_relation **string2rel_pointers(full_relation *,char *,int *);
@@ -21,3 +26,13 @@ full_relation **string2rel_pointers(full_relation *,char *,int *);
 predicate *string2predicate(char *,int *);
 
 point *string2rel_selection(char *,int *);
+
+int findNextPredicate(predicate*,int,list *);
+
+void push_list(list **,int);
+
+int search_list(list *,int);
+
+int empty_list(list *);
+
+void freeList(list *);

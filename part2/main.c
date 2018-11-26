@@ -24,6 +24,13 @@ int main(int argc,char *argv[]) {
 
     sql_queries(argv[2],relations_array);
 
+    list *head=malloc(sizeof(list));
+    head=NULL;
+    push_list(&head,2);
+    push_list(&head,3);
+    search_list(head,2);
+    printf("xd %d\n",head->val );
+
     free_structs(relations_array,num_lines);
 
     return 0;

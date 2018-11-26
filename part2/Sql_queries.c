@@ -35,12 +35,28 @@ void sql_queries(char *filepath,full_relation *relations_array){
             int condition_num;
             predicate* rel_predicate = string2predicate(tok2,&condition_num);
 
+            list *head = NULL;
             for ( i=0; i<condition_num; i++ ) {
               printf("rel_predicate i operation : %c left: %d,%d and the flag %d\n",rel_predicate[i].operation,rel_predicate[i].left.row,rel_predicate[i].left.column,rel_predicate[i].flag);
+              int best_pos = findNextPredicate(rel_predicate,condition_num,head);
+              printf("best next pos is %d\n",best_pos );
+
+              if(rel_predicate[best_pos].flag == 0) {
+                push_list(&head,rel_predicate[best_pos].left.row);
+                push_list(&head,rel_predicate[best_pos].right.row);
+              }
+              else if(rel_predicate[best_pos].flag == 1) {
+                push_list(&head,rel_predicate[best_pos].left.row);
+              }
+              else {
+                push_list(&head,rel_predicate[best_pos].right.row);
+              }
+              rel_predicate[best_pos].metric = -1;
             }
             for(i=0;i<condition_num;i++){
                 //free(rel_condition[i]);
             }
+            freeList(head);
             free(rel_predicate);
             //-----------------------------select------------------------------
             int selection_num;
@@ -51,9 +67,8 @@ void sql_queries(char *filepath,full_relation *relations_array){
             }
             free(rel_selection);
             //int relAindex=atoi(argv[3]),relBindex=atoi(argv[4]),relAcol=atoi(argv[5]),relBcol=atoi(argv[6]);
-            //result *Result=RHJcaller(relations_array,relAindex,relBindex,relAcol,relBcol);
             // result_print(Result);
-            //
+            //result *Result=RHJcaller(relations_array,relAindex,relBindex,relAcol,relBcol);
             // result_free(Result);
         }
     }
@@ -110,10 +125,12 @@ predicate *string2predicate(char* str,int *condition_num) {
       rel_predicate[i].left.row = atoi(strtok(tok,"."));
       rel_predicate[i].left.column = atoi(strtok(NULL,"."));
       rel_predicate[i].flag = 0;
+      rel_predicate[i].metric = 0;
     }
     else {
       rel_predicate[i].number = atoi(tok);
       rel_predicate[i].flag = 1;
+      rel_predicate[i].metric = 1000;
     }
 
     if(strchr(rest,'.')!=NULL) {
@@ -122,11 +139,13 @@ predicate *string2predicate(char* str,int *condition_num) {
       //tok = strtok(NULL,".");
       rel_predicate[i].right.column = atoi(strtok(NULL,"."));
 
-      //rel_predicate[i].flag = 1;
+      //rel_pointers pointers idios deikths//
+
     }
     else {
       rel_predicate[i].number = atoi(rest);
       rel_predicate[i].flag = 2;
+      rel_predicate[i].metric = 1000;
     }
 
   }
