@@ -84,6 +84,12 @@ full_relation *full_relation_creation(char *path_file,unsigned int *num_lines){
         relations_array[k].my_relations[l].tuples = &tuple_array[l*num_of_tuples];
       }
 
+      relations_array[k].my_metadata.statistics_array = malloc(relations_array[k].my_metadata.num_columns*sizeof(statistics));
+      int p;
+      for ( p=0; p<relations_array[k].my_metadata.num_columns; p++ ){
+        relations_array[k].my_metadata.statistics_array[p].min = calculate_min(relations_array[k].my_relations[p].tuples,relations_array[k].my_metadata.num_tuples);
+        relations_array[k].my_metadata.statistics_array[p].max = calculate_max(relations_array[k].my_relations[p].tuples,relations_array[k].my_metadata.num_tuples);
+      }
     /////////////
     free(path);
     //////////
@@ -99,6 +105,33 @@ full_relation *full_relation_creation(char *path_file,unsigned int *num_lines){
   free(pre_path);
   fclose(fp);
   return relations_array;
+}
+
+uint64_t calculate_min(tuple *my_small_array,int num_tuples){
+  //printf("idwdfwefew %ld\n",my_small_array[0].payload);
+  uint64_t min=my_small_array[0].payload,tmp;
+  int i;
+  for ( i=1; i<num_tuples; i++ ){
+    tmp = my_small_array[i].payload;
+    if ( tmp<min ){
+      min = tmp;
+    }
+  }
+  //printf("min %ld\n",min);
+  return 1;
+}
+
+uint64_t calculate_max(tuple *my_small_array,int num_tuples){
+  uint64_t max=my_small_array[0].payload,tmp;
+  int i;
+  for ( i=1; i<num_tuples; i++ ){
+    tmp = my_small_array[i].payload;
+    if ( tmp>max ){
+      max = tmp;
+    }
+  }
+  printf("max %ld\n",max);
+  return 1;
 }
 
 void print_relation(full_relation tmp){
@@ -119,9 +152,12 @@ result* RHJcaller(full_relation *relations_array,int relAindex,int relBindex,int
 void free_structs(full_relation *relations_array,unsigned int num_lines){
 
   //int i,j;
-  int i;
+  int i,j;
  for ( i=0; i<num_lines; i++ ){
-
+   // for ( j=0 j<relations_array[i].my_metadata.num_columns; j++){
+   //   free(relations_array[i].my_metadata.statistics_array[j]);
+   // }
+   free(relations_array[i].my_metadata.statistics_array);
    free(relations_array[i].my_relations[0].tuples);
    free(relations_array[i].my_relations);
       //for ( j=0; j<relations_array[i].my_metadata.num_columns; j++ ){

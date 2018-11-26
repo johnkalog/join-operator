@@ -105,10 +105,12 @@ predicate *string2predicate(char* str,int *condition_num) {
       rel_predicate[i].left.row = atoi(strtok(tok,"."));
       rel_predicate[i].left.column = atoi(strtok(NULL,"."));
       rel_predicate[i].flag = 0;
+      rel_predicate[i].metric = 0;
     }
     else {
       rel_predicate[i].number = atoi(tok);
       rel_predicate[i].flag = 1;
+      rel_predicate[i].metric = 1000;
     }
 
     if(strchr(rest,'.')!=NULL) {
@@ -117,11 +119,13 @@ predicate *string2predicate(char* str,int *condition_num) {
       //tok = strtok(NULL,".");
       rel_predicate[i].right.column = atoi(strtok(NULL,"."));
 
-      //rel_predicate[i].flag = 1;
+      //rel_pointers pointers idios deikths//
+
     }
     else {
       rel_predicate[i].number = atoi(rest);
       rel_predicate[i].flag = 2;
+      rel_predicate[i].metric = 1000;
     }
 
   }
