@@ -37,4 +37,4 @@ int empty_list(list *);
 
 void freeList(list *);
 
-void calculate_metric(predicate,full_relation **);
+void calculate_metric(predicate *,int,full_relation **);

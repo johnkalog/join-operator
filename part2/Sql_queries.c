@@ -27,12 +27,12 @@ void sql_queries(char *filepath,full_relation *relations_array){
             int rel_num;
             full_relation **rel_pointers=string2rel_pointers(relations_array,tok1,&rel_num);
             for ( i=0; i<rel_num; i++ ) {
-              printf("relation number columns: %ld\n",rel_pointers[i]->my_metadata.num_columns);
+              //printf("relation number columns: %ld\n",rel_pointers[i]->my_metadata.num_columns);
 
             }
             //--------------------------where--------------------------------
             int condition_num;
-            predicate* rel_predicate = string2predicate(tok2,&condition_num);
+            predicate *rel_predicate = string2predicate(tok2,&condition_num);
 
             list *head = NULL;
             // for ( i=0; i<condition_num; i++ ) {
@@ -52,13 +52,13 @@ void sql_queries(char *filepath,full_relation *relations_array){
             //   }
             //   rel_predicate[best_pos].metric = -1;
             // }
-            for(i=0;i<condition_num;i++){
-                //free(rel_condition[i]);
-            }
-            for(i=0;i<condition_num;i++){
-                calculate_metric(rel_predicate[i],rel_pointers);
-                printf("]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]metric here is: %d\n",rel_predicate[i].metric);
-            }
+            //for(i=0;i<condition_num;i++){
+            //    printf("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXmetric here is: %d\n",rel_predicate[i].metric);
+          //  }
+            //calculate_metric(rel_predicate,condition_num,rel_pointers);
+            //for(i=0;i<condition_num;i++){
+            //    printf("]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]metric here is: %d\n",rel_predicate[i].metric);
+            //}
             free(rel_predicate);
             freeList(head);
             //-----------------------------select------------------------------
@@ -101,7 +101,7 @@ predicate *string2predicate(char* str,int *condition_num) {
       printf("condition not NULL\n");
     }
     rel_condition[i] = strdup(condition);
-    printf("rel_condition %s\n",rel_condition[i] );
+    //printf("rel_condition %s\n",rel_condition[i] );
 
     condition = strtok(NULL,"&");
   }
@@ -203,65 +203,77 @@ point *string2rel_selection(char *tok3,int *selection_num){
   return rel_selection;
 }
 
-void calculate_metric(predicate the_predicate,full_relation **rel_pointers){
-  int tmp,min,max;
-  if ( the_predicate.flag==0 ){
-    if ( rel_pointers[the_predicate.left.row]==rel_pointers[the_predicate.right.row] ){
-      printf("same-----------------------\n");
-      the_predicate.metric += 500;
-    }
-  }
-  else{
-    if ( the_predicate.flag==1 ){
-      min = rel_pointers[the_predicate.right.row]->my_metadata.statistics_array[the_predicate.right.column].min;
-      max = rel_pointers[the_predicate.right.row]->my_metadata.statistics_array[the_predicate.right.column].max;
-      if ( the_predicate.operation=='>' ){
-        tmp = (the_predicate.number-min)/(max-min);
-        if ( tmp<=0 ){  //kanena stoixeio den pernaei elegexos eta?
-          tmp = 1;
-        }
-        else if( tmp>1 ){
-          tmp = 0;
-          return;
-        }
-      }
-      else if ( the_predicate.operation=='<' ){
-        tmp = (max-the_predicate.number)/(max-min);
-        if ( tmp>=1 ){
-          tmp = 1;
-        }
-        else if( tmp<0 ){
-          tmp = 0;
-          return;
-        }
-      }
-    }
-    else if ( the_predicate.flag==2 ){
-      printf("left row :%d left column:%d number:%d flag:%d operation%c\n",the_predicate.left.row,the_predicate.left.column,the_predicate.number,the_predicate.flag,the_predicate.operation);
-      min = rel_pointers[the_predicate.left.row]->my_metadata.statistics_array[the_predicate.left.column].min;
-      max = rel_pointers[the_predicate.left.row]->my_metadata.statistics_array[the_predicate.left.column].max;
-      if ( the_predicate.operation=='>' ){
-        tmp = (max-the_predicate.number)/(max-min);
-        if ( tmp>=1 ){
-          tmp = 1;
-        }
-        else if( tmp<0 ){
-          tmp = 0;
-          return;
-        }
-      }
-      else if ( the_predicate.operation=='<'){
-        tmp = (the_predicate.number-min)/(max-min);
-        if ( tmp<=0 ){
-          tmp = 1;
-        }
-        else if( tmp>1 ){
-          tmp = 0;
-          return;
-        }
-      }
-    }
-  }
-  the_predicate.metric += (1.0/(double)tmp)*500.0;
+void calculate_metric(predicate *the_predicate,int size,full_relation **rel_pointers){
 
+  int i;
+  for(i=0;i<size;i++) {
+    int min,max;
+    double tmp;
+    if ( the_predicate[i].flag==0 ){
+      //if ( rel_pointers[the_predicate[i].left.row]==rel_pointers[the_predicate[i].right.row] ){
+        //printf("same-----------------------\n");
+        //the_predicate[i].metric += 500;
+      //}
+    }
+    else{
+      if ( the_predicate[i].flag==1 ){
+        min = rel_pointers[the_predicate[i].right.row]->my_metadata.statistics_array[the_predicate[i].right.column].min;
+        max = rel_pointers[the_predicate[i].right.row]->my_metadata.statistics_array[the_predicate[i].right.column].max;
+        printf("min: %d ,max: %d ,number: %d\n",min,max,the_predicate[i].number );
+        if ( the_predicate[i].operation=='>' ){
+          tmp = (double)(the_predicate[i].number-min)/(double)(max-min);
+          if ( tmp<=0 ){  //kanena stoixeio den pernaei elegexos eta?
+            tmp = 1;
+          }
+          else if( tmp>1 ){
+            tmp = 0;
+            continue;
+          }
+        }
+        else if ( the_predicate[i].operation=='<' ){
+          tmp = (double)(the_predicate[i].number-min)/(double)(max-min);
+          if ( tmp>=1 ){
+            tmp = 1;
+          }
+          else if( tmp<0 ){
+            tmp = 0;
+            continue;
+          }
+        }
+      }
+      else if ( the_predicate[i].flag==2 ){
+        //printf("left row :%d left column:%d number:%d flag:%d operation%c\n",the_predicate[i].left.row,the_predicate[i].left.column,the_predicate[i].number,the_predicate[i].flag,the_predicate[i].operation);
+        min = rel_pointers[the_predicate[i].left.row]->my_metadata.statistics_array[the_predicate[i].left.column].min;
+        max = rel_pointers[the_predicate[i].left.row]->my_metadata.statistics_array[the_predicate[i].left.column].max;
+        printf("min: %d ,max: %d ,number: %d ",min,max,the_predicate[i].number );
+        if ( the_predicate[i].operation=='>' ){
+          tmp = (double)(the_predicate[i].number-min)/(double)(max-min);
+          printf(",tmp: %f\n",tmp );
+          if ( tmp>=1 ){
+            tmp = 1;
+          }
+          else if( tmp<0 ){
+            tmp = 0;
+            continue;
+          }
+        }
+        else if ( the_predicate[i].operation=='<'){
+          tmp = (the_predicate[i].number-min)/(max-min);
+          printf(",tmp: %f\n",tmp );
+          if ( tmp<=0 ){
+            tmp = 1;
+          }
+          else if( tmp>1 ){
+            tmp = 0;
+            continue;
+          }
+        }
+      }
+    }
+
+    printf("2  the_predicate[i].metri %d\n",the_predicate[i].metric );
+    int x = (1.0-tmp)*500;
+    //printf("x is %d\n",x );
+    the_predicate[i].metric += 111;
+  }
 }
