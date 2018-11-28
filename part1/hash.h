@@ -35,3 +35,5 @@ void Scan_Buckets(result *,HashBucket*,relation*,relation*,int,int,int,int,int);
 result* RadixHashJoin(relation *relR, relation *relS);
 void free_hash_bucket(HashBucket *);
 void free_memory(relation *A);
+
+result *Simple_Scan(relation *,uint64_t,char);

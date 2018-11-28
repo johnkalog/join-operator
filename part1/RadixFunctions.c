@@ -1,6 +1,41 @@
 #include "hash.h"
 #include <math.h>
 
+result *Simple_Scan(relation *Rel,uint64_t value,char op){
+    int i;
+    result *Result=result_init();
+
+    if(op == '='){
+
+        for(i=0; i<Rel->num_tuples;i++){
+            if( Rel->tuples[i].payload == value){
+                insert(Result,Rel->tuples[i].key,-1);
+            }
+        }
+
+    }
+    else if( op == '>'){
+
+        for(i=0; i<Rel->num_tuples;i++){
+            if( Rel->tuples[i].payload > value){
+                insert(Result,Rel->tuples[i].key,-1);
+            }
+        }
+
+    }
+    else{
+
+        for(i=0; i<Rel->num_tuples;i++){
+            if( Rel->tuples[i].payload < value){
+                insert(Result,Rel->tuples[i].key,-1);
+            }
+        }
+
+    }
+
+    return Result;
+}
+
 
 void Scan_Buckets(result *Result,HashBucket *fullBucket,relation *RelHash,relation *RelScan,int startHash,int startScan,int sizeHash,int sizeScan,int first){
   ///// scan bucket RelScan kai briskei ta koina me to fullBucket /////
