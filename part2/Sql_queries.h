@@ -38,3 +38,5 @@ int empty_list(list *);
 void freeList(list *);
 
 void calculate_metric(predicate *,full_relation **);
+
+full_relation *subcpy_full_relation(full_relation **,int );
