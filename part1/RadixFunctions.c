@@ -36,6 +36,20 @@ result *Simple_Scan(relation *Rel,uint64_t value,char op){
     return Result;
 }
 
+result *Simple_Scan_Tables(relation *Rel, relation *Rel2){
+    int i;
+    result *Result=result_init();
+
+    for(i=0; i<Rel->num_tuples; i++){
+
+        if( Rel->tuples[i].payload == Rel2->tuples[i].payload ){
+            insert(Result,Rel->tuples[i].key,-1);
+        }
+
+    }
+    return Result;
+}
+
 
 void Scan_Buckets(result *Result,HashBucket *fullBucket,relation *RelHash,relation *RelScan,int startHash,int startScan,int sizeHash,int sizeScan,int first){
   ///// scan bucket RelScan kai briskei ta koina me to fullBucket /////
