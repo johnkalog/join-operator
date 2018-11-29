@@ -33,13 +33,13 @@ void sql_queries(char *filepath,full_relation *relations_array){
 
             }
             full_relation *cpy_tuple_array = subcpy_full_relation(rel_pointers,rel_num);
-            free_structs(cpy_tuple_array,rel_num);
+            free(rel_pointers);
             //--------------------------where--------------------------------
             int condition_num;
             predicate *rel_predicate = string2predicate(tok2,&condition_num);
 
             for(i=0;i<condition_num;i++){
-              calculate_metric(&rel_predicate[i],rel_pointers);
+              calculate_metric(&rel_predicate[i],cpy_tuple_array);
               printf("]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]metric here is: %d\n",rel_predicate[i].metric);
             }
             list *head = NULL;
@@ -70,8 +70,8 @@ void sql_queries(char *filepath,full_relation *relations_array){
             for ( i=0; i<selection_num; i++ ) {
               printf("row %d column %d\n",rel_selection[i].row,rel_selection[i].column);
             }
-            free(rel_pointers);
             free(rel_selection);
+            free_structs(cpy_tuple_array,rel_num);
         }
     }
     free(line);
@@ -246,23 +246,23 @@ point *string2rel_selection(char *tok3,int *selection_num){
   return rel_selection;
 }
 
-void calculate_metric(predicate *the_predicate,full_relation **rel_pointers){
+void calculate_metric(predicate *the_predicate,full_relation *subcpy_full_relation){
 
     int min,max;
     double tmp=1;
     if ( the_predicate->flag==0 ){
 
 
-      if ( rel_pointers[the_predicate->left.row]==rel_pointers[the_predicate->right.row] ){
+      if ( the_predicate->left.row==the_predicate->right.row){
         printf("same-----------------------\n");
         the_predicate->metric += 500;
         return;
       }
       else {
-        int min1 = rel_pointers[the_predicate->right.row]->my_metadata.statistics_array[the_predicate->right.column].min;
-        int max1 = rel_pointers[the_predicate->right.row]->my_metadata.statistics_array[the_predicate->right.column].max;
-        int min2 = rel_pointers[the_predicate->left.row]->my_metadata.statistics_array[the_predicate->left.column].min;
-        int max2 = rel_pointers[the_predicate->left.row]->my_metadata.statistics_array[the_predicate->left.column].max;
+        int min1 = subcpy_full_relation[the_predicate->right.row].my_metadata.statistics_array[the_predicate->right.column].min;
+        int max1 = subcpy_full_relation[the_predicate->right.row].my_metadata.statistics_array[the_predicate->right.column].max;
+        int min2 = subcpy_full_relation[the_predicate->left.row].my_metadata.statistics_array[the_predicate->left.column].min;
+        int max2 = subcpy_full_relation[the_predicate->left.row].my_metadata.statistics_array[the_predicate->left.column].max;
         tmp = (double)(MIN(max1,max2)-MAX(min1,min2)) / ((double)(MAX(max1,max2)-MIN(min1,min2)));
         printf("min1: %d,min2: %d,max1: %d,max2: %d\n",min1,min2,max1,max2 );
         printf("tmp for join is %f\n",tmp );
@@ -270,8 +270,8 @@ void calculate_metric(predicate *the_predicate,full_relation **rel_pointers){
     }
     else{
       if ( the_predicate->flag==1 ){
-        min = rel_pointers[the_predicate->right.row]->my_metadata.statistics_array[the_predicate->right.column].min;
-        max = rel_pointers[the_predicate->right.row]->my_metadata.statistics_array[the_predicate->right.column].max;
+        min = subcpy_full_relation[the_predicate->right.row].my_metadata.statistics_array[the_predicate->right.column].min;
+        max = subcpy_full_relation[the_predicate->right.row].my_metadata.statistics_array[the_predicate->right.column].max;
         printf("min: %d ,max: %d ,number: %d\n",min,max,the_predicate->number );
         if ( the_predicate->operation=='>' ){
           tmp = (double)(the_predicate->number-min)/(double)(max-min);
@@ -296,8 +296,8 @@ void calculate_metric(predicate *the_predicate,full_relation **rel_pointers){
       }
       else if ( the_predicate->flag==2 ){
         //printf("left row :%d left column:%d number:%d flag:%d operation%c\n",the_predicate->left.row,the_predicate->left.column,the_predicate->number,the_predicate->flag,the_predicate->operation);
-        min = rel_pointers[the_predicate->left.row]->my_metadata.statistics_array[the_predicate->left.column].min;
-        max = rel_pointers[the_predicate->left.row]->my_metadata.statistics_array[the_predicate->left.column].max;
+        min = subcpy_full_relation[the_predicate->left.row].my_metadata.statistics_array[the_predicate->left.column].min;
+        max = subcpy_full_relation[the_predicate->left.row].my_metadata.statistics_array[the_predicate->left.column].max;
         printf("min: %d ,max: %d ,number: %d ",min,max,the_predicate->number );
         if ( the_predicate->operation=='>' ){
           tmp = (double)(the_predicate->number-min)/(double)(max-min);
