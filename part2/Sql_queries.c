@@ -47,6 +47,9 @@ void sql_queries(char *filepath,full_relation *relations_array){
                printf("rel_predicate i operation : %c left: %d,%d and the flag %d\n",rel_predicate[i].operation,rel_predicate[i].left.row,rel_predicate[i].left.column,rel_predicate[i].flag);
                int best_pos = findNextPredicate(rel_predicate,condition_num,head);
                printf("best next pos is %d\n",best_pos );
+               result *Result=RadixHashJoin(&cpy_tuple_array[rel_predicate[best_pos].left.row].my_relations[rel_predicate[best_pos].left.column],&cpy_tuple_array[rel_predicate[best_pos].right.row].my_relations[rel_predicate[best_pos].right.column]);
+               //result_print(Result);
+               result_free(Result);
 
                if(rel_predicate[best_pos].flag == 0) {
                  push_list(&head,rel_predicate[best_pos].left.row);
@@ -161,6 +164,28 @@ predicate *string2predicate(char* str,int *condition_num) {
   free(rel_condition);
 
   return rel_predicate;
+}
+
+void result2relation(result *Result,full_relation *cpy_tuple_array,predicate *rel_predicate) {
+  int left_row = rel_predicate->left.row;
+  int right_row = rel_predicate->right.row;
+  tuple *cpy_tuple_array_left = malloc(Result->size*cpy_tuple_array[left_row].my_metadata.num_columns*sizeof(tuple));
+  tuple *cpy_tuple_array_right = malloc(Result->size*cpy_tuple_array[right_row].my_metadata.num_columns*sizeof(tuple));
+
+  int i=0,j;
+  result_node *tmp=Result->Head;
+  while ( tmp!=NULL ){
+    //printf("---------------node %d--------------------\n",i);
+    //printf("tmp pos %d\n",tmp->pos );
+    for ( j=0; j<tmp->pos; j++ ){
+      //printf("In node: %d, with index in array %d, elements %d %d\n",i,j,tmp->buffer[0][j],tmp->buffer[1][j]);
+
+    }
+    tmp = tmp->next;
+    i++;
+  }
+
+
 }
 
 full_relation *subcpy_full_relation(full_relation **rel_pointers,int rel_num){
