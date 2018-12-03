@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include "Sql_queries.h"
+#define bufferRows 1024*1024/8  //plhthos eggrafwn result_node
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
@@ -47,9 +48,12 @@ void sql_queries(char *filepath,full_relation *relations_array){
                printf("rel_predicate i operation : %c left: %d,%d and the flag %d\n",rel_predicate[i].operation,rel_predicate[i].left.row,rel_predicate[i].left.column,rel_predicate[i].flag);
                int best_pos = findNextPredicate(rel_predicate,condition_num,head);
                printf("best next pos is %d\n",best_pos );
-               result *Result=RadixHashJoin(&cpy_tuple_array[rel_predicate[best_pos].left.row].my_relations[rel_predicate[best_pos].left.column],&cpy_tuple_array[rel_predicate[best_pos].right.row].my_relations[rel_predicate[best_pos].right.column]);
-               //result_print(Result);
-               result_free(Result);
+               if(rel_predicate[best_pos].flag == 0) {
+                 result *Result=RadixHashJoin(&cpy_tuple_array[rel_predicate[best_pos].left.row].my_relations[rel_predicate[best_pos].left.column],&cpy_tuple_array[rel_predicate[best_pos].right.row].my_relations[rel_predicate[best_pos].right.column]);
+                 //result_print(Result);
+                 //result2relation(Result,cpy_tuple_array,rel_predicate);
+                 result_free(Result);
+               }
 
                if(rel_predicate[best_pos].flag == 0) {
                  push_list(&head,rel_predicate[best_pos].left.row);
@@ -75,6 +79,7 @@ void sql_queries(char *filepath,full_relation *relations_array){
             }
             free(rel_selection);
             free_structs(cpy_tuple_array,rel_num);
+            //exit(1);
         }
     }
     free(line);
@@ -169,21 +174,67 @@ predicate *string2predicate(char* str,int *condition_num) {
 void result2relation(result *Result,full_relation *cpy_tuple_array,predicate *rel_predicate) {
   int left_row = rel_predicate->left.row;
   int right_row = rel_predicate->right.row;
-  tuple *cpy_tuple_array_left = malloc(Result->size*cpy_tuple_array[left_row].my_metadata.num_columns*sizeof(tuple));
-  tuple *cpy_tuple_array_right = malloc(Result->size*cpy_tuple_array[right_row].my_metadata.num_columns*sizeof(tuple));
+  int size = (Result->size-1)*bufferRows + Result->Tail->pos; // Error
+  printf("size is %d\n",size );
+  tuple *cpy_tuple_array_left = malloc(size*cpy_tuple_array[left_row].my_metadata.num_columns*sizeof(tuple));
+  tuple *cpy_tuple_array_right = malloc(size*cpy_tuple_array[right_row].my_metadata.num_columns*sizeof(tuple));
+
+  cpy_tuple_array[left_row].my_metadata.num_tuples = size;
+  cpy_tuple_array[right_row].my_metadata.num_tuples = size;
+
+
 
   int i=0,j;
+  int pos_left = 0;
+  int pos_right = 0;
   result_node *tmp=Result->Head;
   while ( tmp!=NULL ){
     //printf("---------------node %d--------------------\n",i);
     //printf("tmp pos %d\n",tmp->pos );
     for ( j=0; j<tmp->pos; j++ ){
       //printf("In node: %d, with index in array %d, elements %d %d\n",i,j,tmp->buffer[0][j],tmp->buffer[1][j]);
+      int c;
+      for(c=0;c<cpy_tuple_array[left_row].my_metadata.num_columns;c++) {
+        cpy_tuple_array_left[c*size+pos_left].payload = cpy_tuple_array[left_row].my_relations[c].tuples[tmp->buffer[0][j]-1].payload;
+        cpy_tuple_array_left[c*size+pos_left].key = pos_left+1;
+        cpy_tuple_array[left_row].my_relations[c].num_tuples = size;
+      }
+      pos_left++;
+      for(c=0;c<cpy_tuple_array[right_row].my_metadata.num_columns;c++) {
+        cpy_tuple_array_right[c*size+pos_right].payload = cpy_tuple_array[right_row].my_relations[c].tuples[tmp->buffer[1][j]-1].payload;
+        cpy_tuple_array_right[c*size+pos_right].key = pos_right+1;
+        cpy_tuple_array[right_row].my_relations[c].num_tuples = size;
+      }
+      pos_right++;
 
     }
     tmp = tmp->next;
     i++;
   }
+  free(cpy_tuple_array[left_row].my_relations[0].tuples);
+  free(cpy_tuple_array[right_row].my_relations[0].tuples);
+
+  int l;
+  for ( l=0; l<cpy_tuple_array[left_row].my_metadata.num_columns; l++ ){
+    cpy_tuple_array[left_row].my_relations[l].num_tuples = size;
+    cpy_tuple_array[left_row].my_relations[l].tuples = &cpy_tuple_array_left[l*size];
+  }
+  //
+  // for ( l=0; l<cpy_tuple_array[left_row].my_metadata.num_columns; l++ ){
+  //   cpy_tuple_array[left_row].my_metadata.statistics_array[l].min = calculate_min(cpy_tuple_array[left_row].my_relations[l].tuples,cpy_tuple_array[left_row].my_metadata.num_tuples);
+  //   cpy_tuple_array[left_row].my_metadata.statistics_array[l].max = calculate_max(cpy_tuple_array[left_row].my_relations[l].tuples,cpy_tuple_array[left_row].my_metadata.num_tuples);
+  // }
+
+  for ( l=0; l<cpy_tuple_array[right_row].my_metadata.num_columns; l++ ){
+    cpy_tuple_array[right_row].my_relations[l].num_tuples = size;
+    cpy_tuple_array[right_row].my_relations[l].tuples = &cpy_tuple_array_right[l*size];
+  }
+  //
+  // for ( l=0; l<cpy_tuple_array[right_row].my_metadata.num_columns; l++ ){
+  //   cpy_tuple_array[right_row].my_metadata.statistics_array[l].min = calculate_min(cpy_tuple_array[right_row].my_relations[l].tuples,cpy_tuple_array[right_row].my_metadata.num_tuples);
+  //   cpy_tuple_array[right_row].my_metadata.statistics_array[l].max = calculate_max(cpy_tuple_array[right_row].my_relations[l].tuples,cpy_tuple_array[right_row].my_metadata.num_tuples);
+  // }
+
 
 
 }
