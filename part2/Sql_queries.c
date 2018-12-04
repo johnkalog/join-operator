@@ -15,6 +15,7 @@ void sql_queries(char *filepath,full_relation *relations_array){
         exit(EXIT_FAILURE);
     }
 
+    int count=0;
     while((nread = getline(&line, &len, fp)) != -1){
         if(line[0]=='F'){
             printf("It's F, new batch!\n");
@@ -49,10 +50,13 @@ void sql_queries(char *filepath,full_relation *relations_array){
                int best_pos = findNextPredicate(rel_predicate,condition_num,head);
                printf("best next pos is %d\n",best_pos );
                if(rel_predicate[best_pos].flag == 0) {
+                 if ( count<5 ){
                  result *Result=RadixHashJoin(&cpy_tuple_array[rel_predicate[best_pos].left.row].my_relations[rel_predicate[best_pos].left.column],&cpy_tuple_array[rel_predicate[best_pos].right.row].my_relations[rel_predicate[best_pos].right.column]);
                  //result_print(Result);
-                 //result2relation(Result,cpy_tuple_array,rel_predicate);
+                 result2relation(Result,cpy_tuple_array,rel_predicate);
                  result_free(Result);
+                 count ++;
+                }
                }
 
                if(rel_predicate[best_pos].flag == 0) {
