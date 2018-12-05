@@ -157,10 +157,11 @@ void free_structs(full_relation *relations_array,unsigned int num_lines){
    // for ( j=0 j<relations_array[i].my_metadata.num_columns; j++){
    //   free(relations_array[i].my_metadata.statistics_array[j]);
    // }
-   free(relations_array[i].my_metadata.statistics_array);
-   free(relations_array[i].my_relations[0].tuples);
-   free(relations_array[i].my_relations);
-      //for ( j=0; j<relations_array[i].my_metadata.num_columns; j++ ){
+   if(relations_array[i].my_metadata.num_tuples > 0) {
+     free(relations_array[i].my_metadata.statistics_array);
+     free(relations_array[i].my_relations[0].tuples);
+     free(relations_array[i].my_relations);
+   }//for ( j=0; j<relations_array[i].my_metadata.num_columns; j++ ){
   //   //   relations_array[i].my_relations[j].tuples = NULL;
   //   // }
   //   free(relations_array[i].my_relations);
