@@ -51,21 +51,30 @@ void sql_queries(char *filepath,full_relation *relations_array){
               // printf("best next pos is %d\n",best_pos );
                if(rel_predicate[best_pos].flag == 0) {
                 // if ( count<5 ){
-                 result *Result=RadixHashJoin(&cpy_tuple_array[rel_predicate[best_pos].left.row].my_relations[rel_predicate[best_pos].left.column],&cpy_tuple_array[rel_predicate[best_pos].right.row].my_relations[rel_predicate[best_pos].right.column]);
-                 //result_print(Result);
-                 result2relation(Result,cpy_tuple_array,&rel_predicate[best_pos]);
-                 result_free(Result);
-                // count ++;
-                //}
+                if ( rel_predicate[best_pos].left.row==rel_predicate[best_pos].right.row ){
+                  if ( rel_predicate[best_pos].left.column!=rel_predicate[best_pos].right.column ){
+                    result *Result=Simple_Scan_Tables(&cpy_tuple_array[rel_predicate[best_pos].left.row].my_relations[rel_predicate[best_pos].left.column],&cpy_tuple_array[rel_predicate[best_pos].right.row].my_relations[rel_predicate[best_pos].right.column]);
+                    result2relation_simple(Result,cpy_tuple_array,rel_predicate[best_pos].left.row);
+                    result_free(Result);
+                  }
+                }
+                else{
+                   result *Result=RadixHashJoin(&cpy_tuple_array[rel_predicate[best_pos].left.row].my_relations[rel_predicate[best_pos].left.column],&cpy_tuple_array[rel_predicate[best_pos].right.row].my_relations[rel_predicate[best_pos].right.column]);
+                   //result_print(Result);
+                   result2relation(Result,cpy_tuple_array,&rel_predicate[best_pos]);
+                   result_free(Result);
+                  // count ++;
+                  //}
+                }
                }
                else if(rel_predicate[best_pos].flag==1){
                  result *Result=Simple_Scan(&cpy_tuple_array[rel_predicate[best_pos].right.row].my_relations[rel_predicate[best_pos].right.column],rel_predicate[best_pos].number,rel_predicate[best_pos].operation);
-                 // result2relation_simple(Result,cpy_tuple_array,rel_predicate[best_pos].right.row);
+                 result2relation_simple(Result,cpy_tuple_array,rel_predicate[best_pos].right.row);
                  result_free(Result);
                }
                else{
                  result *Result=Simple_Scan(&cpy_tuple_array[rel_predicate[best_pos].left.row].my_relations[rel_predicate[best_pos].left.column],rel_predicate[best_pos].number,rel_predicate[best_pos].operation);
-                 // result2relation_simple(Result,cpy_tuple_array,rel_predicate[best_pos].left.row);
+                 result2relation_simple(Result,cpy_tuple_array,rel_predicate[best_pos].left.row);
                  result_free(Result);
                }
 
