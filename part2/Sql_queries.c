@@ -58,6 +58,16 @@ void sql_queries(char *filepath,full_relation *relations_array){
                 // count ++;
                 //}
                }
+               else if(rel_predicate[best_pos].flag==1){
+                 result *Result=Simple_Scan(&cpy_tuple_array[rel_predicate[best_pos].right.row].my_relations[rel_predicate[best_pos].right.column],rel_predicate[best_pos].number,rel_predicate[best_pos].operation);
+                 // result2relation_simple(Result,cpy_tuple_array,rel_predicate[best_pos].right.row);
+                 result_free(Result);
+               }
+               else{
+                 result *Result=Simple_Scan(&cpy_tuple_array[rel_predicate[best_pos].left.row].my_relations[rel_predicate[best_pos].left.column],rel_predicate[best_pos].number,rel_predicate[best_pos].operation);
+                 // result2relation_simple(Result,cpy_tuple_array,rel_predicate[best_pos].left.row);
+                 result_free(Result);
+               }
 
                if(rel_predicate[best_pos].flag == 0) {
                  push_list(&head,rel_predicate[best_pos].left.row);
@@ -233,25 +243,73 @@ void result2relation(result *Result,full_relation *cpy_tuple_array,predicate *re
     cpy_tuple_array[left_row].my_relations[l].num_tuples = size;
     cpy_tuple_array[left_row].my_relations[l].tuples = &cpy_tuple_array_left[l*size];
   }
-  //
-  // for ( l=0; l<cpy_tuple_array[left_row].my_metadata.num_columns; l++ ){
-  //   cpy_tuple_array[left_row].my_metadata.statistics_array[l].min = calculate_min(cpy_tuple_array[left_row].my_relations[l].tuples,cpy_tuple_array[left_row].my_metadata.num_tuples);
-  //   cpy_tuple_array[left_row].my_metadata.statistics_array[l].max = calculate_max(cpy_tuple_array[left_row].my_relations[l].tuples,cpy_tuple_array[left_row].my_metadata.num_tuples);
-  // }
+
+  for ( l=0; l<cpy_tuple_array[left_row].my_metadata.num_columns; l++ ){
+    cpy_tuple_array[left_row].my_metadata.statistics_array[l].min = calculate_min(cpy_tuple_array[left_row].my_relations[l].tuples,cpy_tuple_array[left_row].my_metadata.num_tuples);
+    cpy_tuple_array[left_row].my_metadata.statistics_array[l].max = calculate_max(cpy_tuple_array[left_row].my_relations[l].tuples,cpy_tuple_array[left_row].my_metadata.num_tuples);
+    printf("column %d left min %ld max %ld\n",l,cpy_tuple_array[left_row].my_metadata.statistics_array[l].min,cpy_tuple_array[left_row].my_metadata.statistics_array[l].max);
+  }
 
   for ( l=0; l<cpy_tuple_array[right_row].my_metadata.num_columns; l++ ){
     cpy_tuple_array[right_row].my_relations[l].num_tuples = size;
     cpy_tuple_array[right_row].my_relations[l].tuples = &cpy_tuple_array_right[l*size];
   }
-  //
-  // for ( l=0; l<cpy_tuple_array[right_row].my_metadata.num_columns; l++ ){
-  //   cpy_tuple_array[right_row].my_metadata.statistics_array[l].min = calculate_min(cpy_tuple_array[right_row].my_relations[l].tuples,cpy_tuple_array[right_row].my_metadata.num_tuples);
-  //   cpy_tuple_array[right_row].my_metadata.statistics_array[l].max = calculate_max(cpy_tuple_array[right_row].my_relations[l].tuples,cpy_tuple_array[right_row].my_metadata.num_tuples);
-  // }
 
+  for ( l=0; l<cpy_tuple_array[right_row].my_metadata.num_columns; l++ ){
+    cpy_tuple_array[right_row].my_metadata.statistics_array[l].min = calculate_min(cpy_tuple_array[right_row].my_relations[l].tuples,cpy_tuple_array[right_row].my_metadata.num_tuples);
+    cpy_tuple_array[right_row].my_metadata.statistics_array[l].max = calculate_max(cpy_tuple_array[right_row].my_relations[l].tuples,cpy_tuple_array[right_row].my_metadata.num_tuples);
+    printf("column %d right min %ld max %ld\n",l,cpy_tuple_array[right_row].my_metadata.statistics_array[l].min,cpy_tuple_array[right_row].my_metadata.statistics_array[l].max);
+  }
+}
 
+void result2relation_simple(result *Result,full_relation *cpy_tuple_array,int row){
+  if(Result->size == 0) {
+    cpy_tuple_array[row].my_metadata.num_tuples = 0;
+    //printf("EMPTY\n" );
+    return;
+  }
+  int size = (Result->size-1)*bufferRows + Result->Tail->pos; // Error-fixed
+  //printf("size is %d\n",size );
+  tuple *cpy_tuple_array_inside = malloc(size*cpy_tuple_array[row].my_metadata.num_columns*sizeof(tuple));
+
+  cpy_tuple_array[row].my_metadata.num_tuples = size;
+
+  int i=0,j,pos=0;
+  result_node *tmp=Result->Head;
+  while ( tmp!=NULL ){
+    //printf("---------------node %d--------------------\n",i);
+    //printf("tmp pos %d\n",tmp->pos );
+    for ( j=0; j<tmp->pos; j++ ){
+      //printf("In node: %d, with index in array %d, elements %d %d\n",i,j,tmp->buffer[0][j],tmp->buffer[1][j]);
+      int c;
+      for(c=0;c<cpy_tuple_array[row].my_metadata.num_columns;c++) {
+
+        cpy_tuple_array_inside[c*size+pos].payload = cpy_tuple_array[row].my_relations[c].tuples[tmp->buffer[0][j]-1].payload;
+        cpy_tuple_array_inside[c*size+pos].key = pos+1;
+        cpy_tuple_array[row].my_relations[c].num_tuples = size;
+      }
+      pos++;
+
+    }
+    tmp = tmp->next;
+    i++;
+  }
+  free(cpy_tuple_array[row].my_relations[0].tuples);
+
+  int l;
+  for ( l=0; l<cpy_tuple_array[row].my_metadata.num_columns; l++ ){
+    cpy_tuple_array[row].my_relations[l].num_tuples = size;
+    cpy_tuple_array[row].my_relations[l].tuples = &cpy_tuple_array_inside[l*size];
+  }
+
+  for ( l=0; l<cpy_tuple_array[row].my_metadata.num_columns; l++ ){
+    cpy_tuple_array[row].my_metadata.statistics_array[l].min = calculate_min(cpy_tuple_array[row].my_relations[l].tuples,cpy_tuple_array[row].my_metadata.num_tuples);
+    cpy_tuple_array[row].my_metadata.statistics_array[l].max = calculate_max(cpy_tuple_array[row].my_relations[l].tuples,cpy_tuple_array[row].my_metadata.num_tuples);
+    printf("column %d left min %ld max %ld\n",l,cpy_tuple_array[row].my_metadata.statistics_array[l].min,cpy_tuple_array[row].my_metadata.statistics_array[l].max);
+  }
 
 }
+
 
 full_relation *subcpy_full_relation(full_relation **rel_pointers,int rel_num){
   full_relation *relations_cpy = malloc(rel_num*sizeof(full_relation));
@@ -388,7 +446,7 @@ void calculate_metric(predicate *the_predicate,full_relation *subcpy_full_relati
         //printf("left row :%d left column:%d number:%d flag:%d operation%c\n",the_predicate->left.row,the_predicate->left.column,the_predicate->number,the_predicate->flag,the_predicate->operation);
         min = subcpy_full_relation[the_predicate->left.row].my_metadata.statistics_array[the_predicate->left.column].min;
         max = subcpy_full_relation[the_predicate->left.row].my_metadata.statistics_array[the_predicate->left.column].max;
-    //    printf("min: %d ,max: %d ,number: %d ",min,max,the_predicate->number );
+       // printf("min: %d ,max: %d ,number: %d ",min,max,the_predicate->number );
         if ( the_predicate->operation=='>' ){
           tmp = (double)(the_predicate->number-min)/(double)(max-min);
     //      printf(",tmp: %f\n",tmp );
