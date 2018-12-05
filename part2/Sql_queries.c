@@ -45,13 +45,13 @@ void sql_queries(char *filepath,full_relation *relations_array){
             }
             list *head = NULL;
              for ( i=0; i<condition_num; i++ ) {
-               printf("rel_predicate i operation : %c left: %d,%d and the flag %d\n",rel_predicate[i].operation,rel_predicate[i].left.row,rel_predicate[i].left.column,rel_predicate[i].flag);
                int best_pos = findNextPredicate(rel_predicate,condition_num,head);
+               printf("rel_predicate i operation : %c left: %d,%d and the flag %d\n",rel_predicate[best_pos].operation,rel_predicate[best_pos].left.row,rel_predicate[best_pos].left.column,rel_predicate[best_pos].flag);
                printf("best next pos is %d\n",best_pos );
                if(rel_predicate[best_pos].flag == 0) {
                  result *Result=RadixHashJoin(&cpy_tuple_array[rel_predicate[best_pos].left.row].my_relations[rel_predicate[best_pos].left.column],&cpy_tuple_array[rel_predicate[best_pos].right.row].my_relations[rel_predicate[best_pos].right.column]);
                  //result_print(Result);
-                 //result2relation(Result,cpy_tuple_array,rel_predicate);
+                 result2relation(Result,cpy_tuple_array,rel_predicate);
                  result_free(Result);
                }
 
@@ -174,7 +174,15 @@ predicate *string2predicate(char* str,int *condition_num) {
 void result2relation(result *Result,full_relation *cpy_tuple_array,predicate *rel_predicate) {
   int left_row = rel_predicate->left.row;
   int right_row = rel_predicate->right.row;
-  int size = (Result->size-1)*bufferRows + Result->Tail->pos; // Error
+  printf("Result->size: %d\n",Result->size );
+  if(Result->size == 0) {
+    cpy_tuple_array[left_row].my_metadata.num_tuples = 0;
+    cpy_tuple_array[right_row].my_metadata.num_tuples = 0;
+    printf("EMPTY\n" );
+    return;
+  }
+  printf("Result->Tail->pos: %d\n",Result->Tail->pos );
+  int size = (Result->size-1)*bufferRows + Result->Tail->pos; // Error-fixed
   printf("size is %d\n",size );
   tuple *cpy_tuple_array_left = malloc(size*cpy_tuple_array[left_row].my_metadata.num_columns*sizeof(tuple));
   tuple *cpy_tuple_array_right = malloc(size*cpy_tuple_array[right_row].my_metadata.num_columns*sizeof(tuple));
@@ -183,6 +191,7 @@ void result2relation(result *Result,full_relation *cpy_tuple_array,predicate *re
   cpy_tuple_array[right_row].my_metadata.num_tuples = size;
 
 
+  printf("left: %d ,right: %d\n",left_row,right_row );
 
   int i=0,j;
   int pos_left = 0;
@@ -195,13 +204,14 @@ void result2relation(result *Result,full_relation *cpy_tuple_array,predicate *re
       //printf("In node: %d, with index in array %d, elements %d %d\n",i,j,tmp->buffer[0][j],tmp->buffer[1][j]);
       int c;
       for(c=0;c<cpy_tuple_array[left_row].my_metadata.num_columns;c++) {
-        cpy_tuple_array_left[c*size+pos_left].payload = cpy_tuple_array[left_row].my_relations[c].tuples[tmp->buffer[0][j]-1].payload;
+
+        cpy_tuple_array_left[c*size+pos_left].payload = //cpy_tuple_array[left_row].my_relations[0].tuples[tmp->buffer[0][j]-1].payload;
         cpy_tuple_array_left[c*size+pos_left].key = pos_left+1;
         cpy_tuple_array[left_row].my_relations[c].num_tuples = size;
       }
       pos_left++;
       for(c=0;c<cpy_tuple_array[right_row].my_metadata.num_columns;c++) {
-        cpy_tuple_array_right[c*size+pos_right].payload = cpy_tuple_array[right_row].my_relations[c].tuples[tmp->buffer[1][j]-1].payload;
+        cpy_tuple_array_right[c*size+pos_right].payload = //cpy_tuple_array[right_row].my_relations[0].tuples[tmp->buffer[1][j]-1].payload;
         cpy_tuple_array_right[c*size+pos_right].key = pos_right+1;
         cpy_tuple_array[right_row].my_relations[c].num_tuples = size;
       }
