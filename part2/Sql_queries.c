@@ -42,21 +42,21 @@ void sql_queries(char *filepath,full_relation *relations_array){
 
             for(i=0;i<condition_num;i++){
               calculate_metric(&rel_predicate[i],cpy_tuple_array);
-              printf("]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]metric here is: %d\n",rel_predicate[i].metric);
+             // printf("]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]metric here is: %d\n",rel_predicate[i].metric);
             }
             list *head = NULL;
              for ( i=0; i<condition_num; i++ ) {
                int best_pos = findNextPredicate(rel_predicate,condition_num,head);
-               printf("rel_predicate i operation : %c left: %d,%d and the flag %d\n",rel_predicate[best_pos].operation,rel_predicate[best_pos].left.row,rel_predicate[best_pos].left.column,rel_predicate[best_pos].flag);
-               printf("best next pos is %d\n",best_pos );
+               //printf("rel_predicate i operation : %c left: %d,%d and the flag %d\n",rel_predicate[best_pos].operation,rel_predicate[best_pos].left.row,rel_predicate[best_pos].left.column,rel_predicate[best_pos].flag);
+              // printf("best next pos is %d\n",best_pos );
                if(rel_predicate[best_pos].flag == 0) {
-                 if ( count<5 ){
+                // if ( count<5 ){
                  result *Result=RadixHashJoin(&cpy_tuple_array[rel_predicate[best_pos].left.row].my_relations[rel_predicate[best_pos].left.column],&cpy_tuple_array[rel_predicate[best_pos].right.row].my_relations[rel_predicate[best_pos].right.column]);
                  //result_print(Result);
-                 result2relation(Result,cpy_tuple_array,rel_predicate);
+                 result2relation(Result,cpy_tuple_array,&rel_predicate[best_pos]);
                  result_free(Result);
-                 count ++;
-                }
+                // count ++;
+                //}
                }
 
                if(rel_predicate[best_pos].flag == 0) {
@@ -77,9 +77,9 @@ void sql_queries(char *filepath,full_relation *relations_array){
             //-----------------------------select------------------------------
             int selection_num;
             point *rel_selection=string2rel_selection(tok3,&selection_num);
-            printf("Num of selection %d\n",selection_num);
+            //printf("Num of selection %d\n",selection_num);
             for ( i=0; i<selection_num; i++ ) {
-              printf("row %d column %d\n",rel_selection[i].row,rel_selection[i].column);
+              //printf("row %d column %d\n",rel_selection[i].row,rel_selection[i].column);
             }
             free(rel_selection);
             free_structs(cpy_tuple_array,rel_num);
@@ -178,16 +178,16 @@ predicate *string2predicate(char* str,int *condition_num) {
 void result2relation(result *Result,full_relation *cpy_tuple_array,predicate *rel_predicate) {
   int left_row = rel_predicate->left.row;
   int right_row = rel_predicate->right.row;
-  printf("Result->size: %d\n",Result->size );
+  //printf("Result->size: %d\n",Result->size );
   if(Result->size == 0) {
     cpy_tuple_array[left_row].my_metadata.num_tuples = 0;
     cpy_tuple_array[right_row].my_metadata.num_tuples = 0;
-    printf("EMPTY\n" );
+    //printf("EMPTY\n" );
     return;
   }
-  printf("Result->Tail->pos: %d\n",Result->Tail->pos );
+  //printf("Result->Tail->pos: %d\n",Result->Tail->pos );
   int size = (Result->size-1)*bufferRows + Result->Tail->pos; // Error-fixed
-  printf("size is %d\n",size );
+  //printf("size is %d\n",size );
   tuple *cpy_tuple_array_left = malloc(size*cpy_tuple_array[left_row].my_metadata.num_columns*sizeof(tuple));
   tuple *cpy_tuple_array_right = malloc(size*cpy_tuple_array[right_row].my_metadata.num_columns*sizeof(tuple));
 
@@ -209,13 +209,13 @@ void result2relation(result *Result,full_relation *cpy_tuple_array,predicate *re
       int c;
       for(c=0;c<cpy_tuple_array[left_row].my_metadata.num_columns;c++) {
 
-        cpy_tuple_array_left[c*size+pos_left].payload = //cpy_tuple_array[left_row].my_relations[0].tuples[tmp->buffer[0][j]-1].payload;
+        cpy_tuple_array_left[c*size+pos_left].payload = cpy_tuple_array[left_row].my_relations[c].tuples[tmp->buffer[0][j]-1].payload;
         cpy_tuple_array_left[c*size+pos_left].key = pos_left+1;
         cpy_tuple_array[left_row].my_relations[c].num_tuples = size;
       }
       pos_left++;
       for(c=0;c<cpy_tuple_array[right_row].my_metadata.num_columns;c++) {
-        cpy_tuple_array_right[c*size+pos_right].payload = //cpy_tuple_array[right_row].my_relations[0].tuples[tmp->buffer[1][j]-1].payload;
+        cpy_tuple_array_right[c*size+pos_right].payload = cpy_tuple_array[right_row].my_relations[c].tuples[tmp->buffer[1][j]-1].payload;
         cpy_tuple_array_right[c*size+pos_right].key = pos_right+1;
         cpy_tuple_array[right_row].my_relations[c].num_tuples = size;
       }
@@ -344,7 +344,7 @@ void calculate_metric(predicate *the_predicate,full_relation *subcpy_full_relati
 
 
       if ( the_predicate->left.row==the_predicate->right.row){
-        printf("same-----------------------\n");
+    //    printf("same-----------------------\n");
         the_predicate->metric += 500;
         return;
       }
@@ -354,15 +354,15 @@ void calculate_metric(predicate *the_predicate,full_relation *subcpy_full_relati
         int min2 = subcpy_full_relation[the_predicate->left.row].my_metadata.statistics_array[the_predicate->left.column].min;
         int max2 = subcpy_full_relation[the_predicate->left.row].my_metadata.statistics_array[the_predicate->left.column].max;
         tmp = (double)(MIN(max1,max2)-MAX(min1,min2)) / ((double)(MAX(max1,max2)-MIN(min1,min2)));
-        printf("min1: %d,min2: %d,max1: %d,max2: %d\n",min1,min2,max1,max2 );
-        printf("tmp for join is %f\n",tmp );
+    //    printf("min1: %d,min2: %d,max1: %d,max2: %d\n",min1,min2,max1,max2 );
+    //    printf("tmp for join is %f\n",tmp );
       }
     }
     else{
       if ( the_predicate->flag==1 ){
         min = subcpy_full_relation[the_predicate->right.row].my_metadata.statistics_array[the_predicate->right.column].min;
         max = subcpy_full_relation[the_predicate->right.row].my_metadata.statistics_array[the_predicate->right.column].max;
-        printf("min: %d ,max: %d ,number: %d\n",min,max,the_predicate->number );
+    //    printf("min: %d ,max: %d ,number: %d\n",min,max,the_predicate->number );
         if ( the_predicate->operation=='>' ){
           tmp = (double)(the_predicate->number-min)/(double)(max-min);
           if ( tmp<=0 ){  //kanena stoixeio den pernaei elegexos eta?
@@ -388,10 +388,10 @@ void calculate_metric(predicate *the_predicate,full_relation *subcpy_full_relati
         //printf("left row :%d left column:%d number:%d flag:%d operation%c\n",the_predicate->left.row,the_predicate->left.column,the_predicate->number,the_predicate->flag,the_predicate->operation);
         min = subcpy_full_relation[the_predicate->left.row].my_metadata.statistics_array[the_predicate->left.column].min;
         max = subcpy_full_relation[the_predicate->left.row].my_metadata.statistics_array[the_predicate->left.column].max;
-        printf("min: %d ,max: %d ,number: %d ",min,max,the_predicate->number );
+    //    printf("min: %d ,max: %d ,number: %d ",min,max,the_predicate->number );
         if ( the_predicate->operation=='>' ){
           tmp = (double)(the_predicate->number-min)/(double)(max-min);
-          printf(",tmp: %f\n",tmp );
+    //      printf(",tmp: %f\n",tmp );
           if ( tmp>=1 ){
             tmp = 1;
           }
@@ -402,7 +402,7 @@ void calculate_metric(predicate *the_predicate,full_relation *subcpy_full_relati
         }
         else if ( the_predicate->operation=='<'){
           tmp = (double)(the_predicate->number-min)/(double)(max-min);
-          printf(",tmp: %f\n",tmp );
+    //      printf(",tmp: %f\n",tmp );
           if ( tmp<=0 ){
             tmp = 1;
           }
@@ -416,7 +416,7 @@ void calculate_metric(predicate *the_predicate,full_relation *subcpy_full_relati
 
     //printf("2  the_predicate->metri %d\n",the_predicate->metric );
     int x = (1.0-tmp)*500;
-    printf("x is %d\n",x );
+    //printf("x is %d\n",x );
     the_predicate->metric += x;
 //  }
 }
