@@ -44,6 +44,7 @@ void sql_queries(char *filepath,full_relation *relations_array){
               calculate_metric(&rel_predicate[i],cpy_tuple_array);
              // printf("]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]metric here is: %d\n",rel_predicate[i].metric);
             }
+            list *adds=NULL;  //list for results print
             list *head = NULL;
              for ( i=0; i<condition_num; i++ ) {
                int best_pos = findNextPredicate(rel_predicate,condition_num,head);
@@ -108,9 +109,16 @@ void sql_queries(char *filepath,full_relation *relations_array){
             int selection_num;
             point *rel_selection=string2rel_selection(tok3,&selection_num);
             //printf("Num of selection %d\n",selection_num);
-            //for ( i=0; i<selection_num; i++ ) {
-              //printf("row %d column %d\n",rel_selection[i].row,rel_selection[i].column);
-            //}
+            uint64_t add;
+            for ( i=0; i<selection_num; i++ ) {
+              // printf("row %d column %d\n",rel_selection[i].row,rel_selection[i].column);
+              add = calculate_sum(cpy_tuple_array,rel_selection[i].row,rel_selection[i].column);
+              push_list(&adds,add);
+              printf("the sum %ld\n",add);
+            }
+            print_list(adds);
+            printf("\n");
+            freeList(adds);
             free(rel_selection);
             free_structs(cpy_tuple_array,rel_num);
             //exit(1);
@@ -506,4 +514,17 @@ void calculate_metric(predicate *the_predicate,full_relation *subcpy_full_relati
     //printf("x is %d\n",x );
     the_predicate->metric += x;
 //  }
+}
+
+uint64_t calculate_sum(full_relation *cpy_tuple_array,int row,int column){
+  if ( cpy_tuple_array[row].my_metadata.num_tuples==0 ){
+    // printf("ffffffffffffffffffffff %ld\n",cpy_tuple_array[row].my_relations[0].num_tuples);
+    return 0;
+  }
+  int i;
+  uint64_t sum=0;
+  for ( i=0; i<cpy_tuple_array[row].my_metadata.num_tuples; i++ ){
+    sum += cpy_tuple_array[row].my_relations[column].tuples[i].payload;
+  }
+  return sum;
 }

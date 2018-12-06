@@ -37,6 +37,8 @@ int empty_list(list *);
 
 void freeList(list *);
 
+void print_list(list *);
+
 void calculate_metric(predicate *,full_relation *);
 
 full_relation *subcpy_full_relation(full_relation **,int );
@@ -44,3 +46,5 @@ full_relation *subcpy_full_relation(full_relation **,int );
 void result2relation(result *,full_relation *,predicate *);
 
 void result2relation_simple(result *,full_relation *,int);
+
+uint64_t calculate_sum(full_relation *,int,int);

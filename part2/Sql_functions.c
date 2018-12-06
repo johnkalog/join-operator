@@ -91,3 +91,16 @@ void freeList(list* head) {
     }
 
 }
+
+void print_list(list *add){
+  list *tmp=add;
+  while ( tmp!=NULL ){
+    if ( tmp->val==0 ){
+      printf("NULL ");
+    }
+    else{
+      printf("%d ",tmp->val);
+    }
+    tmp = tmp->next;
+  }
+}
