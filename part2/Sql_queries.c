@@ -54,28 +54,78 @@ void sql_queries(char *filepath,full_relation *relations_array){
             list *head = NULL;
 
             int **keys;
-            keys= malloc(rel_num*sizeof(int*));
+            keys = malloc(rel_num*sizeof(int*));
             for(i=0;i<rel_num;i++) {
               keys[i] = NULL;
             }
-
+            int cur_size = 0;
              for ( i=0; i<condition_num; i++ ) {
                int best_pos = findNextPredicate(rel_predicate,condition_num,head);
-               //printf("rel_predicate i operation : %c left: %d,%d and the flag %d\n",rel_predicate[best_pos].operation,rel_predicate[best_pos].left.row,rel_predicate[best_pos].left.column,rel_predicate[best_pos].flag);
                // printf("best next pos is %d\n",best_pos );
                if(rel_predicate[best_pos].flag == 0) {
+                 //printf("%d.%d %c %d.%d\n",rel_predicate[best_pos].left.row,rel_predicate[best_pos].left.column,rel_predicate[best_pos].operation,rel_predicate[best_pos].right.row,rel_predicate[best_pos].right.column);
+                 if(keys[rel_predicate[best_pos].left.row] == NULL && keys[rel_predicate[best_pos].right.row] == NULL) {
+                   printf("BOTH NULL\n" );
+                   result *Result=RadixHashJoin(&cpy_tuple_array[rel_predicate[best_pos].left.row].my_relations[rel_predicate[best_pos].left.column],&cpy_tuple_array[rel_predicate[best_pos].right.row].my_relations[rel_predicate[best_pos].right.column]);
+                   result2keys(Result,keys,rel_predicate[best_pos].left.row,0,rel_num);
+                   result2keys(Result,keys,rel_predicate[best_pos].right.row,1,rel_num);
 
+                 }
+                 else if(keys[rel_predicate[best_pos].left.row] == NULL && keys[rel_predicate[best_pos].right.row] != NULL) {
+                   //printf("LEFT NULL\n" );
+                   relation *new_rel = keys2relation(keys[rel_predicate[best_pos].right.row],cur_size,&cpy_tuple_array[rel_predicate[best_pos].right.row].my_relations[rel_predicate[best_pos].right.column]);
+                   result *Result=RadixHashJoin(&cpy_tuple_array[rel_predicate[best_pos].left.row].my_relations[rel_predicate[best_pos].left.column],new_rel);
+                   if(Result->size == 0 ) {
+                     break;
+                   }
+                   cur_size = (Result->size-1)*bufferRows + Result->Tail->pos;
+                   result2keys(Result,keys,rel_predicate[best_pos].right.row,1,rel_num);
+                   result2keys(Result,keys,rel_predicate[best_pos].left.row,0,rel_num);
+
+
+                   result_free(Result);
+                   free(new_rel->tuples);
+                   free(new_rel);
+                 }
+                 else if(keys[rel_predicate[best_pos].left.row] != NULL && keys[rel_predicate[best_pos].right.row] == NULL){
+                   //printf("RIGHT NULL\n" );
+                   relation *new_rel = keys2relation(keys[rel_predicate[best_pos].left.row],cur_size,&cpy_tuple_array[rel_predicate[best_pos].left.row].my_relations[rel_predicate[best_pos].left.column]);
+                   result *Result=RadixHashJoin(new_rel,&cpy_tuple_array[rel_predicate[best_pos].right.row].my_relations[rel_predicate[best_pos].right.column]);
+                   if(Result->size == 0 ) {
+                     break;
+                   }
+                   cur_size = (Result->size-1)*bufferRows + Result->Tail->pos;
+                   result2keys(Result,keys,rel_predicate[best_pos].left.row,0,rel_num);
+                   result2keys(Result,keys,rel_predicate[best_pos].right.row,1,rel_num);
+
+
+                   result_free(Result);
+                   free(new_rel->tuples);
+                   free(new_rel);
+                 }
+                 else if(keys[rel_predicate[best_pos].left.row] != NULL && keys[rel_predicate[best_pos].right.row] != NULL) {
+                   printf("NONE NULL\n" );
+                 }
 
                }
                else if(rel_predicate[best_pos].flag == 1) {
-
-
+                 //printf("%d.%d %c %d\n",rel_predicate[best_pos].left.row,rel_predicate[best_pos].left.column,rel_predicate[best_pos].operation,rel_predicate[best_pos].number);
+                 result *Result=Simple_Scan(&cpy_tuple_array[rel_predicate[best_pos].right.row].my_relations[rel_predicate[best_pos].right.column],rel_predicate[best_pos].number,rel_predicate[best_pos].operation);
+                 if(Result->size == 0 ) {
+                   break;
+                 }
+                 cur_size = (Result->size-1)*bufferRows + Result->Tail->pos;
+                 result2keys(Result,keys,rel_predicate[best_pos].right.row,1,rel_num);
+                 result_free(Result);
                }
                else if(rel_predicate[best_pos].flag == 2) {
+                 //printf("%d.%d %c %d\n",rel_predicate[best_pos].left.row,rel_predicate[best_pos].left.column,rel_predicate[best_pos].operation,rel_predicate[best_pos].number);
                  result *Result=Simple_Scan(&cpy_tuple_array[rel_predicate[best_pos].left.row].my_relations[rel_predicate[best_pos].left.column],rel_predicate[best_pos].number,rel_predicate[best_pos].operation);
-
+                 if(Result->size == 0 ) {
+                   break;
+                 }
+                 cur_size = (Result->size-1)*bufferRows + Result->Tail->pos;
                  result2keys(Result,keys,rel_predicate[best_pos].left.row,0,rel_num);
-
                  result_free(Result);
                }
                if(rel_predicate[best_pos].flag == 0) {
@@ -97,15 +147,16 @@ void sql_queries(char *filepath,full_relation *relations_array){
             int selection_num;
             point *rel_selection=string2rel_selection(tok3,&selection_num);
             //printf("Num of selection %d\n",selection_num);
-            // uint64_t add;
-            // for ( i=0; i<selection_num; i++ ) {
+             uint64_t add;
+            for(i=0;i<selection_num;i++) {
             //   // printf("row %d column %d\n",rel_selection[i].row,rel_selection[i].column);
-            //   add = calculate_sum(cpy_tuple_array,rel_selection[i].row,rel_selection[i].column);
-            //   push_list2(&adds,add,1);
+              add = calculate_sum(keys,cur_size,cpy_tuple_array,rel_selection[i].row,rel_selection[i].column);
+              //printf("add is %d\n",add );
+               push_list2(&adds,add,1);
             //  // printf("the sum %ld\n",add);
-            // }
-            // push_list2(&adds,1,-1);           //  ----->  -1 gia allgh grammhs
-            // //printf("\n");
+             }
+             push_list2(&adds,1,-1);           //  ----->  -1 gia allgh grammhs
+            printf("\n");
             //freeList(adds);
             free(rel_selection);
             free_structs(cpy_tuple_array,rel_num);
@@ -127,7 +178,7 @@ void result2keys(result *Result,int **keys,int row,int index,int rel_num) {
   int size = (Result->size-1)*bufferRows + Result->Tail->pos; // Error-fixed
 
   if(keys[row] == NULL) {
-    printf("row %d doesn't exist yet\n",row );
+    //printf("row %d doesn't exist yet\n",row );
     keys[row] = malloc(size*sizeof(int));
 
     int pos = 0;
@@ -137,14 +188,14 @@ void result2keys(result *Result,int **keys,int row,int index,int rel_num) {
       //printf("tmp pos %d\n",tmp->pos );
       int j;
       for ( j=0; j<tmp->pos; j++ ){
-        //printf("In node: %d, with index in array %d, elements %d %d\n",i,j,tmp->buffer[0][j],tmp->buffer[1][j]);
+        //printf("In node: %d, with index in array %d, elements %d %d\n",row,j,tmp->buffer[index][j],tmp->buffer[index][j]);
         keys[row][pos] = tmp->buffer[index][j];
         pos++;
       }
+      tmp = tmp->next;
     }
   }
   else {
-    int pos = 0;
 
     int **new_keys = malloc(rel_num*sizeof(int*));
     int i;
@@ -153,6 +204,8 @@ void result2keys(result *Result,int **keys,int row,int index,int rel_num) {
         new_keys[i] = malloc(size*sizeof(int));
       }
     }
+    int pos = 0;
+    //printf("size is %d\n",size );
     result_node *tmp=Result->Head;
     while ( tmp!=NULL ){
       //printf("---------------node %d--------------------\n",i);
@@ -163,6 +216,7 @@ void result2keys(result *Result,int **keys,int row,int index,int rel_num) {
         //int row_i;
         for(i=0;i<rel_num;i++) {
           if(keys[i] != NULL) {
+            //printf("pos is %d\n",pos );
             new_keys[i][pos] = keys[i][tmp->buffer[index][j]-1];
           }
           else {
@@ -171,6 +225,7 @@ void result2keys(result *Result,int **keys,int row,int index,int rel_num) {
         }
         pos++;
       }
+      tmp = tmp->next;
     }
     for(i=0;i<rel_num;i++) {
       free(keys[i]);
@@ -581,15 +636,18 @@ void calculate_metric(predicate *the_predicate,full_relation *subcpy_full_relati
 //  }
 }
 
-uint64_t calculate_sum(full_relation *cpy_tuple_array,int row,int column){
-  if ( cpy_tuple_array[row].my_metadata.num_tuples==0 ){
+uint64_t calculate_sum(int **keys,int size,full_relation *cpy_tuple_array,int row,int column){
+  if(keys[row] == 0){
     // printf("ffffffffffffffffffffff %ld\n",cpy_tuple_array[row].my_relations[0].num_tuples);
     return 0;
   }
   int i;
+  relation *rel = keys2relation(keys[row],size,&cpy_tuple_array[row].my_relations[column]);
   uint64_t sum=0;
-  for ( i=0; i<cpy_tuple_array[row].my_metadata.num_tuples; i++ ){
-    sum += cpy_tuple_array[row].my_relations[column].tuples[i].payload;
+  for ( i=0; i<size; i++ ){
+    sum += rel->tuples[i].payload;
   }
+  free(rel->tuples);
+  free(rel);
   return sum;
 }

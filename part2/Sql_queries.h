@@ -50,7 +50,7 @@ void result2relation(result *,full_relation *,predicate *);
 
 void result2relation_simple(result *,full_relation *,int);
 
-uint64_t calculate_sum(full_relation *,int,int);
+uint64_t calculate_sum(int **,int,full_relation *,int,int);
 
 relation *keys2relation(int *,int ,relation *);
 
