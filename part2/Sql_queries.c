@@ -113,7 +113,7 @@ void sql_queries(char *filepath,full_relation *relations_array){
             for ( i=0; i<selection_num; i++ ) {
               // printf("row %d column %d\n",rel_selection[i].row,rel_selection[i].column);
               add = calculate_sum(cpy_tuple_array,rel_selection[i].row,rel_selection[i].column);
-              push_list(&adds,add);
+              push_list2(&adds,add);
               printf("the sum %ld\n",add);
             }
             print_list(adds);

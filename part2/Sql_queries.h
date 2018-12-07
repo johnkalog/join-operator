@@ -31,6 +31,8 @@ int findNextPredicate(predicate*,int,list *);
 
 void push_list(list **,int);
 
+void push_list2(list **,int );
+
 int search_list(list *,int);
 
 int empty_list(list *);

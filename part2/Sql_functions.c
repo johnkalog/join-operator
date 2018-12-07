@@ -56,12 +56,30 @@ void push_list(list **head, int val) {
         *head = malloc(sizeof(list));
         (*head)->val = val;
         (*head)->next = NULL;
+        return;
     }
     list *new_node;
     new_node = malloc(sizeof(list));
     new_node->val = val;
     new_node->next = (*head);
     *head = new_node;
+}
+
+void push_list2(list **head,int val){
+    if(*head==NULL){
+        *head = malloc(sizeof(list));
+        (*head)->val = val;
+        (*head)->next = NULL;
+        return;
+    }
+    list *new_node,*temp=*head;
+    new_node = malloc(sizeof(list));
+    new_node->val = val;
+    new_node->next = NULL;
+    while(temp->next!=NULL){
+        temp=temp->next;
+    }
+    temp->next=new_node;
 }
 
 int search_list(list *head,int x){
