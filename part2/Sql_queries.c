@@ -16,12 +16,19 @@ void sql_queries(char *filepath,full_relation *relations_array){
     }
 
     int count=0;
+    list *adds=NULL;  //list for results print
+
     while((nread = getline(&line, &len, fp)) != -1){
         if(line[0]=='F'){
-            printf("It's F, new batch!\n");
+            print_list(adds);
+            if(adds!=NULL)      freeList(adds);
+
+            //printf("It's F, new batch!\n");
+            adds=NULL;  //list for results print
+
         }
         else{
-            printf("///////////////////////%s",line );
+            //printf("///////////////////////%s",line );
             char *tok1 = strtok(line,"|");
             char *tok2 = strtok(NULL,"|");
             char *tok3 = strtok(NULL,"|");
@@ -44,7 +51,6 @@ void sql_queries(char *filepath,full_relation *relations_array){
               calculate_metric(&rel_predicate[i],cpy_tuple_array);
              // printf("]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]metric here is: %d\n",rel_predicate[i].metric);
             }
-            list *adds=NULL;  //list for results print
             list *head = NULL;
              for ( i=0; i<condition_num; i++ ) {
                int best_pos = findNextPredicate(rel_predicate,condition_num,head);
@@ -113,12 +119,12 @@ void sql_queries(char *filepath,full_relation *relations_array){
             for ( i=0; i<selection_num; i++ ) {
               // printf("row %d column %d\n",rel_selection[i].row,rel_selection[i].column);
               add = calculate_sum(cpy_tuple_array,rel_selection[i].row,rel_selection[i].column);
-              push_list2(&adds,add);
-              printf("the sum %ld\n",add);
+              push_list2(&adds,add,1);
+             // printf("the sum %ld\n",add);
             }
-            print_list(adds);
-            printf("\n");
-            freeList(adds);
+            push_list2(&adds,1,-1);           //  ----->  -1 gia allgh grammhs
+            //printf("\n");
+            //freeList(adds);
             free(rel_selection);
             free_structs(cpy_tuple_array,rel_num);
             //exit(1);

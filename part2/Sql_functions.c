@@ -51,7 +51,7 @@ int findNextPredicate(predicate* rel_predicate,int size,list *head) {
 
 
 
-void push_list(list **head, int val) {
+void push_list(list **head, uint64_t val) {
     if(*head==NULL){
         *head = malloc(sizeof(list));
         (*head)->val = val;
@@ -65,16 +65,18 @@ void push_list(list **head, int val) {
     *head = new_node;
 }
 
-void push_list2(list **head,int val){
+void push_list2(list **head,uint64_t val,int flag){
     if(*head==NULL){
         *head = malloc(sizeof(list));
         (*head)->val = val;
+        (*head)->flag = flag;       // -1 gia allgh grammhs
         (*head)->next = NULL;
         return;
     }
     list *new_node,*temp=*head;
     new_node = malloc(sizeof(list));
     new_node->val = val;
+    new_node->flag = flag;
     new_node->next = NULL;
     while(temp->next!=NULL){
         temp=temp->next;
@@ -117,7 +119,12 @@ void print_list(list *add){
       printf("NULL ");
     }
     else{
-      printf("%d ",tmp->val);
+        if(tmp->flag==-1){
+            printf("\n");
+        }
+        else{
+            printf("%lu ",tmp->val);
+        }
     }
     tmp = tmp->next;
   }

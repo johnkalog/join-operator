@@ -15,7 +15,8 @@ typedef struct predicate{
 }predicate;
 
 typedef struct list {
-    int val;
+    uint64_t val;
+    int flag;
     struct list *next;
 } list;
 
@@ -29,9 +30,9 @@ point *string2rel_selection(char *,int *);
 
 int findNextPredicate(predicate*,int,list *);
 
-void push_list(list **,int);
+void push_list(list **,uint64_t);
 
-void push_list2(list **,int );
+void push_list2(list **,uint64_t,int);
 
 int search_list(list *,int);
 
