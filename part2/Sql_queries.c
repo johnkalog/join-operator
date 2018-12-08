@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include "Sql_queries.h"
-#define bufferRows 1024*1024/8  //plhthos eggrafwn result_node
+#define bufferRows 1024*1024/8 //plhthos eggrafwn result_node
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
@@ -61,21 +61,49 @@ void sql_queries(char *filepath,full_relation *relations_array){
             int cur_size = 0;
              for ( i=0; i<condition_num; i++ ) {
                int best_pos = findNextPredicate(rel_predicate,condition_num,head);
+               //best_pos = i;
                // printf("best next pos is %d\n",best_pos );
                if(rel_predicate[best_pos].flag == 0) {
                  //printf("%d.%d %c %d.%d\n",rel_predicate[best_pos].left.row,rel_predicate[best_pos].left.column,rel_predicate[best_pos].operation,rel_predicate[best_pos].right.row,rel_predicate[best_pos].right.column);
                  if(keys[rel_predicate[best_pos].left.row] == NULL && keys[rel_predicate[best_pos].right.row] == NULL) {
                    printf("BOTH NULL\n" );
                    result *Result=RadixHashJoin(&cpy_tuple_array[rel_predicate[best_pos].left.row].my_relations[rel_predicate[best_pos].left.column],&cpy_tuple_array[rel_predicate[best_pos].right.row].my_relations[rel_predicate[best_pos].right.column]);
+                   if(Result->size == 0 ) {
+                     printf("EMPTY?\n" );
+                     if(Result->size == 0 ) {
+                       int k;
+                       for(k=0;k<rel_num;k++) {
+                         if(keys[k] != NULL) {
+                           free(keys[k]);
+                           keys[k] = NULL;
+                         }
+                       }
+                     }
+                     result_free(Result);
+                     break;
+                   }
+                   cur_size = (Result->size-1)*bufferRows + Result->Tail->pos;
+                   //printf("size result is %d\n",cur_size );
                    result2keys(Result,keys,rel_predicate[best_pos].left.row,0,rel_num);
                    result2keys(Result,keys,rel_predicate[best_pos].right.row,1,rel_num);
 
+                   result_free(Result);
                  }
                  else if(keys[rel_predicate[best_pos].left.row] == NULL && keys[rel_predicate[best_pos].right.row] != NULL) {
                    //printf("LEFT NULL\n" );
                    relation *new_rel = keys2relation(keys[rel_predicate[best_pos].right.row],cur_size,&cpy_tuple_array[rel_predicate[best_pos].right.row].my_relations[rel_predicate[best_pos].right.column]);
                    result *Result=RadixHashJoin(&cpy_tuple_array[rel_predicate[best_pos].left.row].my_relations[rel_predicate[best_pos].left.column],new_rel);
                    if(Result->size == 0 ) {
+                     int k;
+                     for(k=0;k<rel_num;k++) {
+                       if(keys[k] != NULL) {
+                         free(keys[k]);
+                         keys[k] = NULL;
+                       }
+                     }
+                     result_free(Result);
+                     free(new_rel->tuples);
+                     free(new_rel);
                      break;
                    }
                    cur_size = (Result->size-1)*bufferRows + Result->Tail->pos;
@@ -92,6 +120,16 @@ void sql_queries(char *filepath,full_relation *relations_array){
                    relation *new_rel = keys2relation(keys[rel_predicate[best_pos].left.row],cur_size,&cpy_tuple_array[rel_predicate[best_pos].left.row].my_relations[rel_predicate[best_pos].left.column]);
                    result *Result=RadixHashJoin(new_rel,&cpy_tuple_array[rel_predicate[best_pos].right.row].my_relations[rel_predicate[best_pos].right.column]);
                    if(Result->size == 0 ) {
+                     int k;
+                     for(k=0;k<rel_num;k++) {
+                       if(keys[k] != NULL) {
+                         free(keys[k]);
+                         keys[k] = NULL;
+                       }
+                     }
+                     result_free(Result);
+                     free(new_rel->tuples);
+                     free(new_rel);
                      break;
                    }
                    cur_size = (Result->size-1)*bufferRows + Result->Tail->pos;
@@ -112,6 +150,14 @@ void sql_queries(char *filepath,full_relation *relations_array){
                  //printf("%d.%d %c %d\n",rel_predicate[best_pos].left.row,rel_predicate[best_pos].left.column,rel_predicate[best_pos].operation,rel_predicate[best_pos].number);
                  result *Result=Simple_Scan(&cpy_tuple_array[rel_predicate[best_pos].right.row].my_relations[rel_predicate[best_pos].right.column],rel_predicate[best_pos].number,rel_predicate[best_pos].operation);
                  if(Result->size == 0 ) {
+                   int k;
+                   for(k=0;k<rel_num;k++) {
+                     if(keys[k] != NULL) {
+                       free(keys[k]);
+                       keys[k] = NULL;
+                     }
+                   }
+                   result_free(Result);
                    break;
                  }
                  cur_size = (Result->size-1)*bufferRows + Result->Tail->pos;
@@ -120,12 +166,25 @@ void sql_queries(char *filepath,full_relation *relations_array){
                }
                else if(rel_predicate[best_pos].flag == 2) {
                  //printf("%d.%d %c %d\n",rel_predicate[best_pos].left.row,rel_predicate[best_pos].left.column,rel_predicate[best_pos].operation,rel_predicate[best_pos].number);
+                 //printf("op: %c number %d\n",rel_predicate[best_pos].operation,rel_predicate[best_pos].number );
                  result *Result=Simple_Scan(&cpy_tuple_array[rel_predicate[best_pos].left.row].my_relations[rel_predicate[best_pos].left.column],rel_predicate[best_pos].number,rel_predicate[best_pos].operation);
+
                  if(Result->size == 0 ) {
+                   int k;
+                   for(k=0;k<rel_num;k++) {
+                     if(keys[k] != NULL) {
+                       free(keys[k]);
+                       keys[k] = NULL;
+                     }
+                   }
+                   result_free(Result);
                    break;
                  }
                  cur_size = (Result->size-1)*bufferRows + Result->Tail->pos;
                  result2keys(Result,keys,rel_predicate[best_pos].left.row,0,rel_num);
+                 //relation *new_rel = keys2relation(keys[rel_predicate[best_pos].left.row],cur_size,&cpy_tuple_array[rel_predicate[best_pos].left.row].my_relations[rel_predicate[best_pos].left.column]);
+                 //relation_print(new_rel);
+                 //exit(0);
                  result_free(Result);
                }
                if(rel_predicate[best_pos].flag == 0) {
@@ -148,6 +207,7 @@ void sql_queries(char *filepath,full_relation *relations_array){
             point *rel_selection=string2rel_selection(tok3,&selection_num);
             //printf("Num of selection %d\n",selection_num);
              uint64_t add;
+             //printf("Selection num %d\n",selection_num );
             for(i=0;i<selection_num;i++) {
             //   // printf("row %d column %d\n",rel_selection[i].row,rel_selection[i].column);
               add = calculate_sum(keys,cur_size,cpy_tuple_array,rel_selection[i].row,rel_selection[i].column);
@@ -317,6 +377,7 @@ predicate *string2predicate(char* str,int *condition_num) {
     }
     else {
       rel_predicate[i].number = atoi(rest);
+      //printf("rest is %d\n",rel_predicate[i].number );
       rel_predicate[i].flag = 2;
       rel_predicate[i].metric = 1000;
     }
@@ -637,7 +698,7 @@ void calculate_metric(predicate *the_predicate,full_relation *subcpy_full_relati
 }
 
 uint64_t calculate_sum(int **keys,int size,full_relation *cpy_tuple_array,int row,int column){
-  if(keys[row] == 0){
+  if(keys[row] == NULL){
     // printf("ffffffffffffffffffffff %ld\n",cpy_tuple_array[row].my_relations[0].num_tuples);
     return 0;
   }
