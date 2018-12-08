@@ -64,12 +64,57 @@ void sql_queries(char *filepath,full_relation *relations_array){
                //best_pos = i;
                // printf("best next pos is %d\n",best_pos );
                if(rel_predicate[best_pos].flag == 0) {
-                 //printf("%d.%d %c %d.%d\n",rel_predicate[best_pos].left.row,rel_predicate[best_pos].left.column,rel_predicate[best_pos].operation,rel_predicate[best_pos].right.row,rel_predicate[best_pos].right.column);
-                 if(keys[rel_predicate[best_pos].left.row] == NULL && keys[rel_predicate[best_pos].right.row] == NULL) {
-                   printf("BOTH NULL\n" );
-                   result *Result=RadixHashJoin(&cpy_tuple_array[rel_predicate[best_pos].left.row].my_relations[rel_predicate[best_pos].left.column],&cpy_tuple_array[rel_predicate[best_pos].right.row].my_relations[rel_predicate[best_pos].right.column]);
+                 if ( rel_predicate[best_pos].left.row==rel_predicate[best_pos].right.row){
+                   result *Result=Simple_Scan_Tables(&cpy_tuple_array[rel_predicate[best_pos].left.row].my_relations[rel_predicate[best_pos].left.column],&cpy_tuple_array[rel_predicate[best_pos].right.row].my_relations[rel_predicate[best_pos].right.column]);
+
                    if(Result->size == 0 ) {
-                     printf("EMPTY?\n" );
+                     int k;
+                     for(k=0;k<rel_num;k++) {
+                       if(keys[k] != NULL) {
+                         free(keys[k]);
+                         keys[k] = NULL;
+                       }
+                     }
+                     result_free(Result);
+                     break;
+                   }
+                   cur_size = (Result->size-1)*bufferRows + Result->Tail->pos;
+                   result2keys(Result,keys,rel_predicate[best_pos].left.row,0,rel_num);
+                   //relation *new_rel = keys2relation(keys[rel_predicate[best_pos].left.row],cur_size,&cpy_tuple_array[rel_predicate[best_pos].left.row].my_relations[rel_predicate[best_pos].left.column]);
+                   //relation_print(new_rel);
+                   //exit(0);
+                   result_free(Result);
+                 }
+                 else{
+                 //printf("%d.%d %c %d.%d\n",rel_predicate[best_pos].left.row,rel_predicate[best_pos].left.column,rel_predicate[best_pos].operation,rel_predicate[best_pos].right.row,rel_predicate[best_pos].right.column);
+                   if(keys[rel_predicate[best_pos].left.row] == NULL && keys[rel_predicate[best_pos].right.row] == NULL) {
+                     printf("BOTH NULL\n" );
+                     result *Result=RadixHashJoin(&cpy_tuple_array[rel_predicate[best_pos].left.row].my_relations[rel_predicate[best_pos].left.column],&cpy_tuple_array[rel_predicate[best_pos].right.row].my_relations[rel_predicate[best_pos].right.column]);
+                     if(Result->size == 0 ) {
+                       printf("EMPTY?\n" );
+                       if(Result->size == 0 ) {
+                         int k;
+                         for(k=0;k<rel_num;k++) {
+                           if(keys[k] != NULL) {
+                             free(keys[k]);
+                             keys[k] = NULL;
+                           }
+                         }
+                       }
+                       result_free(Result);
+                       break;
+                     }
+                     cur_size = (Result->size-1)*bufferRows + Result->Tail->pos;
+                     //printf("size result is %d\n",cur_size );
+                     result2keys(Result,keys,rel_predicate[best_pos].left.row,0,rel_num);
+                     result2keys(Result,keys,rel_predicate[best_pos].right.row,1,rel_num);
+
+                     result_free(Result);
+                   }
+                   else if(keys[rel_predicate[best_pos].left.row] == NULL && keys[rel_predicate[best_pos].right.row] != NULL) {
+                     //printf("LEFT NULL\n" );
+                     relation *new_rel = keys2relation(keys[rel_predicate[best_pos].right.row],cur_size,&cpy_tuple_array[rel_predicate[best_pos].right.row].my_relations[rel_predicate[best_pos].right.column]);
+                     result *Result=RadixHashJoin(&cpy_tuple_array[rel_predicate[best_pos].left.row].my_relations[rel_predicate[best_pos].left.column],new_rel);
                      if(Result->size == 0 ) {
                        int k;
                        for(k=0;k<rel_num;k++) {
@@ -78,73 +123,50 @@ void sql_queries(char *filepath,full_relation *relations_array){
                            keys[k] = NULL;
                          }
                        }
+                       result_free(Result);
+                       free(new_rel->tuples);
+                       free(new_rel);
+                       break;
                      }
-                     result_free(Result);
-                     break;
-                   }
-                   cur_size = (Result->size-1)*bufferRows + Result->Tail->pos;
-                   //printf("size result is %d\n",cur_size );
-                   result2keys(Result,keys,rel_predicate[best_pos].left.row,0,rel_num);
-                   result2keys(Result,keys,rel_predicate[best_pos].right.row,1,rel_num);
+                     cur_size = (Result->size-1)*bufferRows + Result->Tail->pos;
+                     result2keys(Result,keys,rel_predicate[best_pos].right.row,1,rel_num);
+                     result2keys(Result,keys,rel_predicate[best_pos].left.row,0,rel_num);
 
-                   result_free(Result);
-                 }
-                 else if(keys[rel_predicate[best_pos].left.row] == NULL && keys[rel_predicate[best_pos].right.row] != NULL) {
-                   //printf("LEFT NULL\n" );
-                   relation *new_rel = keys2relation(keys[rel_predicate[best_pos].right.row],cur_size,&cpy_tuple_array[rel_predicate[best_pos].right.row].my_relations[rel_predicate[best_pos].right.column]);
-                   result *Result=RadixHashJoin(&cpy_tuple_array[rel_predicate[best_pos].left.row].my_relations[rel_predicate[best_pos].left.column],new_rel);
-                   if(Result->size == 0 ) {
-                     int k;
-                     for(k=0;k<rel_num;k++) {
-                       if(keys[k] != NULL) {
-                         free(keys[k]);
-                         keys[k] = NULL;
-                       }
-                     }
+
                      result_free(Result);
                      free(new_rel->tuples);
                      free(new_rel);
-                     break;
                    }
-                   cur_size = (Result->size-1)*bufferRows + Result->Tail->pos;
-                   result2keys(Result,keys,rel_predicate[best_pos].right.row,1,rel_num);
-                   result2keys(Result,keys,rel_predicate[best_pos].left.row,0,rel_num);
-
-
-                   result_free(Result);
-                   free(new_rel->tuples);
-                   free(new_rel);
-                 }
-                 else if(keys[rel_predicate[best_pos].left.row] != NULL && keys[rel_predicate[best_pos].right.row] == NULL){
-                   //printf("RIGHT NULL\n" );
-                   relation *new_rel = keys2relation(keys[rel_predicate[best_pos].left.row],cur_size,&cpy_tuple_array[rel_predicate[best_pos].left.row].my_relations[rel_predicate[best_pos].left.column]);
-                   result *Result=RadixHashJoin(new_rel,&cpy_tuple_array[rel_predicate[best_pos].right.row].my_relations[rel_predicate[best_pos].right.column]);
-                   if(Result->size == 0 ) {
-                     int k;
-                     for(k=0;k<rel_num;k++) {
-                       if(keys[k] != NULL) {
-                         free(keys[k]);
-                         keys[k] = NULL;
+                   else if(keys[rel_predicate[best_pos].left.row] != NULL && keys[rel_predicate[best_pos].right.row] == NULL){
+                     //printf("RIGHT NULL\n" );
+                     relation *new_rel = keys2relation(keys[rel_predicate[best_pos].left.row],cur_size,&cpy_tuple_array[rel_predicate[best_pos].left.row].my_relations[rel_predicate[best_pos].left.column]);
+                     result *Result=RadixHashJoin(new_rel,&cpy_tuple_array[rel_predicate[best_pos].right.row].my_relations[rel_predicate[best_pos].right.column]);
+                     if(Result->size == 0 ) {
+                       int k;
+                       for(k=0;k<rel_num;k++) {
+                         if(keys[k] != NULL) {
+                           free(keys[k]);
+                           keys[k] = NULL;
+                         }
                        }
+                       result_free(Result);
+                       free(new_rel->tuples);
+                       free(new_rel);
+                       break;
                      }
+                     cur_size = (Result->size-1)*bufferRows + Result->Tail->pos;
+                     result2keys(Result,keys,rel_predicate[best_pos].left.row,0,rel_num);
+                     result2keys(Result,keys,rel_predicate[best_pos].right.row,1,rel_num);
+
+
                      result_free(Result);
                      free(new_rel->tuples);
                      free(new_rel);
-                     break;
                    }
-                   cur_size = (Result->size-1)*bufferRows + Result->Tail->pos;
-                   result2keys(Result,keys,rel_predicate[best_pos].left.row,0,rel_num);
-                   result2keys(Result,keys,rel_predicate[best_pos].right.row,1,rel_num);
-
-
-                   result_free(Result);
-                   free(new_rel->tuples);
-                   free(new_rel);
-                 }
-                 else if(keys[rel_predicate[best_pos].left.row] != NULL && keys[rel_predicate[best_pos].right.row] != NULL) {
-                   printf("NONE NULL\n" );
-                 }
-
+                   else if(keys[rel_predicate[best_pos].left.row] != NULL && keys[rel_predicate[best_pos].right.row] != NULL) {
+                     printf("NONE NULL\n" );
+                   }
+                }
                }
                else if(rel_predicate[best_pos].flag == 1) {
                  //printf("%d.%d %c %d\n",rel_predicate[best_pos].left.row,rel_predicate[best_pos].left.column,rel_predicate[best_pos].operation,rel_predicate[best_pos].number);
