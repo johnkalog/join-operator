@@ -42,8 +42,6 @@ int findNextPredicate(predicate* rel_predicate,int size,list *head) {
 
     }
 
-
-
   }
 
   return best_pos;

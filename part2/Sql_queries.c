@@ -96,6 +96,8 @@ void sql_queries(char *filepath,full_relation *relations_array){
                        }
                        free(new_rel->tuples);
                        free(new_rel);
+                       free(new_rel2->tuples);
+                       free(new_rel2);
                        result_free(Result);
                        break;
                      }

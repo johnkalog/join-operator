@@ -1,15 +1,15 @@
 #include "hash.h"
 #include <math.h>
 
-result *Simple_Scan(relation *Rel,uint64_t value,char op){
-    int i;
+result *Simple_Scan(relation *Rel,uint64_t value,char op){  //scan tou relation pou anaferetai se sugkekrimeno column kai save
+    int i;                                                  //mono twn keys pou ikanopoioun to op
     result *Result=result_init();
 
     if(op == '='){
 
         for(i=0; i<Rel->num_tuples;i++){
             if( Rel->tuples[i].payload == value){
-                insert(Result,Rel->tuples[i].key,-1);
+                insert(Result,Rel->tuples[i].key,-1); //-1 sthn deuterh thesi tou pinaka sto Result giati mono  mia sxesh xrhsimopoieitai
             }
         }
 
@@ -36,7 +36,7 @@ result *Simple_Scan(relation *Rel,uint64_t value,char op){
     return Result;
 }
 
-result *Simple_Scan_Tables(relation *Rel, relation *Rel2){
+result *Simple_Scan_Tables(relation *Rel, relation *Rel2){  //sugkrish duo column idias sxeshs
     int i;
     result *Result=result_init();
 
@@ -143,13 +143,7 @@ relation *FirstHash(relation* relR,typeHist **Hist) {
     // to Hist num ths analoghs kathgorias
     uint32_t box = FirstHashFunction(relR->tuples[i].payload,FirstHash_number);
     (*Hist)[box].num++;
-    //printf("%u\n",box );
   }
-
-  // print Hist
-  // for(i=0;i<sizeHist;i++) {
-  //   printf("%u   is   %u\n",(*Hist)[i].box, (*Hist)[i].num );
-  // }
 
   // dhmiourgia Psum
   typeHist *Psum = malloc(sizeHist*sizeof(typeHist));

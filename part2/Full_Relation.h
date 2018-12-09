@@ -28,6 +28,4 @@ uint64_t calculate_max(tuple *,int);
 
 void print_relation(full_relation);
 
-result* RHJcaller(full_relation *,int,int,int,int);
-
 void free_structs(full_relation *,unsigned int);
