@@ -11,7 +11,7 @@ int main(int argc,char *argv[]) {
 
     full_relation *relations_array = NULL;
 
-    relations_array=full_relation_creation(argv[1],&num_lines); //apothhkeush sxesewn sthn mnhnmh?
+    relations_array=full_relation_creation(argv[1],&num_lines); //apothhkeush sxesewn sthn mnhnmh
 
     // printf("Done\n");
 

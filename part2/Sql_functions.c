@@ -1,7 +1,7 @@
 #include "Sql_queries.h"
 
 
-int findNextPredicate(predicate* rel_predicate,int size,list *head) {
+int findNextPredicate(predicate* rel_predicate,int size,list *head) { //upologismos next predicate gia ektelesh
 
   int i;
   int best_pos = 0; // position of best choice so far
@@ -30,7 +30,6 @@ int findNextPredicate(predicate* rel_predicate,int size,list *head) {
         }
       }
       else if(rel_predicate[i].flag == 1 || rel_predicate[i].flag == 2) {
-        //rows = search_list(rel_predicate.left.row);
         if(rel_predicate[best_pos].flag == 0 || (rel_predicate[best_pos].flag != 0 && rel_predicate[i].metric > rel_predicate[best_pos].metric)) {
           best_pos = i;
         }
@@ -49,7 +48,7 @@ int findNextPredicate(predicate* rel_predicate,int size,list *head) {
 
 
 
-void push_list(list **head, uint64_t val) {
+void push_list(list **head, uint64_t val) { //eisagwgh
     if(*head==NULL){
         *head = malloc(sizeof(list));
         (*head)->val = val;
@@ -63,11 +62,11 @@ void push_list(list **head, uint64_t val) {
     *head = new_node;
 }
 
-void push_list2(list **head,uint64_t val,int flag){
+void push_list2(list **head,uint64_t val,int flag){ //allazei kai to flag
     if(*head==NULL){
         *head = malloc(sizeof(list));
         (*head)->val = val;
-        (*head)->flag = flag;       // -1 gia allgh grammhs
+        (*head)->flag = flag;
         (*head)->next = NULL;
         return;
     }

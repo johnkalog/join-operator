@@ -6,17 +6,17 @@ typedef struct point{
 }point;
 
 typedef struct predicate{
-  point left;
+  point left; //index ston pinaka rel_predicate
   point right;
-  char operation;
+  char operation; //>,<,=
   int metric;
-  int flag; //compare with join 0 number 1 if in left or 2
+  int flag; //compare with join 0,number 1 if in left or 2
   int number;
 }predicate;
 
 typedef struct list {
     uint64_t val;
-    int flag;
+    int flag; // -1 gia allgh grammhs
     struct list *next;
 } list;
 
@@ -45,10 +45,6 @@ void print_list(list *);
 void calculate_metric(predicate *,full_relation *);
 
 full_relation *subcpy_full_relation(full_relation **,int );
-
-void result2relation(result *,full_relation *,predicate *);
-
-void result2relation_simple(result *,full_relation *,int);
 
 uint64_t calculate_sum(int **,int,full_relation *,int,int);
 

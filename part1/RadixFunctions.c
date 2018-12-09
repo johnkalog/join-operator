@@ -1,8 +1,20 @@
 #include "hash.h"
 #include <math.h>
 
+
+result *NoneNull(relation *rel1,relation *rel2) { //sthn periptwsh = duo sxesewn pou exoun ksanaginei join
+  int i;
+  result *Result = result_init();
+  for(i=0;i<rel1->num_tuples;i++) {
+    if(rel1->tuples[i].payload == rel2->tuples[i].payload) {
+      insert(Result,rel1->tuples[i].key,-1);
+    }
+  }
+  return Result;
+}
+
 result *Simple_Scan(relation *Rel,uint64_t value,char op){  //scan tou relation pou anaferetai se sugkekrimeno column kai save
-    int i;                                                  //mono twn keys pou ikanopoioun to op
+    int i;
     result *Result=result_init();
 
     if(op == '='){

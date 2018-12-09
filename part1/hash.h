@@ -36,5 +36,6 @@ result* RadixHashJoin(relation *relR, relation *relS);
 void free_hash_bucket(HashBucket *);
 void free_memory(relation *A);
 
+result *NoneNull(relation *,relation *);
 result *Simple_Scan(relation *,uint64_t,char);
 result *Simple_Scan_Tables(relation *,relation *);
