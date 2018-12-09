@@ -188,6 +188,31 @@ void sql_queries(char *filepath,full_relation *relations_array){
                    }
                    else if(keys[rel_predicate[best_pos].left.row] != NULL && keys[rel_predicate[best_pos].right.row] != NULL) {
                      printf("NONE NULL\n" );
+                     relation *new_rel = keys2relation(keys[rel_predicate[best_pos].left.row],cur_size,&cpy_tuple_array[rel_predicate[best_pos].left.row].my_relations[rel_predicate[best_pos].left.column]);
+                     relation *new_rel2 = keys2relation(keys[rel_predicate[best_pos].right.row],cur_size,&cpy_tuple_array[rel_predicate[best_pos].right.row].my_relations[rel_predicate[best_pos].right.column]);
+                     result *Result = NoneNull(new_rel,new_rel2);
+                     if(Result->size == 0 ) {
+                       int k;
+                       for(k=0;k<rel_num;k++) {
+                         if(keys[k] != NULL) {
+                           free(keys[k]);
+                           keys[k] = NULL;
+                         }
+                       }
+                       free(new_rel->tuples);
+                       free(new_rel);
+                       free(new_rel2->tuples);
+                       free(new_rel2);
+                       result_free(Result);
+                       break;
+                     }
+                     cur_size = (Result->size-1)*bufferRows + Result->Tail->pos;
+                     result2keys(Result,keys,rel_predicate[best_pos].left.row,0,rel_num);
+                     result_free(Result);
+                     free(new_rel->tuples);
+                     free(new_rel);
+                     free(new_rel2->tuples);
+                     free(new_rel2);
                    }
                 }
                }

@@ -1,6 +1,18 @@
 #include "hash.h"
 #include <math.h>
 
+
+result *NoneNull(relation *rel1,relation *rel2) {
+  int i;
+  result *Result = result_init();
+  for(i=0;i<rel1->num_tuples;i++) {
+    if(rel1->tuples[i].payload == rel2->tuples[i].payload) {
+      insert(Result,rel1->tuples[i].key,-1);
+    }
+  }
+  return Result;
+}
+
 result *Simple_Scan(relation *Rel,uint64_t value,char op){
     int i;
     result *Result=result_init();
