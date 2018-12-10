@@ -32,7 +32,9 @@ int check1D(int *array1,int *array2,int n) {
 
   int i;
   for(i=0;i<n;i++) {
-    CU_ASSERT(array1[i]==array2[i]);
+    if(array1[i]!=array2[i]){
+      return -1;
+    }
   }
   return 0;
 }
@@ -49,15 +51,16 @@ void test_arrays(void)//our test function 2
   int K6[3] = {3,3,3};
   int K7[4] = {2,1,2,1};
   int K8[4] = {3,4,3,4};
+
+
   int **A = malloc(2*sizeof(int*));
-
-
   A[0] = NULL;
   A[1] = NULL;
   result *Result=result_init();
   insert(Result,0,5);
   insert(Result,1,4);
   insert(Result,2,3);
+
   result2keys(Result,A,0,0,2);
   CU_ASSERT(0==check1D(A1,A2,5));
   CU_ASSERT(0==check1D(K1,A[0],3));
@@ -67,32 +70,32 @@ void test_arrays(void)//our test function 2
 
   free(Result);
 
-  result *Result1=result_init();
-  //insert(Result1,1,3);
-  //insert(Result1,1,3);
-  //insert(Result1,1,3);
-  //result2keys(Result1,A,0,0,2);
-  //CU_ASSERT(0==check1D(K3,A[0],3));
-  //CU_ASSERT(0==check1D(K4,A[1],3));
-
-  //result2keys(Result1,A,0,1,2);
+  Result=result_init();
+  insert(Result,1,3);
+  insert(Result,1,3);
+  insert(Result,1,3);
+  result2keys(Result,A,0,0,2);
+  CU_ASSERT(0==check1D(K3,A[0],3));
+  CU_ASSERT(0==check1D(K4,A[1],3));
 
 
-  //CU_ASSERT(0==check1D(K5,A[0],3));
-  //CU_ASSERT(0==check1D(K6,A[1],3));
+  A[0][0] = 0;A[0][1] = 1;A[0][2] = 2;
+  A[1][0] = 5;A[1][1] = 4;A[1][2] = 3;
+  result2keys(Result,A,0,1,2);
+  CU_ASSERT(0==check1D(K5,A[0],3));
+  CU_ASSERT(0==check1D(K6,A[1],3));
+  free(Result);
 
-  insert(Result1,3,3);
-  insert(Result1,2,3);
-  insert(Result1,3,3);
-  insert(Result1,2,3);
-  result2keys(Result1,A,1,0,2);
-/*
-    int i;
-    for(i=0;i<4;i++) {
-      printf("%d\n",A[0][i] );
-      printf("%d\n",A[1][i] );
-    }
-*/
+
+  A[0][0] = 0;A[0][1] = 1;A[0][2] = 2;
+  A[1][0] = 5;A[1][1] = 4;A[1][2] = 3;
+
+  Result=result_init();
+  insert(Result,3,3);
+  insert(Result,2,3);
+  insert(Result,3,3);
+  insert(Result,2,3);
+  result2keys(Result,A,1,0,2);
 
   CU_ASSERT(0==check1D(K7,A[0],3));
   CU_ASSERT(0==check1D(K8,A[1],3));
