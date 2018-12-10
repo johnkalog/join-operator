@@ -113,14 +113,20 @@ void print_list(list *add){
   list *tmp=add;
   while ( tmp!=NULL ){
     if ( tmp->val==0 ){
-      printf("NULL ");
+      printf("NULL");
+      if(tmp->next->flag!=-1){
+        printf(" ");
+      }
     }
     else{
         if(tmp->flag==-1){
             printf("\n");
         }
         else{
-            printf("%lu ",tmp->val);
+            printf("%lu",tmp->val);
+            if(tmp->next->flag!=-1){
+              printf(" ");
+            }
         }
     }
     tmp = tmp->next;
