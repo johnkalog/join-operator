@@ -89,9 +89,9 @@ void Scan_Buckets(result *Result,HashBucket *fullBucket,relation *RelHash,relati
             insert(Result,key,RelHash->tuples[startHash + chain_index].key);  //eisagwgh sto result
           }
         }
-        break;
-      }
+        // break;
         chain_index = fullBucket->chain[chain_index];
+      }
     }
   }
 }
