@@ -32,6 +32,7 @@ uint32_t SecondHashFunction(int32_t ,int ,int);
 relation *FirstHash(relation*,typeHist **); //dhmioyrgei R'
 void SecondHash(uint32_t,relation *relNewR,int,HashBucket *);
 void Scan_Buckets(result *,HashBucket*,relation*,relation*,int,int,int,int,int);
+result* Join(relation *, relation *);
 result* RadixHashJoin(relation *relR, relation *relS);
 void free_hash_bucket(HashBucket *);
 void free_memory(relation *A);

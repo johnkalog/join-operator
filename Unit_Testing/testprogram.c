@@ -5,29 +5,6 @@
 int init_suite(void) { return 0; }
 int clean_suite(void) { return 0; }
 
-
-int sum(int x, int y)
-{
-  int z;
-  z=x+y;
-  return z;
-}
-
-int diff(int a, int b)
-{
-  int  c;
-  c=a-b;
-  return c;
-}
-
-void test_sum(void)//our test function 1
-{
-  CU_ASSERT(5==sum(3,2));
-  CU_ASSERT(9==sum(3,6));
-  CU_ASSERT(3==sum(-3,6));
-  CU_ASSERT(6==sum(0,6));
-}
-
 int check1D(int *array1,int *array2,int n) {
 
   int i;
@@ -37,6 +14,45 @@ int check1D(int *array1,int *array2,int n) {
     }
   }
   return 0;
+}
+
+int checkRes(result *A,result *B){
+  if ( A->size!=B->size || A->Tail->pos!=B->Tail->pos ){
+    return -1;
+  }
+  if ( A->size!=0 ){
+    result_node *tmpA=A->Head;
+    result_node *tmpB=B->Head;
+    while ( tmpA!=NULL ){
+      if ( check1D(tmpA->buffer[0],tmpB->buffer[0],A->Tail->pos)==-1 || check1D(tmpA->buffer[1],tmpB->buffer[1],A->Tail->pos)==-1 ){
+        return -1;
+      }
+      tmpA = tmpA->next;
+      tmpB = tmpB->next;
+    }
+  }
+  return 0;
+}
+
+void test_join()
+{
+  relation *A=malloc(sizeof(relation)),*B=malloc(sizeof(relation));
+  int len=(int)strlen("./../files-creation/1.txt");
+  char *argv[2],*f1="./../files-creation/1.txt",*f2="./../files-creation/2.txt";
+  argv[0] = "./../files-creation/1.txt";
+  argv[1] = "./../files-creation/2.txt";
+  relation_creation(A,B,argv);
+  result *Result1=RadixHashJoin(A,B);
+  result *Result2=Join(A,B);
+
+  CU_ASSERT(0==checkRes(Result1,Result2));
+
+  free_memory(A);
+  free_memory(B);
+
+  result_free(Result1);
+  result_free(Result2);
+
 }
 
 void test_arrays(void)//our test function 2
@@ -102,13 +118,6 @@ void test_arrays(void)//our test function 2
 
 }
 
-void test_diff(void)//our test function 2
-{
-  CU_ASSERT(1==diff(3,2));
-  CU_ASSERT(-3==diff(3,6));
-  CU_ASSERT(-9==diff(-3,6));
-  CU_ASSERT(-6==diff(0,6));
-}
 int main (void)// Main function
 {
 
@@ -119,27 +128,21 @@ int main (void)// Main function
     return CU_get_error();
 
   // Add suite1 to registry
-  pSuite1 = CU_add_suite("Basic_Test_Suite1", init_suite, clean_suite);
+  pSuite1 = CU_add_suite("part1", init_suite, clean_suite);
   if (NULL == pSuite1) {
     CU_cleanup_registry();
     return CU_get_error();
   }
 
   // add test1 to suite1
-  if ((NULL == CU_add_test(pSuite1, "\n\n……… Testing Sum function……..\n\n", test_sum)))
-  {
-    CU_cleanup_registry();
-    return CU_get_error();
-  }
-
-  if ((NULL == CU_add_test(pSuite1, "\n\n……… Testing diff function……..\n\n", test_diff)))
-  {
-    CU_cleanup_registry();
-    return CU_get_error();
-  }
+  // if ((NULL == CU_add_test(pSuite1, "\n\n……… Testing RadixHashJoin function……..\n\n", test_join)))
+  // {
+  //   CU_cleanup_registry();
+  //   return CU_get_error();
+  // }
 
   //add test 2 to suite2
-  pSuite2 = CU_add_suite("Arrays", init_suite, clean_suite);
+  pSuite2 = CU_add_suite("part2", init_suite, clean_suite);
   if (NULL == pSuite2) {
     CU_cleanup_registry();
     return CU_get_error();

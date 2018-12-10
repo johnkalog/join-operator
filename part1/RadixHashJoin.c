@@ -1,6 +1,22 @@
 #include "hash.h"
 #include <math.h>
 
+result* Join(relation *relR, relation *relS) {
+
+  result *Result=result_init();
+
+  int i,j;
+  for ( i=0; i<relR->num_tuples; i++ ){
+    for ( j=0; j<relS->num_tuples; j++ ){
+      if ( relR->tuples[i].payload==relS->tuples[j].payload ){
+        insert(Result,relR->tuples[i].key,relS->tuples[j].key);
+      }
+    }
+  }
+  return Result;
+
+
+}
 
 result* RadixHashJoin(relation *relR, relation *relS) {
   // returns result
