@@ -42,6 +42,9 @@ full_relation *full_relation_creation(char *path_file,unsigned int *num_lines){
 
   k = 0;
   while((read = getline(&line, &len, fp)) != -1) {
+      if ( strcmp(line,"Done")==0 || strcmp(line,"Done\n")==0 ){
+        break;
+      }
       i=0;
       while(line[i]!='\n')  i++;
       line[i]='\0';
