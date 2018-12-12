@@ -9,5 +9,5 @@
 ### Υπολειπόμενα ###
 
 1) done-1s
-2) μετρικες-findNextPredicate
+2) μετρικες-findNextPredicate-min-max σε subcpy
 3) harness
