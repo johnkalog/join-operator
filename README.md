@@ -8,6 +8,6 @@
 
 ### Υπολειπόμενα ###
 
-1) done
-2) μετρικες
+1) done-1s
+2) μετρικες-findNextPredicate
 3) harness
