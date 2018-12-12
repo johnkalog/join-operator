@@ -23,6 +23,7 @@ full_relation *full_relation_creation(char *path_file,unsigned int *num_lines){
   }
 
   *num_lines = line_count(fp);
+  *num_lines = *num_lines-1;
 
   relations_array=malloc((*num_lines)*sizeof(full_relation));
 

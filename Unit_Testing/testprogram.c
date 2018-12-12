@@ -24,9 +24,12 @@ int checkRes(result *A,result *B){
     result_node *tmpA=A->Head;
     result_node *tmpB=B->Head;
     while ( tmpA!=NULL ){
-      if ( check1D(tmpA->buffer[0],tmpB->buffer[0],A->Tail->pos)==-1 || check1D(tmpA->buffer[1],tmpB->buffer[1],A->Tail->pos)==-1 ){
+      if ( check1D(tmpA->buffer[0],tmpB->buffer[0],tmpA->pos)==-1 || check1D(tmpA->buffer[1],tmpB->buffer[1],tmpA->pos)==-1 ){
         return -1;
       }
+      // if ( tmpA->pos!=tmpB->pos ){
+      //   return -1;
+      // }
       tmpA = tmpA->next;
       tmpB = tmpB->next;
     }
@@ -135,11 +138,11 @@ int main (void)// Main function
   }
 
   // add test1 to suite1
-  // if ((NULL == CU_add_test(pSuite1, "\n\n……… Testing RadixHashJoin function……..\n\n", test_join)))
-  // {
-  //   CU_cleanup_registry();
-  //   return CU_get_error();
-  // }
+  if ((NULL == CU_add_test(pSuite1, "\n\n……… Testing RadixHashJoin function……..\n\n", test_join)))
+  {
+    CU_cleanup_registry();
+    return CU_get_error();
+  }
 
   //add test 2 to suite2
   pSuite2 = CU_add_suite("part2", init_suite, clean_suite);
