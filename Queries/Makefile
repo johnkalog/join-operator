@@ -10,17 +10,17 @@ $(OUT): $(OBJS)
 main.o:main.c
 	$(CC) $(FLAGS) main.c
 
-list_result.o:../part1/list_result.c
-	$(CC) $(FLAGS) ../part1/list_result.c
+list_result.o:../RHJ/list_result.c
+	$(CC) $(FLAGS) ../RHJ/list_result.c
 
-RadixHashJoin.o:../part1/RadixHashJoin.c
-	$(CC) $(FLAGS) ../part1/RadixHashJoin.c
+RadixHashJoin.o:../RHJ/RadixHashJoin.c
+	$(CC) $(FLAGS) ../RHJ/RadixHashJoin.c
 
-RadixFunctions.o:../part1/RadixFunctions.c
-	$(CC) $(FLAGS) ../part1/RadixFunctions.c
+RadixFunctions.o:../RHJ/RadixFunctions.c
+	$(CC) $(FLAGS) ../RHJ/RadixFunctions.c
 
-Relation.o:../part1/Relation.c
-	$(CC) $(FLAGS) ../part1/Relation.c
+Relation.o:../RHJ/Relation.c
+	$(CC) $(FLAGS) ../RHJ/Relation.c
 
 Full_Relation.o:Full_Relation.c
 	$(CC) $(FLAGS) Full_Relation.c
