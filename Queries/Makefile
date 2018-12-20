@@ -1,11 +1,11 @@
 OBJS     = main.o list_result.o RadixHashJoin.o RadixFunctions.o Relation.o Full_Relation.o Sql_queries.o Sql_functions.o
 OUT      = run
 CC       = gcc
-FLAGS    = -g -c
+FLAGS    = -g -c -lm
 # -g for  debugging  mode ; -c for  objects  file  creation
 
 $(OUT): $(OBJS)
-	$(CC) -g $(OBJS) -o $@
+	$(CC) -g $(OBJS) -o $@ -lm
 
 main.o:main.c
 	$(CC) $(FLAGS) main.c

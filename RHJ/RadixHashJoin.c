@@ -1,5 +1,5 @@
-#include "hash.h"
 #include <math.h>
+#include "ThreadFunctions.h"
 
 result* Join(relation *relR, relation *relS) {
 
@@ -31,27 +31,39 @@ result* RadixHashJoin(relation *relR, relation *relS) {
   HistR_Array = malloc(num_threads*sizeof(typeHist *));
   HistS_Array = malloc(num_threads*sizeof(typeHist *));
 
+  limits *limits_arrayR;
+  limits_arrayR = malloc(num_threads*sizeof(limits));
   int current_num_tuples,new_end,current_threads;
   current_num_tuples=relR->num_tuples;
   new_end=0;
   current_threads=num_threads;
   for ( i=0; i<num_threads; i++ ){
     int population=(int)ceil((double)current_num_tuples/(double)current_threads);
-    HistR_Array[i] = Rel_to_Hist(relR,new_end,new_end+population);
+    limits_arrayR[i].start = new_end;
+    limits_arrayR[i].end = new_end+population;
     current_num_tuples -= population;
     new_end += population;
     current_threads --;
   }
+  for ( i=0; i<num_threads; i++ ){
+    HistR_Array[i] = Rel_to_Hist(relR,limits_arrayR[i].start,limits_arrayR[i].end);
+  }
 
+  limits *limits_arrayS;
+  limits_arrayS = malloc(num_threads*sizeof(limits));
   current_num_tuples=relS->num_tuples;
   new_end=0;
   current_threads=num_threads;
   for ( i=0; i<num_threads; i++ ){
     int population=(int)ceil((double)current_num_tuples/(double)current_threads);
-    HistS_Array[i] = Rel_to_Hist(relS,new_end,new_end+population);
+    limits_arrayS[i].start = new_end;
+    limits_arrayS[i].end = new_end+population;
     current_num_tuples -= population;
     new_end += population;
     current_threads --;
+  }
+  for ( i=0; i<num_threads; i++ ){
+    HistS_Array[i] = Rel_to_Hist(relS,limits_arrayS[i].start,limits_arrayS[i].end);
   }
 
   int Hash_number = pow(2,FirstHash_number);  //arithmos twn bucket
@@ -95,25 +107,19 @@ result* RadixHashJoin(relation *relR, relation *relS) {
 relation *relNewR = malloc(sizeof(relation));
 relNewR->num_tuples = relR->num_tuples;
 relNewR->tuples = malloc(relNewR->num_tuples*sizeof(tuple));
-for(i=0;i<relR->num_tuples;i++) {
-  uint32_t box = FirstHashFunction(relR->tuples[i].payload,FirstHash_number); // pou anoikei to kathe stoixeio
-  // eisagwgh analoga me to Psum
-  relNewR->tuples[PsumR[box].num].payload = relR->tuples[i].payload;
-  relNewR->tuples[PsumR[box].num].key = relR->tuples[i].key;
-  PsumR[box].num++; // auskise th epomenh thesh tou Psum
+for ( i=0; i<num_threads; i++ ){
+  change_part_relation(relR,relNewR,&limits_arrayR[i],PsumR);
 }
+free(limits_arrayR);
 free(PsumR);
 
 relation *relNewS = malloc(sizeof(relation));
 relNewS->num_tuples = relS->num_tuples;
 relNewS->tuples = malloc(relNewS->num_tuples*sizeof(tuple));
-for(i=0;i<relS->num_tuples;i++) {
-  uint32_t box = FirstHashFunction(relS->tuples[i].payload,FirstHash_number); // pou anoikei to kathe stoixeio
-  // eisagwgh analoga me to Psum
-  relNewS->tuples[PsumS[box].num].payload = relS->tuples[i].payload;
-  relNewS->tuples[PsumS[box].num].key = relS->tuples[i].key;
-  PsumS[box].num++; // auskise th epomenh thesh tou Psum
+for ( i=0; i<num_threads; i++ ){
+  change_part_relation(relS,relNewS,&limits_arrayS[i],PsumS);
 }
+free(limits_arrayS);
 free(PsumS);
 
 //----------------------------------------------------------------------------------------------------
