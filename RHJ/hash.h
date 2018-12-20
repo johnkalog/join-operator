@@ -1,4 +1,6 @@
+#include <math.h>
 #include "list_result.h"
+#define num_threads 4
 
 #define FirstHash_number 9
 #define SecondHash_number 11
@@ -40,3 +42,5 @@ void free_memory(relation *A);
 result *NoneNull(relation *,relation *);
 result *Simple_Scan(relation *,uint64_t,char);
 result *Simple_Scan_Tables(relation *,relation *);
+typeHist *Rel_to_Hist(relation *,int,int);
+typeHist *Hist_to_Psum(typeHist *);

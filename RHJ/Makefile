@@ -1,11 +1,11 @@
-OBJS     = main.o list_result.o RadixHashJoin.o RadixFunctions.o Relation.o
+OBJS     = main.o list_result.o RadixHashJoin.o RadixFunctions.o Relation.o ThreadFunctions.o
 OUT      = run
 CC       = gcc
-FLAGS    = -g -c
+FLAGS    = -g -c -lm
 # -g for  debugging  mode ; -c for  objects  file  creation
 
 $(OUT): $(OBJS)
-	$(CC) -g $(OBJS) -o $@
+	$(CC) -g $(OBJS) -o $@ -lm
 
 main.o:main.c
 	$(CC) $(FLAGS) main.c
@@ -21,6 +21,9 @@ RadixFunctions.o:RadixFunctions.c
 
 Relation.o:Relation.c
 	$(CC) $(FLAGS) Relation.c
+
+ThreadFunctions.o:ThreadFunctions.c
+	$(CC) $(FLAGS) ThreadFunctions.c
 
 clean:
 	rm -f $(OBJS) $(OUT)

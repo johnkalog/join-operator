@@ -1,5 +1,4 @@
 #include "hash.h"
-#include <math.h>
 
 
 result *NoneNull(relation *rel1,relation *rel2) { //sthn periptwsh = duo sxesewn pou exoun ksanaginei join
@@ -89,7 +88,7 @@ void Scan_Buckets(result *Result,HashBucket *fullBucket,relation *RelHash,relati
             insert(Result,key,RelHash->tuples[startHash + chain_index].key);  //eisagwgh sto result
           }
         }
-        
+
         chain_index = fullBucket->chain[chain_index];
       }
     }
