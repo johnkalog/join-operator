@@ -45,3 +45,18 @@ void change_part_relation(relation *relR,relation *relNewR,limits *my_limits,typ
     Psum[box].num++;
   }
 }
+
+void one_bucket_join(int index,result *Result,HashBucket *TheHashBucket,typeHist *HistR,typeHist *HistS,typeHist *PsumR,typeHist *PsumS,relation *relNewR,relation *relNewS){
+
+  int sizeR = HistR[index].num; // current size tou bucket
+  int sizeS = HistS[index].num;
+  if ( sizeR<=sizeS ){
+    SecondHash(sizeR,relNewR,PsumR[index].num,TheHashBucket);
+    Scan_Buckets(Result,TheHashBucket,relNewR,relNewS,PsumR[index].num,PsumS[index].num,sizeR,sizeS,0);
+  }
+  else{
+    SecondHash(sizeS,relNewS,PsumS[index].num,TheHashBucket);
+    Scan_Buckets(Result,TheHashBucket,relNewS,relNewR,PsumS[index].num,PsumR[index].num,sizeS,sizeR,1);
+  }
+  free(TheHashBucket->chain);
+}

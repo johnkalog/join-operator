@@ -11,3 +11,6 @@
 1) done-1s
 2) μετρικες-findNextPredicate-min-max σε subcpy
 3) harness
+4) pos gia ta result
+5) Psum se scan
+6) one_bucket_join

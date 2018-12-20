@@ -111,7 +111,7 @@ for ( i=0; i<num_threads; i++ ){
   change_part_relation(relR,relNewR,&limits_arrayR[i],PsumR);
 }
 free(limits_arrayR);
-free(PsumR);
+// free(PsumR);
 
 relation *relNewS = malloc(sizeof(relation));
 relNewS->num_tuples = relS->num_tuples;
@@ -120,7 +120,7 @@ for ( i=0; i<num_threads; i++ ){
   change_part_relation(relS,relNewS,&limits_arrayS[i],PsumS);
 }
 free(limits_arrayS);
-free(PsumS);
+// free(PsumS);
 
 //----------------------------------------------------------------------------------------------------
 
@@ -148,18 +148,21 @@ free(PsumS);
   TheHashBucket->bucket = malloc(sizeBucket*sizeof(int));
 
   for ( i=0; i<Hash_number; i++ ) {
+    // one_bucket_join(i,Result,HistR,HistS,PsumR,PsumS,relNewR,relNewS);
     sizeR = HistR[i].num; // current size tou bucket
     sizeS = HistS[i].num;
     if ( sizeR<=sizeS ){
       // ean bucket R < bucket S (=)
       // printf("\n\nscan S\n");
       // Second Hash dhmiourgei to Chain kai to bucket sto struct TheHashBucket
+      // printf("sssssssssssssssss %d %d %d\n",current_indexR,PsumR[i].num,PsumR[i].box);
       SecondHash(sizeR,relNewR,current_indexR,TheHashBucket);
       Scan_Buckets(Result,TheHashBucket,relNewR,relNewS,current_indexR,current_indexS,sizeR,sizeS,0);
     }
     else{
       // ean bucket S < bucket R
       // printf("\n\nscan R\n");
+      // printf("sssssssssssssssss %d %d %d\n",current_indexR,PsumR[i].num,PsumR[i].box);
       SecondHash(sizeS,relNewS,current_indexS,TheHashBucket);
       Scan_Buckets(Result,TheHashBucket,relNewS,relNewR,current_indexS,current_indexR,sizeS,sizeR,1);
     }
@@ -175,6 +178,8 @@ free(PsumS);
   free(TheHashBucket);
   free(HistR);
   free(HistS);
+  free(PsumR);
+  free(PsumS);
   return Result;
 }
 
