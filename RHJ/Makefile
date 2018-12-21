@@ -1,4 +1,4 @@
-OBJS     = main.o list_result.o RadixHashJoin.o RadixFunctions.o Relation.o ThreadFunctions.o
+OBJS     = main.o list_result.o RadixHashJoin.o RadixFunctions.o Relation.o ThreadFunctions.o JobSheduler.o Threads.o
 OUT      = run
 CC       = gcc
 FLAGS    = -g -c -lm
@@ -24,6 +24,12 @@ Relation.o:Relation.c
 
 ThreadFunctions.o:ThreadFunctions.c
 	$(CC) $(FLAGS) ThreadFunctions.c
+
+JobSheduler.o:JobSheduler.c
+	$(CC) $(FLAGS) JobSheduler.c
+
+Threads.o:Threads.c
+	$(CC) $(FLAGS) Threads.c
 
 clean:
 	rm -f $(OBJS) $(OUT)
