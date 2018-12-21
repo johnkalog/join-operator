@@ -129,8 +129,6 @@ free(limits_arrayS);
   // relation *relNewS1 = FirstHash(relS,&HistS);
 
   int sizeR,sizeS; // sizeR - sizeS megethos kathe bucket
-  int current_indexR=0; // current_index deixnei thn arxh tou kathe bucket sto relation
-  int current_indexS=0;
 
 
   ///------------- print buckets for debug  ------------///
@@ -142,34 +140,18 @@ free(limits_arrayS);
   //printf("-----------------------end buckets relS-------------------------\n");
   /// -------------------------------------------------///
 
+  free(PsumR);
+  free(PsumS);
+  PsumR=Hist_to_Psum(HistR);
+  PsumS=Hist_to_Psum(HistS);
+
   int sizeBucket=pow(2,SecondHash_number);
   HashBucket *TheHashBucket=malloc(sizeof(HashBucket));
   TheHashBucket->chain = NULL;
   TheHashBucket->bucket = malloc(sizeBucket*sizeof(int));
 
   for ( i=0; i<Hash_number; i++ ) {
-    // one_bucket_join(i,Result,HistR,HistS,PsumR,PsumS,relNewR,relNewS);
-    sizeR = HistR[i].num; // current size tou bucket
-    sizeS = HistS[i].num;
-    if ( sizeR<=sizeS ){
-      // ean bucket R < bucket S (=)
-      // printf("\n\nscan S\n");
-      // Second Hash dhmiourgei to Chain kai to bucket sto struct TheHashBucket
-      // printf("sssssssssssssssss %d %d %d\n",current_indexR,PsumR[i].num,PsumR[i].box);
-      SecondHash(sizeR,relNewR,current_indexR,TheHashBucket);
-      Scan_Buckets(Result,TheHashBucket,relNewR,relNewS,current_indexR,current_indexS,sizeR,sizeS,0);
-    }
-    else{
-      // ean bucket S < bucket R
-      // printf("\n\nscan R\n");
-      // printf("sssssssssssssssss %d %d %d\n",current_indexR,PsumR[i].num,PsumR[i].box);
-      SecondHash(sizeS,relNewS,current_indexS,TheHashBucket);
-      Scan_Buckets(Result,TheHashBucket,relNewS,relNewR,current_indexS,current_indexR,sizeS,sizeR,1);
-    }
-    /////////////
-    current_indexR += HistR[i].num;  //arxh tou bucket
-    current_indexS += HistS[i].num;
-    free(TheHashBucket->chain);
+    one_bucket_join(i,Result,TheHashBucket,HistR,HistS,PsumR,PsumS,relNewR,relNewS);
   }
 
   free_memory(relNewR);
