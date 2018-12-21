@@ -1,7 +1,7 @@
 #include <string.h>
 #include <inttypes.h>
 #include <unistd.h>
-#include "../RHJ/hash.h"
+#include "../RHJ/ThreadFunctions.h"
 
 typedef struct statistics{
   uint64_t min;
