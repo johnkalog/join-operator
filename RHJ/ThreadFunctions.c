@@ -1,5 +1,21 @@
 #include "ThreadFunctions.h"
 
+limits *calculate_limits(int num_tuples){
+  limits *limits_arrayR=malloc(num_threads*sizeof(limits));
+  int i,new_end,current_threads,current_num_tuples=num_tuples;
+  new_end=0;
+  current_threads=num_threads;
+  for ( i=0; i<num_threads; i++ ){
+    int population=(int)ceil((double)current_num_tuples/(double)current_threads);
+    limits_arrayR[i].start = new_end;
+    limits_arrayR[i].end = new_end+population;
+    current_num_tuples -= population;
+    new_end += population;
+    current_threads --;
+  }
+  return limits_arrayR;
+}
+
 typeHist *Rel_to_Hist(relation *R,int start,int end){
   int sizeHist = pow(2,FirstHash_number);
 

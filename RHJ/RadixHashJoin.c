@@ -24,78 +24,111 @@ result* RadixHashJoin(relation *relR, relation *relS) {
   int i;
   result *Result=result_init(); // arxikopoihsh result
 
-//----------------------------------------------------------------------------------------------------
-  typeHist **HistR_Array,**HistS_Array;
-  // dhmiourgia newn pinakwn relation
-  // FirstHash dhmiourgei kai to Hist
-  HistR_Array = malloc(num_threads*sizeof(typeHist *));
-  HistS_Array = malloc(num_threads*sizeof(typeHist *));
+  pthread_mutex_init(&mtx_forlist,NULL);
+  pthread_mutex_init(&mtx_write,NULL);
+  pthread_cond_init(&cv_nonempty,NULL);
+  pthread_t err;
+  pthread_t *thread_pool=malloc(num_threads*sizeof(pthread_t));
+  //----------------------------------------------------------------------------------------------------
+  // typeHist **HistR_Array,**HistS_Array;
+  //
+  // HistR_Array = malloc(num_threads*sizeof(typeHist *));
+  // HistS_Array = malloc(num_threads*sizeof(typeHist *));
 
-  limits *limits_arrayR;
-  limits_arrayR = malloc(num_threads*sizeof(limits));
-  int current_num_tuples,new_end,current_threads;
-  current_num_tuples=relR->num_tuples;
-  new_end=0;
-  current_threads=num_threads;
-  for ( i=0; i<num_threads; i++ ){
-    int population=(int)ceil((double)current_num_tuples/(double)current_threads);
-    limits_arrayR[i].start = new_end;
-    limits_arrayR[i].end = new_end+population;
-    current_num_tuples -= population;
-    new_end += population;
-    current_threads --;
-  }
-  for ( i=0; i<num_threads; i++ ){
-    HistR_Array[i] = Rel_to_Hist(relR,limits_arrayR[i].start,limits_arrayR[i].end);
-  }
+  Job_list *my_Job_list=Job_list_init();
+  Sheduler_values *args=malloc(sizeof(Sheduler_values));
+  args->shutdown = 0;
+  args->my_Job_list = my_Job_list;
 
-  limits *limits_arrayS;
-  limits_arrayS = malloc(num_threads*sizeof(limits));
-  current_num_tuples=relS->num_tuples;
-  new_end=0;
-  current_threads=num_threads;
   for ( i=0; i<num_threads; i++ ){
-    int population=(int)ceil((double)current_num_tuples/(double)current_threads);
-    limits_arrayS[i].start = new_end;
-    limits_arrayS[i].end = new_end+population;
-    current_num_tuples -= population;
-    new_end += population;
-    current_threads --;
-  }
-  for ( i=0; i<num_threads; i++ ){
-    HistS_Array[i] = Rel_to_Hist(relS,limits_arrayS[i].start,limits_arrayS[i].end);
+    if ( err=pthread_create(&thread_pool[i],NULL,thread_1,args) ){
+      perror ("pthread_create");
+      exit (1) ;
+    }
   }
 
   int Hash_number = pow(2,FirstHash_number);  //arithmos twn bucket
   typeHist *HistR,*HistS;
 
   int j;
-  HistR = malloc(Hash_number*sizeof(typeHist));
+  args->Hist = malloc(Hash_number*sizeof(typeHist));
 
   for ( i=0; i<Hash_number; i++ ){
-    HistR[i].box = i;
-    HistR[i].num = 0;
-    for ( j=0; j<num_threads; j++ ){
-      HistR[i].num += HistR_Array[j][i].num;
-    }
+    args->Hist[i].box = i;
+    args->Hist[i].num = 0;
   }
 
-  HistS = malloc(Hash_number*sizeof(typeHist));
-  for ( i=0; i<Hash_number; i++ ){
-    HistS[i].box = i;
-    HistS[i].num = 0;
-    for ( j=0; j<num_threads; j++ ){
-      HistS[i].num += HistS_Array[j][i].num;
-    }
+  int current_num_tuples;
+  current_num_tuples=relR->num_tuples;
+  limits *limits_arrayR=calculate_limits(current_num_tuples);
+
+  Job *newJob;
+  for ( i=0; i<num_threads; i++ ){
+    newJob = malloc(sizeof(Job));
+    newJob->id = 1;
+    newJob->my_limits = &limits_arrayR[i];
+    newJob->relR = relR;
+    newJob->next = NULL;
+    push_Job(my_Job_list,newJob);
+    free(newJob);
+    pthread_cond_signal(&cv_nonempty);
   }
+  HistR = args->Hist;
+
+  args->Hist = malloc(Hash_number*sizeof(typeHist));
+
+  for ( i=0; i<Hash_number; i++ ){
+    args->Hist[i].box = i;
+    args->Hist[i].num = 0;
+  }
+
+  current_num_tuples=relS->num_tuples;
+  limits *limits_arrayS=calculate_limits(current_num_tuples);
 
   for ( i=0; i<num_threads; i++ ){
-    free(HistR_Array[i]);
-    free(HistS_Array[i]);
+    newJob = malloc(sizeof(Job));
+    newJob->id = 1;
+    newJob->my_limits = &limits_arrayS[i];
+    newJob->relR = relS;
+    newJob->next = NULL;
+    push_Job(my_Job_list,newJob);
+    free(newJob);
+    pthread_cond_signal(&cv_nonempty);
   }
-  free(HistR_Array);
-  free(HistS_Array);
+  HistS = args->Hist;
 
+  args->shutdown = 1;
+  pthread_cond_broadcast(&cv_nonempty);
+
+  // for ( i=0; i<num_threads; i++ ){
+  //   free(HistR_Array[i]);
+  //   free(HistS_Array[i]);
+  // }
+  // free(HistR_Array);
+  // free(HistS_Array);
+
+  for ( i=0; i<num_threads; i++ ){
+    if ( err=pthread_join(thread_pool[i],NULL)) {
+      perror ("pthread_join");
+    }
+  }
+
+  if ( err=pthread_mutex_destroy(&mtx_forlist) ) {
+    perror("pthread_mutex_destroy");
+    exit(1) ;
+  }
+  if ( err=pthread_mutex_destroy(&mtx_write) ) {
+    perror("pthread_mutex_destroy");
+    exit(1) ;
+  }
+  if ( err=pthread_cond_destroy(&cv_nonempty) ) {
+    perror("pthread_cond_destroy");
+    exit(1) ;
+  }
+
+  free(thread_pool);
+  free(args);
+  free(my_Job_list);
 
 //----------------------------------------------------------------------------------------------------
 
