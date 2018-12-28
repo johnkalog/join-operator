@@ -3,6 +3,7 @@
 #include <errno.h>
 
 pthread_mutex_t mtx_forlist;
+pthread_mutex_t mtx_forlist1;
 pthread_mutex_t mtx_write;
 pthread_cond_t cv_nonempty;
 

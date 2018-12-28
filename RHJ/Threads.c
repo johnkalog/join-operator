@@ -5,18 +5,21 @@ void* thread_1(void* argp){
 
   Sheduler_values *my_args=argp;
   int err,i;
-  while ( my_args->shutdown==0 ){
+  while ( my_args->shutdown==0){ //  || my_args->my_Job_list->size > 0
     if ( err=pthread_mutex_lock(&mtx_forlist) ){
       perror("pthread_mutex_lock");
       exit(1) ;
     }
+    printf("size list %d\n",my_args->my_Job_list->size );
     if ( my_args->my_Job_list->size<=0 ){
-      pthread_cond_wait(&cv_nonempty,&mtx_forlist);
+      printf("I wait\n");
+      pthread_cond_wait(&cv_nonempty,&mtx_forlist1);
     }
+    printf("I start\n");
     if ( my_args->my_Job_list->size>0 ){
       typeHist *myHist;
       Job *my_Job=pop_Job(my_args->my_Job_list);
-      printf("dwefewfewfewfewf %d\n",my_Job->id);
+      printf("Job id is %d\n",my_Job->id);
       if ( my_Job!=NULL ){
         myHist = Rel_to_Hist(my_Job->relR,my_Job->my_limits->start,my_Job->my_limits->end);
         if ( err=pthread_mutex_unlock(&mtx_forlist) ){
@@ -86,6 +89,7 @@ void push_Job(Job_list *my_Job_list,Job *newJob){
     my_Job_list->Tail = my_Job_list->Head;
   }
   else{
+    my_Job_list->Tail->next = cpy;
     my_Job_list->Tail = cpy;
   }
   my_Job_list->size ++;

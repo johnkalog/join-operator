@@ -24,8 +24,13 @@ result* RadixHashJoin(relation *relR, relation *relS) {
   int i;
   result *Result=result_init(); // arxikopoihsh result
 
-  pthread_mutex_init(&mtx_forlist,NULL);
-  pthread_mutex_init(&mtx_write,NULL);
+  // pthread_mutex_init(&mtx_forlist,NULL);
+  // pthread_mutex_init(&mtx_write,NULL);
+  pthread_mutex_t mtx_forlist= PTHREAD_MUTEX_INITIALIZER;
+  pthread_mutex_t mtx_forlist1= PTHREAD_MUTEX_INITIALIZER;
+  pthread_mutex_t mtx_write= PTHREAD_MUTEX_INITIALIZER;
+
+  // pthread_mutex_t mtx_forlist1 = PTHREAD_MUTEX_INITIALIZER;
   pthread_cond_init(&cv_nonempty,NULL);
   pthread_t err;
   pthread_t *thread_pool=malloc(num_threads*sizeof(pthread_t));
@@ -43,7 +48,7 @@ result* RadixHashJoin(relation *relR, relation *relS) {
   for ( i=0; i<num_threads; i++ ){
     if ( err=pthread_create(&thread_pool[i],NULL,thread_1,args) ){
       perror ("pthread_create");
-      exit (1) ;
+      exit(1);
     }
   }
 
@@ -65,12 +70,13 @@ result* RadixHashJoin(relation *relR, relation *relS) {
   Job *newJob;
   for ( i=0; i<num_threads; i++ ){
     newJob = malloc(sizeof(Job));
-    newJob->id = 1;
+    newJob->id = i;
     newJob->my_limits = &limits_arrayR[i];
     newJob->relR = relR;
     newJob->next = NULL;
     push_Job(my_Job_list,newJob);
     free(newJob);
+    printf("I pushed a Jod\n");
     pthread_cond_signal(&cv_nonempty);
   }
   HistR = args->Hist;
