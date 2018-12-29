@@ -33,6 +33,7 @@ result* RadixHashJoin(relation *relR, relation *relS) {
   // pthread_mutex_t mtx_forlist1 = PTHREAD_MUTEX_INITIALIZER;
   pthread_cond_init(&cv_nonempty,NULL);
   pthread_t err;
+  printf("num_threads %d\n",num_threads);
   pthread_t *thread_pool=malloc(num_threads*sizeof(pthread_t));
   //----------------------------------------------------------------------------------------------------
   // typeHist **HistR_Array,**HistS_Array;
@@ -76,9 +77,11 @@ result* RadixHashJoin(relation *relR, relation *relS) {
     newJob->next = NULL;
     push_Job(my_Job_list,newJob);
     free(newJob);
-    printf("I pushed a Jod\n");
+    printf("I pushed a Jod size_list: %d\n",my_Job_list->size);
     pthread_cond_signal(&cv_nonempty);
   }
+
+
   HistR = args->Hist;
 
   args->Hist = malloc(Hash_number*sizeof(typeHist));
@@ -99,6 +102,8 @@ result* RadixHashJoin(relation *relR, relation *relS) {
     newJob->next = NULL;
     push_Job(my_Job_list,newJob);
     free(newJob);
+    printf("I pushed a Jod size_list: %d\n",my_Job_list->size);
+
     pthread_cond_signal(&cv_nonempty);
   }
   HistS = args->Hist;

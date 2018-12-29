@@ -15,7 +15,7 @@ void* thread_1(void* argp){
       printf("I wait\n");
       pthread_cond_wait(&cv_nonempty,&mtx_forlist1);
     }
-    printf("I start\n");
+    printf("I start with size %d\n",my_args->my_Job_list->size);
     if ( my_args->my_Job_list->size>0 ){
       typeHist *myHist;
       Job *my_Job=pop_Job(my_args->my_Job_list);
@@ -39,7 +39,19 @@ void* thread_1(void* argp){
         }
         free(my_Job);
       }
+      else {
+        if ( err=pthread_mutex_unlock(&mtx_forlist) ){
+          perror("pthread_mutex_lock");
+          exit(1) ;
+        }
+      }
 
+    }
+    else {
+      if ( err=pthread_mutex_unlock(&mtx_forlist) ){
+        perror("pthread_mutex_lock");
+        exit(1) ;
+      }
     }
 
 

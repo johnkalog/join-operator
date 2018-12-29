@@ -67,12 +67,14 @@ void Scan_Buckets(result *Result,HashBucket *fullBucket,relation *RelHash,relati
   ///// apothikeuei ta rowids sto Result //////
 
   int  i,bucket_index,chain_index;
+  //printf("sizeScan %d\n",sizeScan );
   for(i=0;i<sizeScan;i++){
     // payload timh ston RelScan
     int32_t payload = RelScan->tuples[startScan+i].payload;
     int32_t key=RelScan->tuples[startScan+i].key;
     bucket_index = SecondHashFunction(payload,FirstHash_number,SecondHash_number);
 
+    //printf("bucket_index %d\n",bucket_index );
     //printf("payload %d\n",payload );
     if(fullBucket->bucket[bucket_index]!=-1){ // uparxei tetoio stoixeio sto fullBucket diatrexontas to chain?
       chain_index = fullBucket->bucket[bucket_index];
