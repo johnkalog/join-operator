@@ -40,11 +40,15 @@ typeHist *Hist_to_Psum(typeHist *Hist){
   int i;
   int sizeHist = pow(2,FirstHash_number);
 
+  int sum = Hist[0].num;
+
   typeHist *Psum = malloc(sizeHist*sizeof(typeHist));
   Psum[0].box = Hist[0].box;
   Psum[0].num = 0;
   for(i=1;i<sizeHist;i++) {
+      sum+= Hist[i].num;
     Psum[i].box = Hist[i].box;
+    //printf("sumnum:%d and histnum:%d\n",Psum[i-1].num,Hist[i].num );
     Psum[i].num = Psum[i-1].num + Hist[i-1].num;
   }
   return Psum;
@@ -52,7 +56,6 @@ typeHist *Hist_to_Psum(typeHist *Hist){
 
 void change_part_relation(relation *relR,relation *relNewR,limits *my_limits,typeHist *Psum){
   int i;
-
   for(i=my_limits->start;i<my_limits->end;i++) {
     uint32_t box = FirstHashFunction(relR->tuples[i].payload,FirstHash_number);
 

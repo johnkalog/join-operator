@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
   free_memory(A);
   free_memory(B);
 
-  //result_print(Result);
+  result_print(Result);
   result_free(Result);
   return 0;
 }

@@ -71,7 +71,7 @@ result* RadixHashJoin(relation *relR, relation *relS) {
   Job *newJob;
   for ( i=0; i<num_threads; i++ ){
     newJob = malloc(sizeof(Job));
-    newJob->id = i;
+    newJob->id = 0;
     newJob->my_limits = &limits_arrayR[i];
     newJob->relR = relR;
     newJob->next = NULL;
@@ -82,13 +82,12 @@ result* RadixHashJoin(relation *relR, relation *relS) {
   }
 
 
-  HistR = args->Hist;
 
-  args->Hist = malloc(Hash_number*sizeof(typeHist));
+  args->Hist2 = malloc(Hash_number*sizeof(typeHist));
 
   for ( i=0; i<Hash_number; i++ ){
-    args->Hist[i].box = i;
-    args->Hist[i].num = 0;
+    args->Hist2[i].box = i;
+    args->Hist2[i].num = 0;
   }
 
   current_num_tuples=relS->num_tuples;
@@ -106,7 +105,6 @@ result* RadixHashJoin(relation *relR, relation *relS) {
 
     pthread_cond_signal(&cv_nonempty);
   }
-  HistS = args->Hist;
 
   args->shutdown = 1;
   pthread_cond_broadcast(&cv_nonempty);
@@ -123,6 +121,9 @@ result* RadixHashJoin(relation *relR, relation *relS) {
       perror ("pthread_join");
     }
   }
+  HistR = args->Hist;
+  HistS = args->Hist2;
+
 
   if ( err=pthread_mutex_destroy(&mtx_forlist) ) {
     perror("pthread_mutex_destroy");
@@ -142,7 +143,6 @@ result* RadixHashJoin(relation *relR, relation *relS) {
   free(my_Job_list);
 
 //----------------------------------------------------------------------------------------------------
-
   typeHist *PsumR=Hist_to_Psum(HistR);
   typeHist *PsumS=Hist_to_Psum(HistS);
 

@@ -13,7 +13,7 @@ typedef struct limits{
 
 typedef struct Sheduler_values{
   int shutdown;
-  typeHist *Hist;
+  typeHist *Hist,*Hist2;
   relation *NewRel;
   result *Result;
   struct Job_list *my_Job_list;
