@@ -1,4 +1,4 @@
-#include "./../part2/Sql_queries.h"
+#include "./../Queries/Sql_queries.h"
 #include <CUnit/CUnit.h>
 #include <CUnit/Basic.h>
 

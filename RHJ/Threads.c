@@ -10,20 +10,20 @@ void* thread_1(void* argp){
       perror("pthread_mutex_lock");
       exit(1) ;
     }
-    printf("size list %d\n",my_args->my_Job_list->size );
+    //printf("size list %d\n",my_args->my_Job_list->size );
     if ( my_args->my_Job_list->size<=0 ){
-      printf("I wait\n");
+      //printf("I wait\n");
       if(my_args->shutdown!=0){
           break;
           pthread_exit(NULL);
       }
       pthread_cond_wait(&cv_nonempty,&mtx_forlist1);
     }
-    printf("I start with size %d\n",my_args->my_Job_list->size);
+    //printf("I start with size %d\n",my_args->my_Job_list->size);
     if ( my_args->my_Job_list->size>0 ){
       typeHist *myHist;
       Job *my_Job=pop_Job(my_args->my_Job_list);
-      printf("Job id is %d\n",my_Job->id);
+      //printf("Job id is %d\n",my_Job->id);
       if ( my_Job!=NULL ){
         myHist = Rel_to_Hist(my_Job->relR,my_Job->my_limits->start,my_Job->my_limits->end);
         if ( err=pthread_mutex_unlock(&mtx_forlist) ){
@@ -75,7 +75,6 @@ void* thread_1(void* argp){
   //save to my space
   //mutex unlock
   ///acomplish my job
-  printf("xd\n");
   pthread_mutex_unlock(&mtx_forlist);
   pthread_exit(NULL);
 

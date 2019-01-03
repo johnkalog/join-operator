@@ -1,35 +1,44 @@
-OBJS     = testprogram.o list_result.o RadixHashJoin.o RadixFunctions.o Relation.o Full_Relation.o Sql_queries.o Sql_functions.o
+OBJS     = testprogram.o list_result.o RadixHashJoin.o RadixFunctions.o Relation.o Full_Relation.o Sql_queries.o Sql_functions.o ThreadFunctions.o Threads.o JobSheduler.o
 OUT      = run
 CC       = gcc
-FLAGS    = -g -c
+FLAGS    = -g -c -lm -pthread
 # -g for  debugging  mode ; -c for  objects  file  creation
 
 $(OUT): $(OBJS)
-	$(CC) -g $(OBJS) -o $@ -lcunit
+	$(CC) -g $(OBJS) -o $@ -lm -pthread -lcunit
 
 testprogram.o:testprogram.c
 	$(CC) $(FLAGS) testprogram.c
 
-list_result.o:../part1/list_result.c
-	$(CC) $(FLAGS) ../part1/list_result.c
+list_result.o:../RHJ/list_result.c
+	$(CC) $(FLAGS) ../RHJ/list_result.c
 
-RadixHashJoin.o:../part1/RadixHashJoin.c
-	$(CC) $(FLAGS) ../part1/RadixHashJoin.c
+RadixHashJoin.o:../RHJ/RadixHashJoin.c
+	$(CC) $(FLAGS) ../RHJ/RadixHashJoin.c
 
-RadixFunctions.o:../part1/RadixFunctions.c
-	$(CC) $(FLAGS) ../part1/RadixFunctions.c
+RadixFunctions.o:../RHJ/RadixFunctions.c
+	$(CC) $(FLAGS) ../RHJ/RadixFunctions.c
 
-Relation.o:../part1/Relation.c
-	$(CC) $(FLAGS) ../part1/Relation.c
+Threads.o:../RHJ/Threads.c
+	$(CC) $(FLAGS) ../RHJ/Threads.c
 
-Full_Relation.o:../part2/Full_Relation.c
-	$(CC) $(FLAGS) ../part2/Full_Relation.c
+ThreadFunctions.o:../RHJ/ThreadFunctions.c
+	$(CC) $(FLAGS) ../RHJ/ThreadFunctions.c
 
-Sql_queries.o:../part2/Sql_queries.c
-	$(CC) $(FLAGS) ../part2/Sql_queries.c
+JobSheduler.o:../RHJ/JobSheduler.c
+	$(CC) $(FLAGS) ../RHJ/JobSheduler.c
 
-Sql_functions.o:../part2/Sql_functions.c
-	$(CC) $(FLAGS) ../part2/Sql_functions.c
+Relation.o:../RHJ/Relation.c
+	$(CC) $(FLAGS) ../RHJ/Relation.c
+
+Full_Relation.o:../Queries/Full_Relation.c
+	$(CC) $(FLAGS) ../Queries/Full_Relation.c
+
+Sql_queries.o:../Queries/Sql_queries.c
+	$(CC) $(FLAGS) ../Queries/Sql_queries.c
+
+Sql_functions.o:../Queries/Sql_functions.c
+	$(CC) $(FLAGS) ../Queries/Sql_functions.c
 
 clean:
 	rm -f $(OBJS) $(OUT)
