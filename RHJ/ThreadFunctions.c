@@ -65,6 +65,18 @@ void change_part_relation(relation *relR,relation *relNewR,limits *my_limits,typ
   }
 }
 
+void change_part_relation2(relation *relR,relation *relNewR,int start,int end,typeHist *Psum){
+  int i;
+  for(i=start;i<end;i++) {
+    uint32_t box = FirstHashFunction(relR->tuples[i].payload,FirstHash_number);
+
+    relNewR->tuples[Psum[box].num].payload = relR->tuples[i].payload;
+    relNewR->tuples[Psum[box].num].key = relR->tuples[i].key;
+    Psum[box].num++;
+  }
+}
+
+
 void one_bucket_join(int index,result *Result,HashBucket *TheHashBucket,typeHist *HistR,typeHist *HistS,typeHist *PsumR,typeHist *PsumS,relation *relNewR,relation *relNewS){
 
   int sizeR = HistR[index].num; // current size tou bucket

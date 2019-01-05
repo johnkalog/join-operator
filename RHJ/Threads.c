@@ -81,7 +81,52 @@ void* thread_1(void* argp){
 }
 
 void* thread_2(void* argp){
+  Sheduler_values *my_args=argp;
+  int err,i;
+  while ( my_args->shutdown==0 || my_args->my_Job_list->size > 0 ){ //  || my_args->my_Job_list->size > 0
+    if ( err=pthread_mutex_lock(&mtx_forlist) ){
+      perror("pthread_mutex_lock");
+      exit(1) ;
+    }
+    //printf("size list %d\n",my_args->my_Job_list->size );
+    if ( my_args->my_Job_list->size<=0 ){
+      //printf("I wait\n");
+      if(my_args->shutdown!=0){
+          break;
+      }
+      pthread_cond_wait(&cv_nonempty,&mtx_forlist1);
+    }
+    //printf("I start with size %d\n",my_args->my_Job_list->size);
+    if ( my_args->my_Job_list->size>0 ){
+      typeHist *myHist;
+      Job *my_Job=pop_Job(my_args->my_Job_list);
 
+      if ( err=pthread_mutex_unlock(&mtx_forlist) ){
+        perror("pthread_mutex_lock");
+        exit(1) ;
+      }
+      //printf("Job id is %d\n",my_Job->id);
+      if(my_Job!=NULL) {
+        if ( err=pthread_mutex_lock(&mtx_write) ){
+          perror("pthread_mutex_lock");
+          exit(1) ;
+        }
+        if(my_Job->id == 0) {
+          change_part_relation2(my_Job->relR,my_args->NewRelR,my_Job->my_limits->start,my_Job->my_limits->end,my_Job->PsumR);
+        }
+        else {
+          change_part_relation2(my_Job->relR,my_args->NewRelS,my_Job->my_limits->start,my_Job->my_limits->end,my_Job->PsumR);
+        }
+
+        if ( err=pthread_mutex_unlock(&mtx_write) ){
+          perror("pthread_mutex_unlock");
+          exit(1) ;
+        }
+      }
+    }
+  }
+  pthread_mutex_unlock(&mtx_forlist);
+  pthread_exit(NULL);
 }
 
 void* thread_3(void* argp){

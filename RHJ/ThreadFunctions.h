@@ -14,7 +14,7 @@ typedef struct limits{
 typedef struct Sheduler_values{
   int shutdown;
   typeHist *Hist,*Hist2;
-  relation *NewRel;
+  relation *NewRelR,*NewRelS;
   result *Result;
   struct Job_list *my_Job_list;
 }Sheduler_values;
@@ -36,6 +36,7 @@ limits *calculate_limits(int );
 typeHist *Rel_to_Hist(relation *,int,int);
 typeHist *Hist_to_Psum(typeHist *);
 void change_part_relation(relation *,relation *,limits *,typeHist *);
+void change_part_relation2(relation *,relation *,int ,int ,typeHist *);
 void one_bucket_join(int ,result *,HashBucket *,typeHist *,typeHist *,typeHist *,typeHist *,relation *,relation *);
 
 void JobSheduler(int);
