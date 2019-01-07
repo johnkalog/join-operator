@@ -138,7 +138,7 @@ result* RadixHashJoin(relation *relR, relation *relS) {
     exit(1) ;
   }
 
-  free(thread_pool);
+  //free(thread_pool);
   free(args);
   free(my_Job_list);
 
@@ -148,23 +148,95 @@ result* RadixHashJoin(relation *relR, relation *relS) {
 
 //----------------------------------------------------------------------------------------------------
 
-relation *relNewR = malloc(sizeof(relation));
-relNewR->num_tuples = relR->num_tuples;
-relNewR->tuples = malloc(relNewR->num_tuples*sizeof(tuple));
-for ( i=0; i<num_threads; i++ ){
-  change_part_relation(relR,relNewR,&limits_arrayR[i],PsumR);
-}
-free(limits_arrayR);
-// free(PsumR);
+Hash_number = pow(2,FirstHash_number);
+// pthread_mutex_t mtx_forlist1 = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_init(&cv_nonempty,NULL);
+//printf("num_threads %d\n",num_threads);
+//thread_pool=malloc(num_threads*sizeof(pthread_t));
+my_Job_list=Job_list_init();
+args=malloc(sizeof(Sheduler_values));
+args->shutdown = 0;
+args->my_Job_list = my_Job_list;
 
-relation *relNewS = malloc(sizeof(relation));
-relNewS->num_tuples = relS->num_tuples;
-relNewS->tuples = malloc(relNewS->num_tuples*sizeof(tuple));
 for ( i=0; i<num_threads; i++ ){
-  change_part_relation(relS,relNewS,&limits_arrayS[i],PsumS);
+  if ( err=pthread_create(&thread_pool[i],NULL,thread_2,args) ){
+    perror ("pthread_create");
+    exit(1);
+  }
 }
+
+
+
+current_num_tuples=relR->num_tuples;
+args->PsumR = PsumR;
+args->NewRelR = malloc(sizeof(relation));
+args->NewRelR->num_tuples = current_num_tuples;
+args->NewRelR->tuples = malloc(current_num_tuples*(sizeof(tuple)));
+limits_arrayR=calculate_limits(current_num_tuples);
+
+for ( i=0; i<num_threads; i++ ){
+  newJob = malloc(sizeof(Job));
+  newJob->id = 0;
+  newJob->my_limits = &limits_arrayR[i];
+  newJob->PsumR = PsumR;
+  newJob->relR = relR;
+  newJob->next = NULL;
+  push_Job(my_Job_list,newJob);
+  free(newJob);
+  //printf("I pushed a Jod size_list: %d\n",my_Job_list->size);
+  pthread_cond_signal(&cv_nonempty);
+}
+
+
+current_num_tuples=relS->num_tuples;
+args->PsumS = PsumS;
+args->NewRelS = malloc(sizeof(relation));
+args->NewRelS->num_tuples = current_num_tuples;
+args->NewRelS->tuples = malloc(current_num_tuples*(sizeof(tuple)));
+limits_arrayS=calculate_limits(current_num_tuples);
+
+for ( i=0; i<num_threads; i++ ){
+  newJob = malloc(sizeof(Job));
+  newJob->id = 1;
+  newJob->my_limits = &limits_arrayS[i];
+  newJob->PsumS = PsumS;
+  newJob->relS = relS;
+  newJob->next = NULL;
+  push_Job(my_Job_list,newJob);
+  free(newJob);
+  //printf("I pushed a Jod size_list: %d\n",my_Job_list->size);
+
+  pthread_cond_signal(&cv_nonempty);
+}
+
+args->shutdown = 1;
+pthread_cond_broadcast(&cv_nonempty);
+
+
+for ( i=0; i<num_threads; i++ ){
+  if ( err=pthread_join(thread_pool[i],NULL)) {
+    perror ("pthread_join");
+  }
+}
+
+if ( err=pthread_mutex_destroy(&mtx_forlist) ) {
+  perror("pthread_mutex_destroy");
+  exit(1) ;
+}
+if ( err=pthread_mutex_destroy(&mtx_write) ) {
+  perror("pthread_mutex_destroy");
+  exit(1) ;
+}
+if ( err=pthread_cond_destroy(&cv_nonempty) ) {
+  perror("pthread_cond_destroy");
+  exit(1) ;
+}
+free(thread_pool);
+free(my_Job_list);
+
+//----------------------------------
+free(limits_arrayR);
 free(limits_arrayS);
-// free(PsumS);
 
 //----------------------------------------------------------------------------------------------------
 
@@ -194,10 +266,16 @@ free(limits_arrayS);
   TheHashBucket->chain = NULL;
   TheHashBucket->bucket = malloc(sizeBucket*sizeof(int));
 
-  for ( i=0; i<Hash_number; i++ ) {
-    one_bucket_join(i,Result,TheHashBucket,HistR,HistS,PsumR,PsumS,relNewR,relNewS);
+  for ( i=0; i<Hash_number; i++ ) {  free(args->NewRelR);
+
+    one_bucket_join(i,Result,TheHashBucket,HistR,HistS,PsumR,PsumS,args->NewRelR,args->NewRelS);
   }
 
+  free(args->NewRelR->tuples);
+  free(args->NewRelS->tuples);
+  free(args->NewRelR);
+  free(args->NewRelS);
+  free(args);
   free_memory(relNewR);
   free_memory(relNewS);
   free(TheHashBucket->bucket);

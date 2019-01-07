@@ -14,6 +14,7 @@ typedef struct limits{
 typedef struct Sheduler_values{
   int shutdown;
   typeHist *Hist,*Hist2;
+  typeHist *PsumR,*PsumS;
   relation *NewRelR,*NewRelS;
   result *Result;
   struct Job_list *my_Job_list;

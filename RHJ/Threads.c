@@ -115,7 +115,7 @@ void* thread_2(void* argp){
           change_part_relation2(my_Job->relR,my_args->NewRelR,my_Job->my_limits->start,my_Job->my_limits->end,my_Job->PsumR);
         }
         else {
-          change_part_relation2(my_Job->relR,my_args->NewRelS,my_Job->my_limits->start,my_Job->my_limits->end,my_Job->PsumR);
+          change_part_relation2(my_Job->relS,my_args->NewRelS,my_Job->my_limits->start,my_Job->my_limits->end,my_Job->PsumS);
         }
 
         if ( err=pthread_mutex_unlock(&mtx_write) ){
