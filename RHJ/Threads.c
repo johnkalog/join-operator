@@ -117,7 +117,7 @@ void* thread_2(void* argp){
         else {
           change_part_relation2(my_Job->relS,my_args->NewRelS,my_Job->my_limits->start,my_Job->my_limits->end,my_Job->PsumS);
         }
-
+        free(my_Job);
         if ( err=pthread_mutex_unlock(&mtx_write) ){
           perror("pthread_mutex_unlock");
           exit(1) ;
@@ -162,7 +162,6 @@ void push_Job(Job_list *my_Job_list,Job *newJob){
     my_Job_list->Tail = cpy;
   }
   my_Job_list->size ++;
-
 }
 
 Job *pop_Job(Job_list *my_Job_list){

@@ -139,6 +139,8 @@ result* RadixHashJoin(relation *relR, relation *relS) {
   }
 
   //free(thread_pool);
+  free(limits_arrayR);
+  free(limits_arrayS);
   free(args);
   free(my_Job_list);
 
@@ -233,10 +235,10 @@ if ( err=pthread_cond_destroy(&cv_nonempty) ) {
 }
 free(thread_pool);
 free(my_Job_list);
-
-//----------------------------------
 free(limits_arrayR);
 free(limits_arrayS);
+
+//----------------------------------
 
 //----------------------------------------------------------------------------------------------------
 
@@ -266,8 +268,7 @@ free(limits_arrayS);
   TheHashBucket->chain = NULL;
   TheHashBucket->bucket = malloc(sizeBucket*sizeof(int));
 
-  for ( i=0; i<Hash_number; i++ ) {  free(args->NewRelR);
-
+  for ( i=0; i<Hash_number; i++ ) {
     one_bucket_join(i,Result,TheHashBucket,HistR,HistS,PsumR,PsumS,args->NewRelR,args->NewRelS);
   }
 
@@ -276,8 +277,8 @@ free(limits_arrayS);
   free(args->NewRelR);
   free(args->NewRelS);
   free(args);
-  free_memory(relNewR);
-  free_memory(relNewS);
+  // free_memory(relNewR);
+  // free_memory(relNewS);
   free(TheHashBucket->bucket);
   free(TheHashBucket);
   free(HistR);
