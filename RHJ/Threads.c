@@ -24,12 +24,13 @@ void* thread_1(void* argp){
       typeHist *myHist;
       Job *my_Job=pop_Job(my_args->my_Job_list);
       //printf("Job id is %d\n",my_Job->id);
+      if ( err=pthread_mutex_unlock(&mtx_forlist) ){
+        perror("pthread_mutex_lock");
+        exit(1) ;
+      }
       if ( my_Job!=NULL ){
+
         myHist = Rel_to_Hist(my_Job->relR,my_Job->my_limits->start,my_Job->my_limits->end);
-        if ( err=pthread_mutex_unlock(&mtx_forlist) ){
-          perror("pthread_mutex_lock");
-          exit(1) ;
-        }
         if ( err=pthread_mutex_lock(&mtx_write) ){
           perror("pthread_mutex_lock");
           exit(1) ;
@@ -49,19 +50,6 @@ void* thread_1(void* argp){
           exit(1) ;
         }
         free(my_Job);
-      }
-      else {
-        if ( err=pthread_mutex_unlock(&mtx_forlist) ){
-          perror("pthread_mutex_lock");
-          exit(1) ;
-        }
-      }
-
-    }
-    else {
-      if ( err=pthread_mutex_unlock(&mtx_forlist) ){
-        perror("pthread_mutex_lock");
-        exit(1) ;
       }
     }
 
@@ -130,6 +118,69 @@ void* thread_2(void* argp){
 }
 
 void* thread_3(void* argp){
+  Sheduler_values *my_args=argp;
+  int err,i;
+  result *tmp_Result=result_init();
+
+  int sizeBucket=pow(2,SecondHash_number);
+  HashBucket *TheHashBucket=malloc(sizeof(HashBucket));
+  TheHashBucket->chain = NULL;
+  TheHashBucket->bucket = malloc(sizeBucket*sizeof(int));
+
+  while ( my_args->shutdown==0 || my_args->my_Job_list->size > 0 ){ //  || my_args->my_Job_list->size > 0
+    if ( err=pthread_mutex_lock(&mtx_forlist) ){
+      perror("pthread_mutex_lock");
+      exit(1) ;
+    }
+    //printf("size list %d\n",my_args->my_Job_list->size );
+    if ( my_args->my_Job_list->size<=0 ){
+      //printf("I wait\n");
+      if(my_args->shutdown!=0){
+          break;
+      }
+      pthread_cond_wait(&cv_nonempty,&mtx_forlist1);
+    }
+    //printf("I start with size %d\n",my_args->my_Job_list->size);
+    if ( my_args->my_Job_list->size>0 ){
+      typeHist *myHist;
+      Job *my_Job=pop_Job(my_args->my_Job_list);
+
+      if ( err=pthread_mutex_unlock(&mtx_forlist) ){
+        perror("pthread_mutex_unlock");
+        exit(1) ;
+      }
+      //printf("Job id is %d\n",my_Job->id);
+      if(my_Job!=NULL) {
+
+        one_bucket_join(my_Job->bucket_index,tmp_Result,TheHashBucket,my_args->Hist,my_args->Hist2,my_args->PsumR,my_args->PsumS,my_args->NewRelR,my_args->NewRelS);
+      }
+    }
+  }
+  if ( err=pthread_mutex_lock(&mtx_write) ){
+    perror("pthread_mutex_lock");
+    exit(1) ;
+  }
+
+  if(my_args->Result->Head == NULL) {
+    my_args->Result = tmp_Result;
+  }
+  else {
+    my_args->Result->Tail->next = tmp_Result->Head;
+    my_args->Result->Tail = tmp_Result->Tail;
+
+  }
+  // size_kombwn
+  if ( err=pthread_mutex_unlock(&mtx_write) ){
+    perror("pthread_mutex_unlock");
+    exit(1) ;
+  }
+
+
+  free(TheHashBucket->bucket);
+  free(TheHashBucket);
+
+  pthread_mutex_unlock(&mtx_forlist);
+  pthread_exit(NULL);
 
 }
 
