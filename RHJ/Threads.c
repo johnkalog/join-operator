@@ -151,8 +151,9 @@ void* thread_3(void* argp){
       }
       //printf("Job id is %d\n",my_Job->id);
       if(my_Job!=NULL) {
-
-        one_bucket_join(my_Job->bucket_index,tmp_Result,TheHashBucket,my_args->Hist,my_args->Hist2,my_args->PsumR,my_args->PsumS,my_args->NewRelR,my_args->NewRelS);
+        for(i=my_Job->my_limits->start; i<my_Job->my_limits->end; i++){
+            one_bucket_join(i,tmp_Result,TheHashBucket,my_args->Hist,my_args->Hist2,my_args->PsumR,my_args->PsumS,my_args->NewRelR,my_args->NewRelS);
+        }
       }
     }
   }
@@ -167,6 +168,8 @@ void* thread_3(void* argp){
   else {
     my_args->Result->Tail->next = tmp_Result->Head;
     my_args->Result->Tail = tmp_Result->Tail;
+    my_args->Result->size += tmp_Result->size;
+    my_args->Result->total_records += tmp_Result->total_records;
 
   }
   // size_kombwn

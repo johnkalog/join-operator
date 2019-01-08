@@ -10,6 +10,7 @@ typedef struct result_node{
 
 typedef struct result{
   int size; // arithmos kombwn
+  int total_records; //arithmos sunolikwm ids;
   result_node *Head,*Tail; // arxh kai telos listas
 }result;
 

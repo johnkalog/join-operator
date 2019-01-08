@@ -8,6 +8,7 @@ void insert(result *Result,int key1,int key2){
     Result->Head->buffer[0][Result->Head->pos] = key1;
     Result->Head->buffer[1][Result->Head->pos] = key2;
     Result->Head->pos ++;
+    Result->total_records ++;
     Result->Tail = Result->Head;
     Result->size ++;
   }
@@ -16,12 +17,14 @@ void insert(result *Result,int key1,int key2){
       Result->Tail->buffer[0][Result->Tail->pos] = key1;
       Result->Tail->buffer[1][Result->Tail->pos] = key2;
       Result->Tail->pos++;
+      Result->total_records ++;
     }
     else{
       Result->Tail->next = node_init();
       Result->Tail->next->buffer[0][Result->Tail->next->pos] = key1;
       Result->Tail->next->buffer[1][Result->Tail->next->pos] = key2;
       Result->Tail->next->pos ++;
+      Result->total_records ++;
       Result->size ++;
       Result->Tail = Result->Tail->next;
     }
@@ -44,6 +47,7 @@ result* result_init(){
   // arxikopohsh result
   result *Result=malloc(sizeof(result));
   Result->size = 0;
+  Result->total_records = 0;
   Result->Head = NULL;
   Result->Tail = NULL;
   return Result;
