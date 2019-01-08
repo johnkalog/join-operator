@@ -151,9 +151,7 @@ void* thread_3(void* argp){
       }
       //printf("Job id is %d\n",my_Job->id);
       if(my_Job!=NULL) {
-        for(i=my_Job->my_limits->start; i<my_Job->my_limits->end; i++){
-            one_bucket_join(i,tmp_Result,TheHashBucket,my_args->Hist,my_args->Hist2,my_args->PsumR,my_args->PsumS,my_args->NewRelR,my_args->NewRelS);
-        }
+            one_bucket_join(my_Job->bucket_index,tmp_Result,TheHashBucket,my_args->Hist,my_args->Hist2,my_args->PsumR,my_args->PsumS,my_args->NewRelR,my_args->NewRelS);
       }
     }
   }
