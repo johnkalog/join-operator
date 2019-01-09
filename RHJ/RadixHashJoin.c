@@ -29,6 +29,8 @@ result* RadixHashJoin(relation *relR, relation *relS) {
   pthread_mutex_t mtx_forlist= PTHREAD_MUTEX_INITIALIZER;
   pthread_mutex_t mtx_forlist1= PTHREAD_MUTEX_INITIALIZER;
   pthread_mutex_t mtx_write= PTHREAD_MUTEX_INITIALIZER;
+  pthread_mutex_t mtx_xd= PTHREAD_MUTEX_INITIALIZER;
+
 
   // pthread_mutex_t mtx_forlist1 = PTHREAD_MUTEX_INITIALIZER;
   pthread_cond_init(&cv_nonempty,NULL);
@@ -75,10 +77,19 @@ result* RadixHashJoin(relation *relR, relation *relS) {
     newJob->my_limits = &limits_arrayR[i];
     newJob->relR = relR;
     newJob->next = NULL;
+    if ( err=pthread_mutex_lock(&mtx_xd) ){
+      perror("pthread_mutex_lock");
+      exit(1) ;
+    }
     push_Job(my_Job_list,newJob);
+    if ( err=pthread_mutex_unlock(&mtx_xd) ){
+      perror("pthread_mutex_lock");
+      exit(1) ;
+    }
     free(newJob);
     //printf("I pushed a Jod size_list: %d\n",my_Job_list->size);
     pthread_cond_signal(&cv_nonempty);
+    //printf("xddddd\n");
   }
 
 
@@ -99,7 +110,15 @@ result* RadixHashJoin(relation *relR, relation *relS) {
     newJob->my_limits = &limits_arrayS[i];
     newJob->relR = relS;
     newJob->next = NULL;
+    if ( err=pthread_mutex_lock(&mtx_xd) ){
+      perror("pthread_mutex_lock");
+      exit(1) ;
+    }
     push_Job(my_Job_list,newJob);
+    if ( err=pthread_mutex_unlock(&mtx_xd) ){
+      perror("pthread_mutex_lock");
+      exit(1) ;
+    }
     free(newJob);
     //printf("I pushed a Jod size_list: %d\n",my_Job_list->size);
 
@@ -183,7 +202,15 @@ for ( i=0; i<num_threads; i++ ){
   newJob->PsumR = PsumR;
   newJob->relR = relR;
   newJob->next = NULL;
+  if ( err=pthread_mutex_lock(&mtx_xd) ){
+    perror("pthread_mutex_lock");
+    exit(1) ;
+  }
   push_Job(my_Job_list,newJob);
+  if ( err=pthread_mutex_unlock(&mtx_xd) ){
+    perror("pthread_mutex_lock");
+    exit(1) ;
+  }
   free(newJob);
   //printf("I pushed a Jod size_list: %d\n",my_Job_list->size);
   pthread_cond_signal(&cv_nonempty);
@@ -204,7 +231,15 @@ for ( i=0; i<num_threads; i++ ){
   newJob->PsumS = PsumS;
   newJob->relS = relS;
   newJob->next = NULL;
+  if ( err=pthread_mutex_lock(&mtx_xd) ){
+    perror("pthread_mutex_lock");
+    exit(1) ;
+  }
   push_Job(my_Job_list,newJob);
+  if ( err=pthread_mutex_unlock(&mtx_xd) ){
+    perror("pthread_mutex_lock");
+    exit(1) ;
+  }
   free(newJob);
   //printf("I pushed a Jod size_list: %d\n",my_Job_list->size);
 
@@ -292,7 +327,15 @@ free(limits_arrayS);
     newJob = malloc(sizeof(Job));
     newJob->bucket_index = i;
     newJob->next = NULL;
+    if ( err=pthread_mutex_lock(&mtx_xd) ){
+      perror("pthread_mutex_lock");
+      exit(1) ;
+    }
     push_Job(my_Job_list,newJob);
+    if ( err=pthread_mutex_unlock(&mtx_xd) ){
+      perror("pthread_mutex_lock");
+      exit(1) ;
+    }
     free(newJob);
     //printf("I pushed a Jod size_list: %d\n",my_Job_list->size);
     pthread_cond_signal(&cv_nonempty);

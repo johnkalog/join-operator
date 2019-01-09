@@ -22,7 +22,16 @@ void* thread_1(void* argp){
     //printf("I start with size %d\n",my_args->my_Job_list->size);
     if ( my_args->my_Job_list->size>0 ){
       typeHist *myHist;
+      if ( err=pthread_mutex_lock(&mtx_xd) ){
+        perror("pthread_mutex_lock");
+        exit(1) ;
+      }
       Job *my_Job=pop_Job(my_args->my_Job_list);
+      if ( err=pthread_mutex_unlock(&mtx_xd) ){
+        perror("pthread_mutex_lock");
+        exit(1) ;
+      }
+      //printf("t1\n");
       //printf("Job id is %d\n",my_Job->id);
       if ( err=pthread_mutex_unlock(&mtx_forlist) ){
         perror("pthread_mutex_lock");
@@ -50,6 +59,9 @@ void* thread_1(void* argp){
           exit(1) ;
         }
         free(my_Job);
+      }
+      else{
+          my_args->my_Job_list->size=0;
       }
     }
 
@@ -87,7 +99,16 @@ void* thread_2(void* argp){
     //printf("I start with size %d\n",my_args->my_Job_list->size);
     if ( my_args->my_Job_list->size>0 ){
       typeHist *myHist;
+      if ( err=pthread_mutex_lock(&mtx_xd) ){
+        perror("pthread_mutex_lock");
+        exit(1) ;
+      }
       Job *my_Job=pop_Job(my_args->my_Job_list);
+      if ( err=pthread_mutex_unlock(&mtx_xd) ){
+        perror("pthread_mutex_lock");
+        exit(1) ;
+      }
+      //printf("t2\n");
 
       if ( err=pthread_mutex_unlock(&mtx_forlist) ){
         perror("pthread_mutex_lock");
@@ -110,6 +131,9 @@ void* thread_2(void* argp){
           perror("pthread_mutex_unlock");
           exit(1) ;
         }
+      }
+      else{
+          my_args->my_Job_list->size = 0;
       }
     }
   }
@@ -143,7 +167,15 @@ void* thread_3(void* argp){
     //printf("I start with size %d\n",my_args->my_Job_list->size);
     if ( my_args->my_Job_list->size>0 ){
       typeHist *myHist;
+      if ( err=pthread_mutex_lock(&mtx_xd) ){
+        perror("pthread_mutex_lock");
+        exit(1) ;
+      }
       Job *my_Job=pop_Job(my_args->my_Job_list);
+      if ( err=pthread_mutex_unlock(&mtx_xd) ){
+        perror("pthread_mutex_lock");
+        exit(1) ;
+      }
 
       if ( err=pthread_mutex_unlock(&mtx_forlist) ){
         perror("pthread_mutex_unlock");
@@ -152,6 +184,9 @@ void* thread_3(void* argp){
       //printf("Job id is %d\n",my_Job->id);
       if(my_Job!=NULL) {
             one_bucket_join(my_Job->bucket_index,tmp_Result,TheHashBucket,my_args->Hist,my_args->Hist2,my_args->PsumR,my_args->PsumS,my_args->NewRelR,my_args->NewRelS);
+      }
+      else{
+          my_args->my_Job_list->size = 0;
       }
     }
   }
@@ -173,7 +208,7 @@ void* thread_3(void* argp){
     }
   }
   if ( err=pthread_mutex_unlock(&mtx_write) ){
-    perror("pthread_mutex_unlock");
+    //perror("pthread_mutex_unlock");
     exit(1) ;
   }
 

@@ -5,6 +5,7 @@
 pthread_mutex_t mtx_forlist;
 pthread_mutex_t mtx_forlist1;
 pthread_mutex_t mtx_write;
+pthread_mutex_t mtx_xd;
 pthread_cond_t cv_nonempty;
 
 typedef struct limits{
