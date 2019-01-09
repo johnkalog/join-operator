@@ -159,18 +159,18 @@ void* thread_3(void* argp){
     perror("pthread_mutex_lock");
     exit(1) ;
   }
+  if(tmp_Result->Head != NULL) {
+    if(my_args->Result->Head == NULL) {
+      my_args->Result = tmp_Result;
+    }
+    else {
+      my_args->Result->Tail->next = tmp_Result->Head;
+      my_args->Result->Tail = tmp_Result->Tail;
+      my_args->Result->size += tmp_Result->size;
+      my_args->Result->total_records += tmp_Result->total_records;
 
-  if(my_args->Result->Head == NULL) {
-    my_args->Result = tmp_Result;
+    }
   }
-  else {
-    my_args->Result->Tail->next = tmp_Result->Head;
-    my_args->Result->Tail = tmp_Result->Tail;
-    my_args->Result->size += tmp_Result->size;
-    my_args->Result->total_records += tmp_Result->total_records;
-
-  }
-  // size_kombwn
   if ( err=pthread_mutex_unlock(&mtx_write) ){
     perror("pthread_mutex_unlock");
     exit(1) ;

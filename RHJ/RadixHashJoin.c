@@ -260,17 +260,39 @@ free(limits_arrayS);
 
   free(PsumR);
   free(PsumS);
+
   PsumR=Hist_to_Psum(HistR);
   PsumS=Hist_to_Psum(HistS);
 
-  int sizeBucket=pow(2,SecondHash_number);
-  HashBucket *TheHashBucket=malloc(sizeof(HashBucket));
-  TheHashBucket->chain = NULL;
-  TheHashBucket->bucket = malloc(sizeBucket*sizeof(int));
 
-  for ( i=0; i<Hash_number; i++ ) {
-    one_bucket_join(i,Result,TheHashBucket,HistR,HistS,PsumR,PsumS,args->NewRelR,args->NewRelS);
+  current_num_tuples=relR->num_tuples;
+  args->PsumR = PsumR;
+  args->PsumS = PsumS;
+  args->Hist = HistR;
+  args->Hist2 = HistS;
+
+  args->Result = result_init();
+  args->shutdown = 0;
+  args->my_Job_list = my_Job_list;
+
+
+  for ( i=0; i<num_threads; i++ ){
+    if ( err=pthread_create(&thread_pool[i],NULL,thread_3,args) ){
+      perror ("pthread_create");
+      exit(1);
+    }
   }
+
+  for ( i=0; i<num_threads; i++ ){
+    newJob = malloc(sizeof(Job));
+    newJob->bucket_index = i;
+    newJob->next = NULL;
+    push_Job(my_Job_list,newJob);
+    free(newJob);
+    //printf("I pushed a Jod size_list: %d\n",my_Job_list->size);
+    pthread_cond_signal(&cv_nonempty);
+  }
+
 
   free(args->NewRelR->tuples);
   free(args->NewRelS->tuples);
@@ -279,13 +301,13 @@ free(limits_arrayS);
   free(args);
   // free_memory(relNewR);
   // free_memory(relNewS);
-  free(TheHashBucket->bucket);
-  free(TheHashBucket);
+  // free(TheHashBucket->bucket);
+  // free(TheHashBucket);
   free(HistR);
   free(HistS);
   free(PsumR);
   free(PsumS);
-  return Result;
+  return args->Result;
 }
 
 // result* RadixHashJoin(relation *relR, relation *relS) {
