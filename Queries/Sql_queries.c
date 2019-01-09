@@ -75,7 +75,7 @@ void sql_queries(char *filepath,full_relation *relations_array){
                        result_free(Result);
                        break;
                      }
-                     cur_size = (Result->size-1)*bufferRows + Result->Tail->pos;
+                     cur_size = Result->total_records;//(Result->size-1)*bufferRows + Result->Tail->pos;
                      result2keys(Result,keys,rel_predicate[best_pos].left.row,0,rel_num);
                      result_free(Result);
                    }
@@ -98,7 +98,7 @@ void sql_queries(char *filepath,full_relation *relations_array){
                        result_free(Result);
                        break;
                      }
-                     cur_size = (Result->size-1)*bufferRows + Result->Tail->pos;
+                     cur_size = Result->total_records;//(Result->size-1)*bufferRows + Result->Tail->pos;
                      result2keys(Result,keys,rel_predicate[best_pos].left.row,0,rel_num);
                      result_free(Result);
                      free(new_rel->tuples);
@@ -123,7 +123,7 @@ void sql_queries(char *filepath,full_relation *relations_array){
                        result_free(Result);
                        break;
                      }
-                     cur_size = (Result->size-1)*bufferRows + Result->Tail->pos;  //gia desmeush tou neou pinaka sto kon keys
+                     cur_size = Result->total_records;//(Result->size-1)*bufferRows + Result->Tail->pos;  //gia desmeush tou neou pinaka sto kon keys
 
                      result2keys(Result,keys,rel_predicate[best_pos].left.row,0,rel_num);
                      result2keys(Result,keys,rel_predicate[best_pos].right.row,1,rel_num);
@@ -147,7 +147,7 @@ void sql_queries(char *filepath,full_relation *relations_array){
                        free(new_rel);
                        break;
                      }
-                     cur_size = (Result->size-1)*bufferRows + Result->Tail->pos;
+                     cur_size = Result->total_records;//(Result->size-1)*bufferRows + Result->Tail->pos;
                      result2keys(Result,keys,rel_predicate[best_pos].right.row,1,rel_num);
                      result2keys(Result,keys,rel_predicate[best_pos].left.row,0,rel_num);
 
@@ -171,7 +171,7 @@ void sql_queries(char *filepath,full_relation *relations_array){
                        free(new_rel);
                        break;
                      }
-                     cur_size = (Result->size-1)*bufferRows + Result->Tail->pos;
+                     cur_size = Result->total_records;//(Result->size-1)*bufferRows + Result->Tail->pos;
                      result2keys(Result,keys,rel_predicate[best_pos].left.row,0,rel_num);
                      result2keys(Result,keys,rel_predicate[best_pos].right.row,1,rel_num);
 
@@ -200,7 +200,7 @@ void sql_queries(char *filepath,full_relation *relations_array){
                        result_free(Result);
                        break;
                      }
-                     cur_size = (Result->size-1)*bufferRows + Result->Tail->pos;
+                     cur_size = Result->total_records;//(Result->size-1)*bufferRows + Result->Tail->pos;
                      result2keys(Result,keys,rel_predicate[best_pos].left.row,0,rel_num);
                      result_free(Result);
                      free(new_rel->tuples);
@@ -224,7 +224,7 @@ void sql_queries(char *filepath,full_relation *relations_array){
                      result_free(Result);
                      break;
                    }
-                   cur_size = (Result->size-1)*bufferRows + Result->Tail->pos;
+                   cur_size = Result->total_records;//(Result->size-1)*bufferRows + Result->Tail->pos;
                    result2keys(Result,keys,rel_predicate[best_pos].left.row,0,rel_num);
                    result_free(Result);
                  }
@@ -244,7 +244,7 @@ void sql_queries(char *filepath,full_relation *relations_array){
                      result_free(Result);
                      break;
                    }
-                   cur_size = (Result->size-1)*bufferRows + Result->Tail->pos;
+                   cur_size = Result->total_records;//(Result->size-1)*bufferRows + Result->Tail->pos;
                    result2keys(Result,keys,rel_predicate[best_pos].right.row,0,rel_num);
                    result_free(Result);
                    free(new_rel->tuples);
@@ -265,7 +265,7 @@ void sql_queries(char *filepath,full_relation *relations_array){
                      result_free(Result);
                      break;
                    }
-                   cur_size = (Result->size-1)*bufferRows + Result->Tail->pos;
+                   cur_size = Result->total_records;//(Result->size-1)*bufferRows + Result->Tail->pos;
                    result2keys(Result,keys,rel_predicate[best_pos].left.row,0,rel_num);
                    result_free(Result);
                  }
@@ -285,7 +285,7 @@ void sql_queries(char *filepath,full_relation *relations_array){
                      result_free(Result);
                      break;
                    }
-                   cur_size = (Result->size-1)*bufferRows + Result->Tail->pos;
+                   cur_size = Result->total_records;//(Result->size-1)*bufferRows + Result->Tail->pos;
                    result2keys(Result,keys,rel_predicate[best_pos].left.row,0,rel_num);
                    result_free(Result);
                    free(new_rel->tuples);
