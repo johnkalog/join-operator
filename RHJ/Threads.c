@@ -159,6 +159,7 @@ void* thread_3(void* argp){
     perror("pthread_mutex_lock");
     exit(1) ;
   }
+  //printf("%d ----- %d\n",tmp_Result->size,tmp_Result->total_records  );
   if(tmp_Result->Head != NULL) {
     if(my_args->Result->Head == NULL) {
       my_args->Result = tmp_Result;

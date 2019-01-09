@@ -233,7 +233,8 @@ if ( err=pthread_cond_destroy(&cv_nonempty) ) {
   perror("pthread_cond_destroy");
   exit(1) ;
 }
-free(thread_pool);
+//free(thread_pool);
+//free(args);
 free(my_Job_list);
 free(limits_arrayR);
 free(limits_arrayS);
@@ -263,7 +264,12 @@ free(limits_arrayS);
 
   PsumR=Hist_to_Psum(HistR);
   PsumS=Hist_to_Psum(HistS);
+  pthread_cond_init(&cv_nonempty,NULL);
 
+
+  my_Job_list=Job_list_init();
+  //args=malloc(sizeof(Sheduler_values));
+  args->shutdown = 0;
 
   current_num_tuples=relR->num_tuples;
   args->PsumR = PsumR;
@@ -272,7 +278,6 @@ free(limits_arrayS);
   args->Hist2 = HistS;
 
   args->Result = result_init();
-  args->shutdown = 0;
   args->my_Job_list = my_Job_list;
 
 
@@ -283,7 +288,7 @@ free(limits_arrayS);
     }
   }
 
-  for ( i=0; i<num_threads; i++ ){
+  for ( i=0; i<Hash_number; i++ ){
     newJob = malloc(sizeof(Job));
     newJob->bucket_index = i;
     newJob->next = NULL;
@@ -294,11 +299,23 @@ free(limits_arrayS);
   }
 
 
+
+  args->shutdown = 1;
+  pthread_cond_broadcast(&cv_nonempty);
+
+
+  for ( i=0; i<num_threads; i++ ){
+    if ( err=pthread_join(thread_pool[i],NULL)) {
+      perror ("pthread_join");
+    }
+  }
+
+
   free(args->NewRelR->tuples);
   free(args->NewRelS->tuples);
   free(args->NewRelR);
   free(args->NewRelS);
-  free(args);
+  //free(args);
   // free_memory(relNewR);
   // free_memory(relNewS);
   // free(TheHashBucket->bucket);
@@ -307,6 +324,7 @@ free(limits_arrayS);
   free(HistS);
   free(PsumR);
   free(PsumS);
+  free(thread_pool);
   return args->Result;
 }
 

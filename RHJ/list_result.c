@@ -65,6 +65,7 @@ void result_print(result *Result){
     tmp = tmp->next;
     i++;
   }
+  printf("size: %d ----- total_records: %d\n",Result->size,Result->total_records );
 }
 
 void result_free(result *Result){
