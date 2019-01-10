@@ -315,6 +315,7 @@ free(limits_arrayS);
   args->Hist2 = HistS;
 
   args->Result = result_init();
+
   args->my_Job_list = my_Job_list;
 
 

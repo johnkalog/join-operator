@@ -191,16 +191,20 @@ void* thread_3(void* argp){
           printf("xDDDD\n");
           my_args->my_Job_list->size = 0;
       }
+      free(my_Job);
     }
   }
   if ( err=pthread_mutex_lock(&mtx_write) ){
     perror("pthread_mutex_lock");
     exit(1) ;
   }
+  int flag=0;
   //printf("%d ----- %d\n",tmp_Result->size,tmp_Result->total_records  );
   if(tmp_Result->Head != NULL) {
     if(my_args->Result->Head == NULL) {
+      free(my_args->Result);
       my_args->Result = tmp_Result;
+      flag=1;
     }
     else {
       my_args->Result->Tail->next = tmp_Result->Head;
@@ -214,7 +218,9 @@ void* thread_3(void* argp){
     //perror("pthread_mutex_unlock");
     exit(1) ;
   }
-
+  if(flag==0){
+      free(tmp_Result);
+  }
 
   free(TheHashBucket->bucket);
   free(TheHashBucket);
