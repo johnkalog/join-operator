@@ -22,14 +22,16 @@ result* RadixHashJoin(relation *relR, relation *relS) {
   // returns result
   // result: InfoNode se tupo listas pou kathe kombos exei ena 2d array
   int i;
-  result *Result=result_init(); // arxikopoihsh result
+  // result *Result=result_init(); // arxikopoihsh result
 
-  // pthread_mutex_init(&mtx_forlist,NULL);
-  // pthread_mutex_init(&mtx_write,NULL);
-  pthread_mutex_t mtx_forlist= PTHREAD_MUTEX_INITIALIZER;
-  pthread_mutex_t mtx_forlist1= PTHREAD_MUTEX_INITIALIZER;
-  pthread_mutex_t mtx_write= PTHREAD_MUTEX_INITIALIZER;
-  pthread_mutex_t mtx_xd= PTHREAD_MUTEX_INITIALIZER;
+  pthread_mutex_init(&mtx_forlist,NULL);
+  pthread_mutex_init(&mtx_forlist1,NULL);
+  pthread_mutex_init(&mtx_xd,NULL);
+  pthread_mutex_init(&mtx_write,NULL);
+  //pthread_mutex_t mtx_forlist= PTHREAD_MUTEX_INITIALIZER;
+  //pthread_mutex_t mtx_forlist1= PTHREAD_MUTEX_INITIALIZER;
+  //pthread_mutex_t mtx_write= PTHREAD_MUTEX_INITIALIZER;
+  //pthread_mutex_t mtx_xd= PTHREAD_MUTEX_INITIALIZER;
 
 
   // pthread_mutex_t mtx_forlist1 = PTHREAD_MUTEX_INITIALIZER;
@@ -144,18 +146,18 @@ result* RadixHashJoin(relation *relR, relation *relS) {
   HistS = args->Hist2;
 
 
-  if ( err=pthread_mutex_destroy(&mtx_forlist) ) {
-    perror("pthread_mutex_destroy");
-    exit(1) ;
-  }
-  if ( err=pthread_mutex_destroy(&mtx_write) ) {
-    perror("pthread_mutex_destroy");
-    exit(1) ;
-  }
-  if ( err=pthread_cond_destroy(&cv_nonempty) ) {
-    perror("pthread_cond_destroy");
-    exit(1) ;
-  }
+  // if ( err=pthread_mutex_destroy(&mtx_forlist) ) {
+  //   perror("pthread_mutex_destroy 1");
+  //   exit(1) ;
+  // }
+  // if ( err=pthread_mutex_destroy(&mtx_write) ) {
+  //   perror("pthread_mutex_destroy 2");
+  //   exit(1) ;
+  // }
+  // if ( err=pthread_cond_destroy(&cv_nonempty) ) {
+  //   perror("pthread_cond_destroy 2");
+  //   exit(1) ;
+  // }
 
   //free(thread_pool);
   free(limits_arrayR);
@@ -255,19 +257,19 @@ for ( i=0; i<num_threads; i++ ){
     perror ("pthread_join");
   }
 }
-
-if ( err=pthread_mutex_destroy(&mtx_forlist) ) {
-  perror("pthread_mutex_destroy");
-  exit(1) ;
-}
-if ( err=pthread_mutex_destroy(&mtx_write) ) {
-  perror("pthread_mutex_destroy");
-  exit(1) ;
-}
-if ( err=pthread_cond_destroy(&cv_nonempty) ) {
-  perror("pthread_cond_destroy");
-  exit(1) ;
-}
+//
+// if ( err=pthread_mutex_destroy(&mtx_forlist) ) {
+//   perror("pthread_mutex_destroy");
+//   exit(1) ;
+// }
+// if ( err=pthread_mutex_destroy(&mtx_write) ) {
+//   perror("pthread_mutex_destroy");
+//   exit(1) ;
+// }
+// if ( err=pthread_cond_destroy(&cv_nonempty) ) {
+//   perror("pthread_cond_destroy");
+//   exit(1) ;
+// }
 //free(thread_pool);
 //free(args);
 free(my_Job_list);
@@ -353,7 +355,7 @@ free(limits_arrayS);
     }
   }
 
-
+  free(my_Job_list);
   free(args->NewRelR->tuples);
   free(args->NewRelS->tuples);
   free(args->NewRelR);
@@ -368,7 +370,9 @@ free(limits_arrayS);
   free(PsumR);
   free(PsumS);
   free(thread_pool);
-  return args->Result;
+  result *Result = args->Result;
+  free(args);
+  return Result;
 }
 
 // result* RadixHashJoin(relation *relR, relation *relS) {

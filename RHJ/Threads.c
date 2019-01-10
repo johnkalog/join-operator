@@ -61,6 +61,7 @@ void* thread_1(void* argp){
         free(my_Job);
       }
       else{
+          printf("xDDDD\n");
           my_args->my_Job_list->size=0;
       }
     }
@@ -133,6 +134,7 @@ void* thread_2(void* argp){
         }
       }
       else{
+          printf("xDDDD\n");
           my_args->my_Job_list->size = 0;
       }
     }
@@ -186,6 +188,7 @@ void* thread_3(void* argp){
             one_bucket_join(my_Job->bucket_index,tmp_Result,TheHashBucket,my_args->Hist,my_args->Hist2,my_args->PsumR,my_args->PsumS,my_args->NewRelR,my_args->NewRelS);
       }
       else{
+          printf("xDDDD\n");
           my_args->my_Job_list->size = 0;
       }
     }
