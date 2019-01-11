@@ -1,12 +1,15 @@
 #include "hash.h"
 #include <pthread.h>
+#include <semaphore.h>
 #include <errno.h>
 
-pthread_mutex_t mtx_forlist;
-pthread_mutex_t mtx_forlist1;
+//pthread_mutex_t mtx_forlist;
+//pthread_mutex_t mtx_forlist1;
 pthread_mutex_t mtx_write;
 pthread_mutex_t mtx_xd;
-pthread_cond_t cv_nonempty;
+//pthread_cond_t cv_nonempty;
+sem_t sem;
+
 
 typedef struct limits{
   int start,end;  //means end-1

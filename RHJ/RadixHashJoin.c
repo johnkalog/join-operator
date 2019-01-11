@@ -24,8 +24,8 @@ result* RadixHashJoin(relation *relR, relation *relS) {
   int i;
   // result *Result=result_init(); // arxikopoihsh result
 
-  pthread_mutex_init(&mtx_forlist,NULL);
-  pthread_mutex_init(&mtx_forlist1,NULL);
+  //pthread_mutex_init(&mtx_forlist,NULL);
+  //pthread_mutex_init(&mtx_forlist1,NULL);
   pthread_mutex_init(&mtx_xd,NULL);
   pthread_mutex_init(&mtx_write,NULL);
   //pthread_mutex_t mtx_forlist= PTHREAD_MUTEX_INITIALIZER;
@@ -33,9 +33,11 @@ result* RadixHashJoin(relation *relR, relation *relS) {
   //pthread_mutex_t mtx_write= PTHREAD_MUTEX_INITIALIZER;
   //pthread_mutex_t mtx_xd= PTHREAD_MUTEX_INITIALIZER;
 
+  sem_init(&sem, 0, 0);
+
 
   // pthread_mutex_t mtx_forlist1 = PTHREAD_MUTEX_INITIALIZER;
-  pthread_cond_init(&cv_nonempty,NULL);
+  //pthread_cond_init(&cv_nonempty,NULL);
   pthread_t err;
   //printf("num_threads %d\n",num_threads);
   pthread_t *thread_pool=malloc(num_threads*sizeof(pthread_t));
@@ -84,13 +86,15 @@ result* RadixHashJoin(relation *relR, relation *relS) {
       exit(1) ;
     }
     push_Job(my_Job_list,newJob);
+    //printf("I pushed a Jod size_list: %d\n",my_Job_list->size);
     if ( err=pthread_mutex_unlock(&mtx_xd) ){
       perror("pthread_mutex_lock");
       exit(1) ;
     }
+    sem_post(&sem);
     free(newJob);
-    //printf("I pushed a Jod size_list: %d\n",my_Job_list->size);
-    pthread_cond_signal(&cv_nonempty);
+
+    //pthread_cond_signal(&cv_nonempty);
     //printf("xddddd\n");
   }
 
@@ -121,14 +125,15 @@ result* RadixHashJoin(relation *relR, relation *relS) {
       perror("pthread_mutex_lock");
       exit(1) ;
     }
+    sem_post(&sem);
     free(newJob);
-    //printf("I pushed a Jod size_list: %d\n",my_Job_list->size);
 
-    pthread_cond_signal(&cv_nonempty);
+
+    //pthread_cond_signal(&cv_nonempty);
   }
 
   args->shutdown = 1;
-  pthread_cond_broadcast(&cv_nonempty);
+  //pthread_cond_broadcast(&cv_nonempty);
 
   // for ( i=0; i<num_threads; i++ ){
   //   free(HistR_Array[i]);
@@ -136,7 +141,9 @@ result* RadixHashJoin(relation *relR, relation *relS) {
   // }
   // free(HistR_Array);
   // free(HistS_Array);
-
+  for ( i=0; i<num_threads; i++ ){
+    sem_post(&sem);
+  }
   for ( i=0; i<num_threads; i++ ){
     if ( err=pthread_join(thread_pool[i],NULL)) {
       perror ("pthread_join");
@@ -173,13 +180,14 @@ result* RadixHashJoin(relation *relR, relation *relS) {
 
 Hash_number = pow(2,FirstHash_number);
 // pthread_mutex_t mtx_forlist1 = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_init(&cv_nonempty,NULL);
+//pthread_cond_init(&cv_nonempty,NULL);
 //printf("num_threads %d\n",num_threads);
 //thread_pool=malloc(num_threads*sizeof(pthread_t));
 my_Job_list=Job_list_init();
 args=malloc(sizeof(Sheduler_values));
 args->shutdown = 0;
 args->my_Job_list = my_Job_list;
+sem_init(&sem, 0, 0);
 
 for ( i=0; i<num_threads; i++ ){
   if ( err=pthread_create(&thread_pool[i],NULL,thread_2,args) ){
@@ -214,8 +222,9 @@ for ( i=0; i<num_threads; i++ ){
     exit(1) ;
   }
   free(newJob);
+  sem_post(&sem);
   //printf("I pushed a Jod size_list: %d\n",my_Job_list->size);
-  pthread_cond_signal(&cv_nonempty);
+  //pthread_cond_signal(&cv_nonempty);
 }
 
 
@@ -243,15 +252,18 @@ for ( i=0; i<num_threads; i++ ){
     exit(1) ;
   }
   free(newJob);
+  sem_post(&sem);
   //printf("I pushed a Jod size_list: %d\n",my_Job_list->size);
 
-  pthread_cond_signal(&cv_nonempty);
+  //pthread_cond_signal(&cv_nonempty);
 }
 
 args->shutdown = 1;
-pthread_cond_broadcast(&cv_nonempty);
+//pthread_cond_broadcast(&cv_nonempty);
 
-
+for ( i=0; i<num_threads; i++ ){
+  sem_post(&sem);
+}
 for ( i=0; i<num_threads; i++ ){
   if ( err=pthread_join(thread_pool[i],NULL)) {
     perror ("pthread_join");
@@ -301,7 +313,7 @@ free(limits_arrayS);
 
   PsumR=Hist_to_Psum(HistR);
   PsumS=Hist_to_Psum(HistS);
-  pthread_cond_init(&cv_nonempty,NULL);
+  //pthread_cond_init(&cv_nonempty,NULL);
 
 
   my_Job_list=Job_list_init();
@@ -315,8 +327,10 @@ free(limits_arrayS);
   args->Hist2 = HistS;
 
   args->Result = result_init();
+
   args->my_Job_list = my_Job_list;
 
+  sem_init(&sem, 0, 0);
 
   for ( i=0; i<num_threads; i++ ){
     if ( err=pthread_create(&thread_pool[i],NULL,thread_3,args) ){
@@ -338,21 +352,33 @@ free(limits_arrayS);
       perror("pthread_mutex_lock");
       exit(1) ;
     }
+    sem_post(&sem);
+
     free(newJob);
     //printf("I pushed a Jod size_list: %d\n",my_Job_list->size);
-    pthread_cond_signal(&cv_nonempty);
+    //pthread_cond_signal(&cv_nonempty);
   }
 
 
 
   args->shutdown = 1;
-  pthread_cond_broadcast(&cv_nonempty);
-
-
+  for ( i=0; i<num_threads; i++ ){
+    sem_post(&sem);
+  }
   for ( i=0; i<num_threads; i++ ){
     if ( err=pthread_join(thread_pool[i],NULL)) {
       perror ("pthread_join");
     }
+  }
+
+  if ( err=pthread_mutex_destroy(&mtx_xd) ) {
+    perror("pthread_mutex_destroy xd");
+    exit(1) ;
+  }
+
+  if ( err=pthread_mutex_destroy(&mtx_write) ) {
+    perror("pthread_mutex_destroy write");
+    exit(1) ;
   }
 
   free(my_Job_list);
@@ -365,6 +391,7 @@ free(limits_arrayS);
   // free_memory(relNewS);
   // free(TheHashBucket->bucket);
   // free(TheHashBucket);
+  sem_destroy(&sem);
   free(HistR);
   free(HistS);
   free(PsumR);
