@@ -132,3 +132,13 @@ void print_list(list *add){
     tmp = tmp->next;
   }
 }
+
+int check_if_in(metadata *metadata_array,predicate *the_predicate,relation *the_relation,uint64_t element){
+  int i;
+  for ( i=0; i<metadata_array[the_predicate->right.row].num_tuples; i++ ){  //giati allazei metadata
+    if ( the_relation->tuples[i].payload==element ){
+      return 1;
+    }
+  }
+  return 0;
+}

@@ -42,8 +42,6 @@ void sql_queries(char *filepath,full_relation *relations_array){
             full_relation *cpy_tuple_array = subcpy_full_relation(rel_pointers,rel_num);  //upopinakas ths arxikhs domhs mono twn sxesewn tou
                                                                                 //rel_pointers
             metadata *metadata_array=metadata_array_creation(rel_pointers,rel_num);
-            free_metadata_array(metadata_array,rel_num);
-            free(rel_pointers);
             //--------------------------where--------------------------------
             int condition_num;
             predicate *rel_predicate = string2predicate(tok2,&condition_num);
@@ -315,6 +313,8 @@ void sql_queries(char *filepath,full_relation *relations_array){
                rel_predicate[best_pos].metric = -1; //gia na mhn ksanaepilegei
              }
 
+            free_metadata_array(metadata_array,rel_num);
+            free(rel_pointers);
             free(rel_predicate);
             freeList(head);
             //-----------------------------select------------------------------
@@ -687,4 +687,48 @@ uint64_t calculate_sum(int **keys,int size,full_relation *cpy_tuple_array,int ro
   free(rel->tuples);
   free(rel);
   return sum;
+}
+
+int calculate_cost(full_relation *subcpy_full_relation,metadata *metadata_array,predicate *the_predicate){
+  int i;
+  if ( the_predicate->flag==0 ){
+
+  }
+  else if ( the_predicate->flag==1 ){
+    if ( the_predicate->operation=='=' ){
+      // metadata_array[the_predicate->right.row].statistics_array[the_predicate->right.column].min
+      // metadata_array[the_predicate->right.row].statistics_array[the_predicate->right.column].min
+      uint64_t old_num_tuples;
+      if ( check_if_in(metadata_array,the_predicate,&subcpy_full_relation[the_predicate->right.row].my_relations[the_predicate->right.column],the_predicate->number) ){
+        old_num_tuples = metadata_array[the_predicate->right.row].num_tuples;
+        metadata_array[the_predicate->right.row].num_tuples = (uint64_t)(metadata_array[the_predicate->right.row].num_tuples/((double)metadata_array[the_predicate->right.row].statistics_array[the_predicate->right.column].count));
+        metadata_array[the_predicate->right.row].statistics_array[the_predicate->right.column].count = 1;
+      }
+      else{
+        for ( i=0; i<metadata_array[the_predicate->right.row].num_columns; i++){
+          if ( i!=the_predicate->right.column ){
+            metadata_array[the_predicate->right.row].statistics_array[i].count = metadata_array[the_predicate->right.row].statistics_array[i].count*(1-((uint64_t)pow((double)(1-((double)metadata_array[the_predicate->right.row].num_tuples/old_num_tuples)),(double)metadata_array[the_predicate->right.row].num_tuples/metadata_array[the_predicate->right.row].statistics_array[i].count)));
+          }
+        }
+      }
+    }
+    else if ( the_predicate->operation=='<' ){
+
+    }
+    else if ( the_predicate->operation=='>' ){
+
+    }
+
+  }
+  else if ( the_predicate->flag==2 ){
+    if ( the_predicate->operation=='=' ){
+
+    }
+    else if ( the_predicate->operation=='<' ){
+
+    }
+    else if ( the_predicate->operation=='>' ){
+
+    }
+  }
 }
