@@ -41,6 +41,8 @@ void sql_queries(char *filepath,full_relation *relations_array){
             // }
             full_relation *cpy_tuple_array = subcpy_full_relation(rel_pointers,rel_num);  //upopinakas ths arxikhs domhs mono twn sxesewn tou
                                                                                 //rel_pointers
+            metadata *metadata_array=metadata_array_creation(rel_pointers,rel_num);
+            free_metadata_array(metadata_array,rel_num);
             free(rel_pointers);
             //--------------------------where--------------------------------
             int condition_num;
@@ -503,6 +505,7 @@ full_relation *subcpy_full_relation(full_relation **rel_pointers,int rel_num){
     for(j=0;j<relations_cpy[i].my_metadata.num_columns;j++) {
       relations_cpy[i].my_metadata.statistics_array[j].min = rel_pointers[i]->my_metadata.statistics_array[j].min;
       relations_cpy[i].my_metadata.statistics_array[j].max = rel_pointers[i]->my_metadata.statistics_array[j].max;
+      relations_cpy[i].my_metadata.statistics_array[j].count = rel_pointers[i]->my_metadata.statistics_array[j].count;
     }
 
     relations_cpy[i].my_relations =  malloc(relations_cpy[i].my_metadata.num_columns*sizeof(relation));
@@ -522,6 +525,34 @@ full_relation *subcpy_full_relation(full_relation **rel_pointers,int rel_num){
   }
 
   return relations_cpy;
+}
+
+metadata *metadata_array_creation(full_relation **rel_pointers,int rel_num){
+  metadata *metadata_array = malloc(rel_num*sizeof(metadata));
+
+  int i;
+  for(i=0;i<rel_num;i++) {
+    metadata_array[i].num_tuples = rel_pointers[i]->my_metadata.num_tuples;
+    metadata_array[i].num_columns = rel_pointers[i]->my_metadata.num_columns;
+
+    metadata_array[i].statistics_array = malloc(metadata_array[i].num_columns*sizeof(statistics));
+    int j;
+    for(j=0;j<metadata_array[i].num_columns;j++) {
+      metadata_array[i].statistics_array[j].min = rel_pointers[i]->my_metadata.statistics_array[j].min;
+      metadata_array[i].statistics_array[j].max = rel_pointers[i]->my_metadata.statistics_array[j].max;
+      metadata_array[i].statistics_array[j].count = rel_pointers[i]->my_metadata.statistics_array[j].count;
+    }
+  }
+
+  return metadata_array;
+}
+
+void free_metadata_array(metadata *metadata_array,int rel_num){
+  int i,j;
+  for ( i=0; i<rel_num; i++ ){
+    free(metadata_array[i].statistics_array);
+  }
+  free(metadata_array);
 }
 
 full_relation **string2rel_pointers(full_relation *relations_array,char *tok1,int *rel_num){

@@ -46,6 +46,10 @@ void calculate_metric(predicate *,full_relation *);
 
 full_relation *subcpy_full_relation(full_relation **,int );
 
+metadata *metadata_array_creation(full_relation **,int);
+
+void free_metadata_array(metadata *,int);
+
 uint64_t calculate_sum(int **,int,full_relation *,int,int);
 
 relation *keys2relation(int *,int ,relation *);
