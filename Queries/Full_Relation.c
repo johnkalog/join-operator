@@ -79,6 +79,7 @@ full_relation *full_relation_creation(char *path_file,unsigned int *num_lines){
       for ( p=0; p<relations_array[k].my_metadata.num_columns; p++ ){
         relations_array[k].my_metadata.statistics_array[p].min = calculate_min(relations_array[k].my_relations[p].tuples,relations_array[k].my_metadata.num_tuples);
         relations_array[k].my_metadata.statistics_array[p].max = calculate_max(relations_array[k].my_relations[p].tuples,relations_array[k].my_metadata.num_tuples);
+        relations_array[k].my_metadata.statistics_array[p].count = calculate_distinct(relations_array[k].my_relations[p].tuples,relations_array[k].my_metadata.num_tuples,relations_array[k].my_metadata.statistics_array[p].min,relations_array[k].my_metadata.statistics_array[p].max);
       }
     /////////////
     free(path);
@@ -117,6 +118,34 @@ uint64_t calculate_max(tuple *my_small_array,int num_tuples){ //upologismos mega
   }
 
   return max;
+}
+
+int calculate_distinct(tuple *my_small_array,int num_tuples,uint64_t min,uint64_t max){ //upologismos monadikwn timwn
+  int diff,i;
+  if ( max-min+1<=N ){
+    diff = max-min+1;
+  }
+  else{
+    diff = N;
+  }
+  uint64_t *boolean=malloc(diff*sizeof(uint64_t));
+  for ( i=0; i<diff; i++ ){
+    boolean[i] = 0;
+  }
+  for ( i=0; i<num_tuples; i++ ){
+    if ( diff<=N ){
+      boolean[my_small_array[i].payload-min] = 1;
+    }
+    else{
+      boolean[(my_small_array[i].payload-min)%N] = 1;
+    }
+  }
+  int count=0;
+  for ( i=0; i<diff; i++ ){
+    count += boolean[i];
+  }
+  free(boolean);
+  return count;
 }
 
 void print_relation(full_relation tmp){ //gia epalhtheush apotelesmatwn

@@ -3,9 +3,12 @@
 #include <unistd.h>
 #include "../RHJ/ThreadFunctions.h"
 
+#define N 50000000
+
 typedef struct statistics{
   uint64_t min;
   uint64_t max;
+  int count;
 }statistics;
 
 typedef struct metadata{
@@ -25,6 +28,8 @@ full_relation *full_relation_creation(char *,unsigned int *);
 uint64_t calculate_min(tuple *,int);
 
 uint64_t calculate_max(tuple *,int);
+
+int calculate_distinct(tuple *,int,uint64_t,uint64_t);
 
 void print_relation(full_relation);
 
