@@ -50,11 +50,11 @@ void sql_queries(char *filepath,full_relation *relations_array){
 
 
 
-            int *best_order = enumeration(rel_predicate,condition_num,rel_pointers,rel_num);
-
-            for(i=0;i<condition_num;i++) {
-              printf("%d\n",best_order[i] );
-            }
+            // int *best_order = enumeration(rel_predicate,condition_num,rel_pointers,rel_num);
+            //
+            // for(i=0;i<condition_num;i++) {
+            //   printf("%d\n",best_order[i] );
+            // }
 
 
             for(i=0;i<condition_num;i++){
@@ -70,11 +70,11 @@ void sql_queries(char *filepath,full_relation *relations_array){
             int cur_size = 0;
              for ( i=0; i<condition_num; i++ ) {
                int best_pos = findNextPredicate(rel_predicate,condition_num,head);
+               metadata *metadata_array=metadata_array_creation(rel_pointers,rel_num);
+               printf("ddddddddd %ld\n",update_metadata_array(metadata_array,&rel_predicate[best_pos]));
+               free_metadata_array(metadata_array,rel_num);
 
                if(rel_predicate[best_pos].flag == 0) {
-                 //metadata *metadata_array=metadata_array_creation(rel_pointers,rel_num);
-                 //printf("ddddddddd %ld\n",update_metadata_array(metadata_array,&rel_predicate[best_pos]));
-                 //free_metadata_array(metadata_array,rel_num);
                  if ( rel_predicate[best_pos].left.row==rel_predicate[best_pos].right.row){ //isothta se idia sxesh
                     if(keys[rel_predicate[best_pos].left.row] == NULL) {  //den uparxei sta  endiamesa apotelesamta
                       result *Result=Simple_Scan_Tables(&cpy_tuple_array[rel_predicate[best_pos].left.row].my_relations[rel_predicate[best_pos].left.column],&cpy_tuple_array[rel_predicate[best_pos].right.row].my_relations[rel_predicate[best_pos].right.column]);
@@ -770,53 +770,125 @@ int allready_inside(int *order,int cur,int j){
 
 uint64_t update_metadata_array(metadata *metadata_array,predicate *the_predicate){
   if ( the_predicate->flag==0 ){
-    uint64_t min,max;
-    uint64_t min_left=metadata_array[the_predicate->left.row].statistics_array[the_predicate->left.column].min;
-    uint64_t min_right=metadata_array[the_predicate->right.row].statistics_array[the_predicate->right.column].min;
-    uint64_t max_left=metadata_array[the_predicate->left.row].statistics_array[the_predicate->left.column].max;
-    uint64_t max_right=metadata_array[the_predicate->right.row].statistics_array[the_predicate->right.column].max;
-    min = (min_left>min_right) ? min_left : min_right;
-    max = (max_left<max_right) ? max_left : max_right;
-    metadata_array[the_predicate->left.row].statistics_array[the_predicate->left.column].min = min;
-    metadata_array[the_predicate->right.row].statistics_array[the_predicate->right.column].min = min;
-    metadata_array[the_predicate->left.row].statistics_array[the_predicate->left.column].max = max;
-    metadata_array[the_predicate->right.row].statistics_array[the_predicate->right.column].max = max;
-    uint64_t n=max-min + 1;
-    uint64_t old_f_left=metadata_array[the_predicate->left.row].num_tuples;
-    uint64_t old_f_right=metadata_array[the_predicate->right.row].num_tuples;
-    uint64_t f_tonos=(uint64_t)(metadata_array[the_predicate->left.row].num_tuples*metadata_array[the_predicate->right.row].num_tuples)/(double)n;
-    metadata_array[the_predicate->left.row].num_tuples = f_tonos;
-    metadata_array[the_predicate->right.row].num_tuples = f_tonos;
-    int old_count_left=metadata_array[the_predicate->left.row].statistics_array[the_predicate->left.column].count;
-    int old_count_right=metadata_array[the_predicate->right.row].statistics_array[the_predicate->right.column].count;
-    int d_tonos=(int)(old_count_left*old_count_right)/(double)n;
-    metadata_array[the_predicate->left.row].statistics_array[the_predicate->left.column].count = d_tonos;
-    metadata_array[the_predicate->right.row].statistics_array[the_predicate->right.column].count = d_tonos;
-    int i;
-    for ( i=0; i<metadata_array[the_predicate->left.row].num_columns; i++ ){
-      if ( i!=the_predicate->left.column ){
-        metadata_array[the_predicate->left.row].statistics_array[i].min = min_left;
-        metadata_array[the_predicate->left.row].statistics_array[i].max = max_left;
-        metadata_array[the_predicate->left.row].statistics_array[i].count = (int)metadata_array[the_predicate->left.row].statistics_array[i].count*
-            (1-pow((double)(1-(metadata_array[the_predicate->left.row].statistics_array[the_predicate->left.column].count/(double)old_count_left)),
-                              old_f_left/(double)metadata_array[the_predicate->left.row].statistics_array[i].count));
-      }
+    if ( the_predicate->left.row==the_predicate->right.row){
+      uint64_t min=metadata_array[the_predicate->left.row].statistics_array[the_predicate->left.column].min;
+      uint64_t max=metadata_array[the_predicate->left.row].statistics_array[the_predicate->left.column].max;
+      uint64_t n=max-min + 1;
+      metadata_array[the_predicate->left.row].num_tuples = metadata_array[the_predicate->left.row].num_tuples*metadata_array[the_predicate->left.row].num_tuples/(double)n;
+      return metadata_array[the_predicate->left.row].num_tuples;
     }
-    for ( i=0; i<metadata_array[the_predicate->right.row].num_columns; i++ ){
-      if ( i!=the_predicate->right.column ){
-        metadata_array[the_predicate->right.row].statistics_array[i].min = min_left;
-        metadata_array[the_predicate->right.row].statistics_array[i].max = max_left;
-        metadata_array[the_predicate->right.row].statistics_array[i].count = (int)metadata_array[the_predicate->right.row].statistics_array[i].count*
-            (1-pow((double)(1-(metadata_array[the_predicate->right.row].statistics_array[the_predicate->right.column].count/(double)old_count_left)),
-                              old_f_left/(double)metadata_array[the_predicate->right.row].statistics_array[i].count));
+    else{
+      uint64_t min,max;
+      uint64_t min_left=metadata_array[the_predicate->left.row].statistics_array[the_predicate->left.column].min;
+      uint64_t min_right=metadata_array[the_predicate->right.row].statistics_array[the_predicate->right.column].min;
+      uint64_t max_left=metadata_array[the_predicate->left.row].statistics_array[the_predicate->left.column].max;
+      uint64_t max_right=metadata_array[the_predicate->right.row].statistics_array[the_predicate->right.column].max;
+      min = (min_left>min_right) ? min_left : min_right;
+      max = (max_left<max_right) ? max_left : max_right;
+      metadata_array[the_predicate->left.row].statistics_array[the_predicate->left.column].min = min;
+      metadata_array[the_predicate->right.row].statistics_array[the_predicate->right.column].min = min;
+      metadata_array[the_predicate->left.row].statistics_array[the_predicate->left.column].max = max;
+      metadata_array[the_predicate->right.row].statistics_array[the_predicate->right.column].max = max;
+      uint64_t n=max-min + 1;
+      uint64_t old_f_left=metadata_array[the_predicate->left.row].num_tuples;
+      uint64_t old_f_right=metadata_array[the_predicate->right.row].num_tuples;
+      uint64_t f_tonos=(uint64_t)(metadata_array[the_predicate->left.row].num_tuples*metadata_array[the_predicate->right.row].num_tuples)/(double)n;
+      metadata_array[the_predicate->left.row].num_tuples = f_tonos;
+      metadata_array[the_predicate->right.row].num_tuples = f_tonos;
+      int old_count_left=metadata_array[the_predicate->left.row].statistics_array[the_predicate->left.column].count;
+      int old_count_right=metadata_array[the_predicate->right.row].statistics_array[the_predicate->right.column].count;
+      int d_tonos=(int)(old_count_left*old_count_right)/(double)n;
+      metadata_array[the_predicate->left.row].statistics_array[the_predicate->left.column].count = d_tonos;
+      metadata_array[the_predicate->right.row].statistics_array[the_predicate->right.column].count = d_tonos;
+      int i;
+      for ( i=0; i<metadata_array[the_predicate->left.row].num_columns; i++ ){
+        if ( i!=the_predicate->left.column ){
+          metadata_array[the_predicate->left.row].statistics_array[i].min = min_left;
+          metadata_array[the_predicate->left.row].statistics_array[i].max = max_left;
+          metadata_array[the_predicate->left.row].statistics_array[i].count = (int)metadata_array[the_predicate->left.row].statistics_array[i].count*
+              (1-pow((double)(1-(metadata_array[the_predicate->left.row].statistics_array[the_predicate->left.column].count/(double)old_count_left)),
+                                old_f_left/(double)metadata_array[the_predicate->left.row].statistics_array[i].count));
+        }
       }
+      for ( i=0; i<metadata_array[the_predicate->right.row].num_columns; i++ ){
+        if ( i!=the_predicate->right.column ){
+          metadata_array[the_predicate->right.row].statistics_array[i].min = min_left;
+          metadata_array[the_predicate->right.row].statistics_array[i].max = max_left;
+          metadata_array[the_predicate->right.row].statistics_array[i].count = (int)metadata_array[the_predicate->right.row].statistics_array[i].count*
+              (1-pow((double)(1-(metadata_array[the_predicate->right.row].statistics_array[the_predicate->right.column].count/(double)old_count_left)),
+                                old_f_left/(double)metadata_array[the_predicate->right.row].statistics_array[i].count));
+        }
+      }
+      return f_tonos;
     }
-    return f_tonos;
   }
-  else if ( the_predicate->flag==1 ){
+  else{
+    int row,column;
+    if ( the_predicate->flag==1 ){
+      row = the_predicate->right.row;
+      column = the_predicate->right.column;
+    }
+    else{ //flag 2
+      row = the_predicate->left.row;
+      column = the_predicate->left.column;
+    }
+    if ( the_predicate->operation=='<' || the_predicate->operation=='>' ){
+      int i;
+      uint64_t old_min=metadata_array[row].statistics_array[column].min;
+      uint64_t old_max=metadata_array[row].statistics_array[column].max;
+      uint64_t k1;
+      uint64_t k2;
+      if ( the_predicate->operation=='<' ){
+        k1=old_min;
+        k2=the_predicate->number;
+        if ( k2>old_max ){
+          k2 = old_max;
+        }
+      }
+      else{
+        k1 = the_predicate->number;
+        if ( k1<old_min ){
+          k1 = old_min;
+        }
+        k2 = old_max;
+      }
+      metadata_array[row].statistics_array[column].min = k1;
+      metadata_array[row].statistics_array[column].max = k2;
+      metadata_array[row].statistics_array[column].count = ((k2-k1)/(double)(old_max-old_min))*metadata_array[row].statistics_array[column].count;
+      uint64_t old_f=metadata_array[row].num_tuples;
+      metadata_array[row].num_tuples = ((k2-k1)/(double)(old_max-old_min))*old_f;
+      for ( i=0; i<metadata_array[row].num_columns; i++ ){
+        if ( i!=column ){
+          metadata_array[row].statistics_array[i].count = (int)metadata_array[row].statistics_array[i].count*
+              (1-pow((double)(1-(metadata_array[row].num_tuples/(double)old_f)),
+                                old_f/(double)metadata_array[row].statistics_array[i].count));
+        }
+      }
+      return metadata_array[row].num_tuples;
+    }
+    else{ //=
+      int i;
+      uint64_t old_min=metadata_array[row].statistics_array[column].min;
+      uint64_t old_max=metadata_array[row].statistics_array[column].max;
+      metadata_array[row].statistics_array[column].min = the_predicate->number;
+      metadata_array[row].statistics_array[column].max = the_predicate->number;
+      int old_count=metadata_array[row].statistics_array[column].count;
+      metadata_array[row].statistics_array[column].count = 0;
+      uint64_t old_f=metadata_array[row].num_tuples;
+      metadata_array[row].num_tuples = 0;
 
-  }
-  else if ( the_predicate->flag==2 ){
-
+      if ( the_predicate->number>old_min && the_predicate->number<old_max ){
+        metadata_array[row].statistics_array[column].count = 1;
+        metadata_array[row].num_tuples = old_f/(double)old_count;
+      }
+      for ( i=0; i<metadata_array[row].num_columns; i++ ){
+        if ( i!=column ){
+          metadata_array[row].statistics_array[i].count = (int)metadata_array[row].statistics_array[i].count*
+              (1-pow((double)(1-(metadata_array[row].num_tuples/(double)old_f)),
+                                old_f/(double)metadata_array[row].statistics_array[i].count));
+        }
+      }
+      return metadata_array[row].num_tuples;  //f'
+    }
   }
 }
