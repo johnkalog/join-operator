@@ -8,7 +8,6 @@
 typedef struct statistics{
   uint64_t min;
   uint64_t max;
-  uint64_t f;
   int count;
 }statistics;
 

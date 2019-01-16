@@ -20,11 +20,6 @@ typedef struct list {
     struct list *next;
 } list;
 
-typedef struct best{
-  int cost;
-  int *array,length;
-}best;
-
 void sql_queries(char *,full_relation *);
 
 full_relation **string2rel_pointers(full_relation *,char *,int *);
@@ -62,3 +57,5 @@ relation *keys2relation(int *,int ,relation *);
 void result2keys(result *,int **,int ,int ,int );
 
 int check_if_in(metadata *,predicate *,relation *,uint64_t);
+
+uint64_t update_metadata_array(metadata *,predicate *);
