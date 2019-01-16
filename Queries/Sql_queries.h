@@ -20,10 +20,11 @@ typedef struct list {
     struct list *next;
 } list;
 
-typedef struct best{
-  int cost;
-  int *array,length;
-}best;
+typedef struct intermidiate_results {
+  list *visited;
+  int cur_sum;
+  metadata *I_metadata;
+} intermidiate_results;
 
 void sql_queries(char *,full_relation *);
 
@@ -62,3 +63,7 @@ relation *keys2relation(int *,int ,relation *);
 void result2keys(result *,int **,int ,int ,int );
 
 int check_if_in(metadata *,predicate *,relation *,uint64_t);
+
+int *enumeration(predicate *,int,full_relation **,int);
+
+int allready_inside(int *,int ,int );

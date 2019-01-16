@@ -41,10 +41,19 @@ void sql_queries(char *filepath,full_relation *relations_array){
             // }
             full_relation *cpy_tuple_array = subcpy_full_relation(rel_pointers,rel_num);  //upopinakas ths arxikhs domhs mono twn sxesewn tou
                                                                                 //rel_pointers
-            metadata *metadata_array=metadata_array_creation(rel_pointers,rel_num);
+            //metadata *metadata_array=metadata_array_creation(rel_pointers,rel_num);
             //--------------------------where--------------------------------
             int condition_num;
             predicate *rel_predicate = string2predicate(tok2,&condition_num);
+
+
+
+            int *best_order = enumeration(rel_predicate,condition_num,rel_pointers,rel_num);
+
+            for(i=0;i<condition_num;i++) {
+              printf("%d\n",best_order[i] );
+            }
+
 
             for(i=0;i<condition_num;i++){
               calculate_metric(&rel_predicate[i],cpy_tuple_array);  //upologismos metrikhs timhs
@@ -313,7 +322,7 @@ void sql_queries(char *filepath,full_relation *relations_array){
                rel_predicate[best_pos].metric = -1; //gia na mhn ksanaepilegei
              }
 
-            free_metadata_array(metadata_array,rel_num);
+            //free_metadata_array(metadata_array,rel_num);
             free(rel_pointers);
             free(rel_predicate);
             freeList(head);
@@ -688,4 +697,69 @@ uint64_t calculate_sum(int **keys,int size,full_relation *cpy_tuple_array,int ro
   free(rel->tuples);
   free(rel);
   return sum;
+}
+
+int *enumeration(predicate *rel_predicate,int condition_num,full_relation **rel_pointers,int rel_num) {
+
+  intermidiate_results *inter_resuts = malloc(condition_num*sizeof(intermidiate_results));
+  int **order;
+  order = malloc(condition_num * sizeof(int *));
+  int i;
+  for(i=0;i<condition_num;i++) {
+    order[i] = malloc(condition_num*sizeof(int));
+    order[i][0] = i;
+    inter_resuts[i].visited = NULL;
+    inter_resuts[i].cur_sum = 0;
+    inter_resuts[i].I_metadata = metadata_array_creation(rel_pointers,rel_num);
+    push_list(&(inter_resuts[i].visited),rel_predicate[i].right.row);
+    push_list(&(inter_resuts[i].visited),rel_predicate[i].left.row);
+    //upbdate metadata
+  }
+
+
+  for(i=1;i<condition_num;i++) {
+
+    int k;
+    for(k=0;k<condition_num;k++) {
+      int cur = i;
+      int j;
+      int f;
+      for(j=0;j<condition_num;j++) {
+        if(allready_inside(order[k],cur,j) || !(search_list(inter_resuts[k].visited,rel_predicate[j].right.row) || search_list(inter_resuts[k].visited,rel_predicate[j].left.row))) {
+          continue;
+        }
+        //printf("perasa %d %d\n",order[k][0],j);
+        if(cur==i  ) {// f > update_metadata_array(new)
+          cur = i+1;
+          order[k][cur-1] = j;
+          push_list(&(inter_resuts[k].visited),rel_predicate[j].right.row);
+          push_list(&(inter_resuts[k].visited),rel_predicate[j].left.row);
+          //f = update_metadata_array
+        }
+      }
+    }
+
+
+  }
+  int best=0;
+  for(i=1;i<condition_num;i++) {
+    if(inter_resuts[i].cur_sum < inter_resuts[best].cur_sum) {
+      best = i;
+    }
+  }
+
+  return order[best];
+
+}
+
+int allready_inside(int *order,int cur,int j){
+  int k;
+  for(k=0;k<cur;k++) {
+    if(order[k] == j) {
+      //printf("order is 1\n" );
+      return 1;
+    }
+  }
+  //printf("order is 0\n" );
+  return 0;
 }
