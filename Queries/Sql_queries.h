@@ -62,9 +62,3 @@ relation *keys2relation(int *,int ,relation *);
 void result2keys(result *,int **,int ,int ,int );
 
 int check_if_in(metadata *,predicate *,relation *,uint64_t);
-
-// best *calculate_best(int *array,int length,metadata *metadata_array,predicate *the_predicate){
-//
-// }
-
-int calculate_cost(full_relation *,metadata *,predicate *);

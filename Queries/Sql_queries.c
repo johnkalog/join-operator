@@ -540,6 +540,7 @@ metadata *metadata_array_creation(full_relation **rel_pointers,int rel_num){
     for(j=0;j<metadata_array[i].num_columns;j++) {
       metadata_array[i].statistics_array[j].min = rel_pointers[i]->my_metadata.statistics_array[j].min;
       metadata_array[i].statistics_array[j].max = rel_pointers[i]->my_metadata.statistics_array[j].max;
+      metadata_array[i].statistics_array[j].f = rel_pointers[i]->my_metadata.num_tuples;
       metadata_array[i].statistics_array[j].count = rel_pointers[i]->my_metadata.statistics_array[j].count;
     }
   }
@@ -687,48 +688,4 @@ uint64_t calculate_sum(int **keys,int size,full_relation *cpy_tuple_array,int ro
   free(rel->tuples);
   free(rel);
   return sum;
-}
-
-int calculate_cost(full_relation *subcpy_full_relation,metadata *metadata_array,predicate *the_predicate){
-  int i;
-  if ( the_predicate->flag==0 ){
-
-  }
-  else if ( the_predicate->flag==1 ){
-    if ( the_predicate->operation=='=' ){
-      // metadata_array[the_predicate->right.row].statistics_array[the_predicate->right.column].min
-      // metadata_array[the_predicate->right.row].statistics_array[the_predicate->right.column].min
-      uint64_t old_num_tuples;
-      if ( check_if_in(metadata_array,the_predicate,&subcpy_full_relation[the_predicate->right.row].my_relations[the_predicate->right.column],the_predicate->number) ){
-        old_num_tuples = metadata_array[the_predicate->right.row].num_tuples;
-        metadata_array[the_predicate->right.row].num_tuples = (uint64_t)(metadata_array[the_predicate->right.row].num_tuples/((double)metadata_array[the_predicate->right.row].statistics_array[the_predicate->right.column].count));
-        metadata_array[the_predicate->right.row].statistics_array[the_predicate->right.column].count = 1;
-      }
-      else{
-        for ( i=0; i<metadata_array[the_predicate->right.row].num_columns; i++){
-          if ( i!=the_predicate->right.column ){
-            metadata_array[the_predicate->right.row].statistics_array[i].count = metadata_array[the_predicate->right.row].statistics_array[i].count*(1-((uint64_t)pow((double)(1-((double)metadata_array[the_predicate->right.row].num_tuples/old_num_tuples)),(double)metadata_array[the_predicate->right.row].num_tuples/metadata_array[the_predicate->right.row].statistics_array[i].count)));
-          }
-        }
-      }
-    }
-    else if ( the_predicate->operation=='<' ){
-
-    }
-    else if ( the_predicate->operation=='>' ){
-
-    }
-
-  }
-  else if ( the_predicate->flag==2 ){
-    if ( the_predicate->operation=='=' ){
-
-    }
-    else if ( the_predicate->operation=='<' ){
-
-    }
-    else if ( the_predicate->operation=='>' ){
-
-    }
-  }
 }
