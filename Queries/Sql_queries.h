@@ -64,6 +64,9 @@ void result2keys(result *,int **,int ,int ,int );
 
 int check_if_in(metadata *,predicate *,relation *,uint64_t);
 
+
 int *enumeration(predicate *,int,full_relation **,int);
 
 int allready_inside(int *,int ,int );
+
+uint64_t update_metadata_array(metadata *,predicate *);

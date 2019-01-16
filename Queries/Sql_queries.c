@@ -41,7 +41,9 @@ void sql_queries(char *filepath,full_relation *relations_array){
             // }
             full_relation *cpy_tuple_array = subcpy_full_relation(rel_pointers,rel_num);  //upopinakas ths arxikhs domhs mono twn sxesewn tou
                                                                                 //rel_pointers
+
             //metadata *metadata_array=metadata_array_creation(rel_pointers,rel_num);
+
             //--------------------------where--------------------------------
             int condition_num;
             predicate *rel_predicate = string2predicate(tok2,&condition_num);
@@ -70,6 +72,9 @@ void sql_queries(char *filepath,full_relation *relations_array){
                int best_pos = findNextPredicate(rel_predicate,condition_num,head);
 
                if(rel_predicate[best_pos].flag == 0) {
+                 //metadata *metadata_array=metadata_array_creation(rel_pointers,rel_num);
+                 //printf("ddddddddd %ld\n",update_metadata_array(metadata_array,&rel_predicate[best_pos]));
+                 //free_metadata_array(metadata_array,rel_num);
                  if ( rel_predicate[best_pos].left.row==rel_predicate[best_pos].right.row){ //isothta se idia sxesh
                     if(keys[rel_predicate[best_pos].left.row] == NULL) {  //den uparxei sta  endiamesa apotelesamta
                       result *Result=Simple_Scan_Tables(&cpy_tuple_array[rel_predicate[best_pos].left.row].my_relations[rel_predicate[best_pos].left.column],&cpy_tuple_array[rel_predicate[best_pos].right.row].my_relations[rel_predicate[best_pos].right.column]);
@@ -549,7 +554,6 @@ metadata *metadata_array_creation(full_relation **rel_pointers,int rel_num){
     for(j=0;j<metadata_array[i].num_columns;j++) {
       metadata_array[i].statistics_array[j].min = rel_pointers[i]->my_metadata.statistics_array[j].min;
       metadata_array[i].statistics_array[j].max = rel_pointers[i]->my_metadata.statistics_array[j].max;
-      metadata_array[i].statistics_array[j].f = rel_pointers[i]->my_metadata.num_tuples;
       metadata_array[i].statistics_array[j].count = rel_pointers[i]->my_metadata.statistics_array[j].count;
     }
   }
@@ -762,4 +766,57 @@ int allready_inside(int *order,int cur,int j){
   }
   //printf("order is 0\n" );
   return 0;
+}
+
+uint64_t update_metadata_array(metadata *metadata_array,predicate *the_predicate){
+  if ( the_predicate->flag==0 ){
+    uint64_t min,max;
+    uint64_t min_left=metadata_array[the_predicate->left.row].statistics_array[the_predicate->left.column].min;
+    uint64_t min_right=metadata_array[the_predicate->right.row].statistics_array[the_predicate->right.column].min;
+    uint64_t max_left=metadata_array[the_predicate->left.row].statistics_array[the_predicate->left.column].max;
+    uint64_t max_right=metadata_array[the_predicate->right.row].statistics_array[the_predicate->right.column].max;
+    min = (min_left>min_right) ? min_left : min_right;
+    max = (max_left<max_right) ? max_left : max_right;
+    metadata_array[the_predicate->left.row].statistics_array[the_predicate->left.column].min = min;
+    metadata_array[the_predicate->right.row].statistics_array[the_predicate->right.column].min = min;
+    metadata_array[the_predicate->left.row].statistics_array[the_predicate->left.column].max = max;
+    metadata_array[the_predicate->right.row].statistics_array[the_predicate->right.column].max = max;
+    uint64_t n=max-min + 1;
+    uint64_t old_f_left=metadata_array[the_predicate->left.row].num_tuples;
+    uint64_t old_f_right=metadata_array[the_predicate->right.row].num_tuples;
+    uint64_t f_tonos=(uint64_t)(metadata_array[the_predicate->left.row].num_tuples*metadata_array[the_predicate->right.row].num_tuples)/(double)n;
+    metadata_array[the_predicate->left.row].num_tuples = f_tonos;
+    metadata_array[the_predicate->right.row].num_tuples = f_tonos;
+    int old_count_left=metadata_array[the_predicate->left.row].statistics_array[the_predicate->left.column].count;
+    int old_count_right=metadata_array[the_predicate->right.row].statistics_array[the_predicate->right.column].count;
+    int d_tonos=(int)(old_count_left*old_count_right)/(double)n;
+    metadata_array[the_predicate->left.row].statistics_array[the_predicate->left.column].count = d_tonos;
+    metadata_array[the_predicate->right.row].statistics_array[the_predicate->right.column].count = d_tonos;
+    int i;
+    for ( i=0; i<metadata_array[the_predicate->left.row].num_columns; i++ ){
+      if ( i!=the_predicate->left.column ){
+        metadata_array[the_predicate->left.row].statistics_array[i].min = min_left;
+        metadata_array[the_predicate->left.row].statistics_array[i].max = max_left;
+        metadata_array[the_predicate->left.row].statistics_array[i].count = (int)metadata_array[the_predicate->left.row].statistics_array[i].count*
+            (1-pow((double)(1-(metadata_array[the_predicate->left.row].statistics_array[the_predicate->left.column].count/(double)old_count_left)),
+                              old_f_left/(double)metadata_array[the_predicate->left.row].statistics_array[i].count));
+      }
+    }
+    for ( i=0; i<metadata_array[the_predicate->right.row].num_columns; i++ ){
+      if ( i!=the_predicate->right.column ){
+        metadata_array[the_predicate->right.row].statistics_array[i].min = min_left;
+        metadata_array[the_predicate->right.row].statistics_array[i].max = max_left;
+        metadata_array[the_predicate->right.row].statistics_array[i].count = (int)metadata_array[the_predicate->right.row].statistics_array[i].count*
+            (1-pow((double)(1-(metadata_array[the_predicate->right.row].statistics_array[the_predicate->right.column].count/(double)old_count_left)),
+                              old_f_left/(double)metadata_array[the_predicate->right.row].statistics_array[i].count));
+      }
+    }
+    return f_tonos;
+  }
+  else if ( the_predicate->flag==1 ){
+
+  }
+  else if ( the_predicate->flag==2 ){
+
+  }
 }
