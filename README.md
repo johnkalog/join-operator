@@ -15,3 +15,6 @@
 5) ena init mono
 6) pthread_exit
 7) if se threads,int se uint,if se mutex
+8)512
+9)διαιρεση με 0?
+10)διαγραφη αχρειαστων συναρτησεων
