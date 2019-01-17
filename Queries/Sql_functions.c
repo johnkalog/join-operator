@@ -110,7 +110,7 @@ void freeList(list* head) {
 }
 
 list *copy_list(list *start1) {
-    if(start1==NULL) return;
+    if(start1==NULL) return NULL;
     list *temp=(list *) malloc(sizeof(list));
     temp->val=start1->val;
     temp->next=copy_list(start1->next);
