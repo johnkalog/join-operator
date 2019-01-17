@@ -62,9 +62,6 @@ relation *keys2relation(int *,int ,relation *);
 
 void result2keys(result *,int **,int ,int ,int );
 
-int check_if_in(metadata *,predicate *,relation *,uint64_t);
-
-
 int *enumeration(predicate *,int,full_relation **,int);
 
 int allready_inside(int *,int ,int );
