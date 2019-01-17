@@ -48,6 +48,8 @@ void freeList(list *);
 
 void print_list(list *);
 
+list *copy_list(list *);
+
 void calculate_metric(predicate *,full_relation *);
 
 full_relation *subcpy_full_relation(full_relation **,int );
@@ -67,3 +69,7 @@ int *enumeration(predicate *,int,full_relation **,int);
 int allready_inside(int *,int ,int );
 
 uint64_t update_metadata_array(metadata *,predicate *);
+
+intermidiate_results *cpy_intermmediate(intermidiate_results *,int);
+
+metadata *cpy_metadata(metadata *,int);

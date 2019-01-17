@@ -50,11 +50,11 @@ void sql_queries(char *filepath,full_relation *relations_array){
 
 
 
-            // int *best_order = enumeration(rel_predicate,condition_num,rel_pointers,rel_num);
-            //
-            // for(i=0;i<condition_num;i++) {
-            //   printf("%d\n",best_order[i] );
-            // }
+            int *best_order = enumeration(rel_predicate,condition_num,rel_pointers,rel_num);
+
+            for(i=0;i<condition_num;i++) {
+              printf("%d\n",best_order[i] );
+            }
 
 
             for(i=0;i<condition_num;i++){
@@ -70,9 +70,9 @@ void sql_queries(char *filepath,full_relation *relations_array){
             int cur_size = 0;
              for ( i=0; i<condition_num; i++ ) {
                int best_pos = findNextPredicate(rel_predicate,condition_num,head);
-               metadata *metadata_array=metadata_array_creation(rel_pointers,rel_num);
-               printf("ddddddddd %ld\n",update_metadata_array(metadata_array,&rel_predicate[best_pos]));
-               free_metadata_array(metadata_array,rel_num);
+               //metadata *metadata_array=metadata_array_creation(rel_pointers,rel_num);
+               //printf("ddddddddd %ld\n",update_metadata_array(metadata_array,&rel_predicate[best_pos]));
+               //free_metadata_array(metadata_array,rel_num);
 
                if(rel_predicate[best_pos].flag == 0) {
                  if ( rel_predicate[best_pos].left.row==rel_predicate[best_pos].right.row){ //isothta se idia sxesh
@@ -713,34 +713,44 @@ int *enumeration(predicate *rel_predicate,int condition_num,full_relation **rel_
     order[i] = malloc(condition_num*sizeof(int));
     order[i][0] = i;
     inter_resuts[i].visited = NULL;
-    inter_resuts[i].cur_sum = 0;
-    inter_resuts[i].I_metadata = metadata_array_creation(rel_pointers,rel_num);
     push_list(&(inter_resuts[i].visited),rel_predicate[i].right.row);
     push_list(&(inter_resuts[i].visited),rel_predicate[i].left.row);
+    inter_resuts[i].I_metadata = metadata_array_creation(rel_pointers,rel_num);
+    inter_resuts[i].cur_sum = update_metadata_array(inter_resuts[i].I_metadata,&rel_predicate[i]);
+    printf("cur sum is %d\n",inter_resuts[i].cur_sum );
     //upbdate metadata
   }
 
 
-  for(i=1;i<condition_num;i++) {
+  for(i=1;i<condition_num;i++) { //gia styles
 
     int k;
-    for(k=0;k<condition_num;k++) {
+    int best_line;
+    for(k=0;k<condition_num;k++) { //gia grammes
       int cur = i;
+      int best_f,new_f;
+
       int j;
-      int f;
-      for(j=0;j<condition_num;j++) {
+      for(j=0;j<condition_num;j++) { //gia ola ta pithana
         if(allready_inside(order[k],cur,j) || !(search_list(inter_resuts[k].visited,rel_predicate[j].right.row) || search_list(inter_resuts[k].visited,rel_predicate[j].left.row))) {
           continue;
         }
+        intermidiate_results *tmp_line = cpy_intermmediate(&inter_resuts[k],rel_num);
         //printf("perasa %d %d\n",order[k][0],j);
-        if(cur==i  ) {// f > update_metadata_array(new)
+        //list *tmp_list = copy_list(inter_resuts[k].visited);
+        new_f = update_metadata_array(tmp_line->I_metadata,&rel_predicate[j]);
+        if(cur==i || best_f > new_f ) {// f > update_metadata_array(new)
           cur = i+1;
           order[k][cur-1] = j;
-          push_list(&(inter_resuts[k].visited),rel_predicate[j].right.row);
-          push_list(&(inter_resuts[k].visited),rel_predicate[j].left.row);
-          //f = update_metadata_array
+          //push_list(&(inter_resuts[k].visited),rel_predicate[j].right.row);
+          //push_list(&(inter_resuts[k].visited),rel_predicate[j].left.row);
+          best_f = new_f;
         }
       }
+      inter_resuts[i].cur_sum += update_metadata_array(inter_resuts[k].I_metadata,&rel_predicate[order[k][cur-1]]);
+      push_list(&(inter_resuts[k].visited),rel_predicate[order[k][cur-1]].right.row);
+      push_list(&(inter_resuts[k].visited),rel_predicate[order[k][cur-1]].left.row);
+
     }
 
 
@@ -754,6 +764,36 @@ int *enumeration(predicate *rel_predicate,int condition_num,full_relation **rel_
 
   return order[best];
 
+}
+
+intermidiate_results *cpy_intermmediate(intermidiate_results *tmp,int rel_num) {
+  intermidiate_results *res = malloc(sizeof(intermidiate_results));
+  res->visited = NULL;
+  res->cur_sum = tmp->cur_sum;
+  res->visited = copy_list(tmp->visited);
+  res->I_metadata = cpy_metadata(tmp->I_metadata,rel_num);
+
+
+  return res;
+}
+
+metadata *cpy_metadata(metadata *from_metadata,int rel_num){
+    metadata *metadata_new = malloc(rel_num*sizeof(metadata));
+
+    int i;
+    for(i=0;i<rel_num;i++) {
+      metadata_new[i].num_tuples = from_metadata[i].num_tuples;
+      metadata_new[i].num_columns = from_metadata[i].num_columns;
+
+      metadata_new[i].statistics_array = malloc(from_metadata[i].num_columns*sizeof(statistics));
+      int j;
+      for(j=0;j<metadata_new[i].num_columns;j++) {
+        metadata_new[i].statistics_array[j].min = from_metadata[i].statistics_array[j].min;
+        metadata_new[i].statistics_array[j].max = from_metadata[i].statistics_array[j].max;
+        metadata_new[i].statistics_array[j].count = from_metadata[i].statistics_array[j].count;
+      }
+    }
+    return metadata_new;
 }
 
 int allready_inside(int *order,int cur,int j){
