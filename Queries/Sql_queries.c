@@ -70,6 +70,7 @@ void sql_queries(char *filepath,full_relation *relations_array){
             int cur_size = 0;
              for ( i=0; i<condition_num; i++ ) {
                int best_pos = best_order[i];
+               //printf("best pos %d\n",best_pos );
                //metadata *metadata_array=metadata_array_creation(rel_pointers,rel_num);
                //printf("ddddddddd %ld\n",update_metadata_array(metadata_array,&rel_predicate[best_pos]));
                //free_metadata_array(metadata_array,rel_num);
@@ -732,30 +733,41 @@ int *enumeration(predicate *rel_predicate,int condition_num,full_relation **rel_
     // printf("cur sum is %d\n",inter_resuts[i].cur_sum );
     //upbdate metadata
   }
-  // for(i=0;i<condition_num;i++) {
-  //   order[i] = malloc(condition_num*sizeof(int));
-  //   order[i][0] = i;
-  //   inter_resuts[i].visited = NULL;
-  //   push_list(&(inter_resuts[i].visited),rel_predicate[i].right.row);
-  //   push_list(&(inter_resuts[i].visited),rel_predicate[i].left.row);
-  //   inter_resuts[i].I_metadata = metadata_array_creation(rel_pointers,rel_num);
-  //   inter_resuts[i].cur_sum = update_metadata_array(inter_resuts[i].I_metadata,&rel_predicate[i]);
-  //   printf("cur sum is %d\n",inter_resuts[i].cur_sum );
-  //   //upbdate metadata
-  // }
+
+  for(i=0;i<condition_num;i++) {
+    //order[i] = malloc(condition_num*sizeof(int));
+    order[i][1] = i;
+    if( i == order[i][0] || !(search_list(inter_resuts[i].visited,rel_predicate[i].right.row) || search_list(inter_resuts[i].visited,rel_predicate[i].left.row))) {
+      //printf("insede i is %d\n",i );
+      inter_resuts[i].cur_sum = -1;
+      continue;
+    }
+    //printf("i is %d\n",i );
+    push_list(&(inter_resuts[i].visited),rel_predicate[i].right.row);
+    push_list(&(inter_resuts[i].visited),rel_predicate[i].left.row);
+    inter_resuts[i].cur_sum += update_metadata_array(inter_resuts[i].I_metadata,&rel_predicate[i]);
+
+    // printf("cur sum is %d\n",inter_resuts[i].cur_sum );
+    //upbdate metadata
+  }
 
 
-  for(i=1;i<condition_num;i++) { //gia styles
+  for(i=2;i<condition_num;i++) { //gia styles
 
     int k;
     int best_line;
     for(k=0;k<condition_num;k++) { //gia grammes
       int cur = i;
       int best_f,new_f;
+      if(inter_resuts[k].cur_sum == -1) {
+        //printf("curr sum is -1\n" );
+        continue;
+      }
 
       int j;
       for(j=0;j<condition_num-1;j++) { //gia ola ta pithana
-        if(allready_inside(order[k],cur,j) || !(search_list(inter_resuts[k].visited,rel_predicate[j].right.row) || search_list(inter_resuts[k].visited,rel_predicate[j].left.row))) {
+        //printf("i: %d line: %d  cur_size: %d\n",i,k,inter_resuts[k].cur_sum );
+        if(allready_inside(order[k],i,j) || !(search_list(inter_resuts[k].visited,rel_predicate[j].right.row) || search_list(inter_resuts[k].visited,rel_predicate[j].left.row))) {
           continue;
         }
         intermidiate_results *tmp_line = cpy_intermmediate(&inter_resuts[k],rel_num);
@@ -773,23 +785,25 @@ int *enumeration(predicate *rel_predicate,int condition_num,full_relation **rel_
         free_metadata_array(tmp_line->I_metadata,rel_num);
         free(tmp_line);
       }
-      // if ( curr==i ){
-      //
-      // }
-      inter_resuts[i].cur_sum += update_metadata_array(inter_resuts[k].I_metadata,&rel_predicate[order[k][cur-1]]);
-      push_list(&(inter_resuts[k].visited),rel_predicate[order[k][cur-1]].right.row);
-      push_list(&(inter_resuts[k].visited),rel_predicate[order[k][cur-1]].left.row);
-
+      if ( cur==i ){
+        inter_resuts[k].cur_sum = -1;
+      }
+      else {
+        inter_resuts[k].cur_sum += update_metadata_array(inter_resuts[k].I_metadata,&rel_predicate[order[k][cur-1]]);
+        push_list(&(inter_resuts[k].visited),rel_predicate[order[k][cur-1]].right.row);
+        push_list(&(inter_resuts[k].visited),rel_predicate[order[k][cur-1]].left.row);
+      }
     }
 
 
   }
   int best=0;
   for(i=1;i<condition_num;i++) {
-    if(inter_resuts[i].cur_sum < inter_resuts[best].cur_sum) {
+    if(inter_resuts[best].cur_sum == -1 || (inter_resuts[i].cur_sum != -1 && inter_resuts[i].cur_sum < inter_resuts[best].cur_sum)) {
       best = i;
     }
   }
+  //printf("best cur sum is %d\n",inter_resuts[best] );
 
   int *final_best=malloc(condition_num*sizeof(int));
   for ( i=0; i<condition_num; i++){
