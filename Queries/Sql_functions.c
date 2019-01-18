@@ -1,53 +1,5 @@
 #include "Sql_queries.h"
 
-
-int findNextPredicate(predicate* rel_predicate,int size,list *head) { //upologismos next predicate gia ektelesh
-
-  int i;
-  int best_pos = 0; // position of best choice so far
-
-  for(i=1;i<size;i++) {
-
-    if(empty_list(head)) { //first time, the list with rows is empty
-      if(rel_predicate[i].metric > rel_predicate[best_pos].metric) {
-        best_pos = i;
-      }
-    }
-    else { // not the first time
-      if(rel_predicate[i].metric == -1) {
-        continue;
-      }
-      if(rel_predicate[best_pos].metric == -1) {
-          best_pos = i;
-          continue;
-      }
-      int rows = 0;
-      if(rel_predicate[i].flag == 0 && rel_predicate[best_pos].flag == 0) {
-        int best_rows = search_list(head,rel_predicate[best_pos].left.row) + search_list(head,rel_predicate[best_pos].right.row);
-        int rows = search_list(head,rel_predicate[i].left.row) + search_list(head,rel_predicate[i].right.row);
-        if((rows > best_rows) || (best_rows == rows && rel_predicate[i].metric > rel_predicate[best_pos].metric)) {
-          best_pos = i;
-        }
-      }
-      else if(rel_predicate[i].flag == 1 || rel_predicate[i].flag == 2) {
-        if(rel_predicate[best_pos].flag == 0 || (rel_predicate[best_pos].flag != 0 && rel_predicate[i].metric > rel_predicate[best_pos].metric)) {
-          best_pos = i;
-        }
-
-      }
-      else {
-        printf("Something wrong\n");
-      }
-
-    }
-
-  }
-
-  return best_pos;
-}
-
-
-
 void push_list(list **head, uint64_t val) { //eisagwgh
     if(*head==NULL){
         *head = malloc(sizeof(list));

@@ -1,4 +1,4 @@
-OBJS     = main.o list_result.o RadixHashJoin.o RadixFunctions.o Relation.o Full_Relation.o Sql_queries.o Sql_functions.o ThreadFunctions.o JobSheduler.o Threads.o
+OBJS     = main.o list_result.o RadixHashJoin.o RadixFunctions.o Relation.o Full_Relation.o Sql_queries.o Sql_functions.o ThreadFunctions.o JobSheduler.o Threads.o statistics.o
 OUT      = run
 CC       = gcc
 FLAGS    = -g -c -lm -pthread
@@ -18,6 +18,9 @@ RadixHashJoin.o:../RHJ/RadixHashJoin.c
 
 RadixFunctions.o:../RHJ/RadixFunctions.c
 	$(CC) $(FLAGS) ../RHJ/RadixFunctions.c
+
+statistics.o:statistics.c
+	$(CC) $(FLAGS) statistics.c
 
 Relation.o:../RHJ/Relation.c
 	$(CC) $(FLAGS) ../RHJ/Relation.c
