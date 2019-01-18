@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include "statistics.h"
-#define bufferRows 1024*1024/8 //plhthos eggrafwn result_node
+#define bufferRows 128*128/8 //plhthos eggrafwn result_node
 
 void sql_queries(char *filepath,full_relation *relations_array){
     char *line=NULL,*query=NULL;

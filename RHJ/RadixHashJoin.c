@@ -53,7 +53,7 @@ result* RadixHashJoin(relation *relR, relation *relS) {
   args->my_Job_list = my_Job_list;
 
   for ( i=0; i<num_threads; i++ ){
-    if ( err=pthread_create(&thread_pool[i],NULL,thread_1,args) ){
+    if ( err=pthread_create(&thread_pool[i],NULL,Histogram_thread,args) ){
       perror ("pthread_create");
       exit(1);
     }
@@ -190,7 +190,7 @@ args->my_Job_list = my_Job_list;
 sem_init(&sem, 0, 0);
 
 for ( i=0; i<num_threads; i++ ){
-  if ( err=pthread_create(&thread_pool[i],NULL,thread_2,args) ){
+  if ( err=pthread_create(&thread_pool[i],NULL,NewRel_thread,args) ){
     perror ("pthread_create");
     exit(1);
   }
@@ -333,7 +333,7 @@ free(limits_arrayS);
   sem_init(&sem, 0, 0);
 
   for ( i=0; i<num_threads; i++ ){
-    if ( err=pthread_create(&thread_pool[i],NULL,thread_3,args) ){
+    if ( err=pthread_create(&thread_pool[i],NULL,Bucket_thread,args) ){
       perror ("pthread_create");
       exit(1);
     }

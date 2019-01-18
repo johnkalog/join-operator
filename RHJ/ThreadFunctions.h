@@ -46,9 +46,9 @@ void one_bucket_join(int ,result *,HashBucket *,typeHist *,typeHist *,typeHist *
 
 void JobSheduler(int);
 
-void* thread_1(void*);
-void* thread_2(void*);
-void* thread_3(void*);
+void* Histogram_thread(void*);
+void* NewRel_thread(void*);
+void* Bucket_thread(void*);
 
 Job_list *Job_list_init();
 void push_Job(Job_list *,Job *);

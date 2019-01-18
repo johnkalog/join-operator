@@ -1,6 +1,6 @@
 #include "ThreadFunctions.h"
 
-void* thread_1(void* argp){
+void* Histogram_thread(void* argp){
 
   //printf("thread_1\n");
   int Hash_number = pow(2,FirstHash_number);
@@ -80,7 +80,7 @@ void* thread_1(void* argp){
 
 }
 
-void* thread_2(void* argp){
+void* NewRel_thread(void* argp){
   //printf("thread_2\n");
 
   Sheduler_values *my_args=argp;
@@ -137,7 +137,7 @@ void* thread_2(void* argp){
   pthread_exit(NULL);
 }
 
-void* thread_3(void* argp){
+void* Bucket_thread(void* argp){
   //printf("thread_3\n");
   Sheduler_values *my_args=argp;
   int err,i;

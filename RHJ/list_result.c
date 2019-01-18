@@ -1,6 +1,6 @@
 #include "list_result.h"
 
-#define bufferRows 1024*1024/8  //plhthos eggrafwn result_node
+#define bufferRows 128*128/8  //plhthos eggrafwn result_node
 
 void insert(result *Result,int key1,int key2){
   if ( Result->Head==NULL ){  //kanenas kombos sthn lista
