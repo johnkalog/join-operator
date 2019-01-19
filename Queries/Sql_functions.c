@@ -72,20 +72,27 @@ list *copy_list(list *start1) {
 void print_list(list *add){
   list *tmp=add;
   while ( tmp!=NULL ){
+    char buffer[64]={0};
     if ( tmp->val==0 ){
-      printf("NULL");
+      //printf("NULL");
+      write(1,(char *)"NULL",4);
       if(tmp->next->flag!=-1){
-        printf(" ");
+        //printf(" ");
+        write(1,(char *)" ",1);
       }
     }
     else{
         if(tmp->flag==-1){
-            printf("\n");
+            //printf("\n");
+            write(1,(char *)"\n",1);
         }
         else{
-            printf("%lu",tmp->val);
+            //printf("%lu",tmp->val);
+            sprintf(buffer,"%lu",tmp->val);
+            write(1,buffer,sizeof(buffer));
             if(tmp->next->flag!=-1){
-              printf(" ");
+              //printf(" ");
+              write(1,(char *)" ",1);
             }
         }
     }
