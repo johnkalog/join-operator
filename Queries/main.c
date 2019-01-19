@@ -16,7 +16,6 @@ int main(int argc,char *argv[]) {
     // printf("Done\n");
 
     sql_queries(argv[2],relations_array); //ektelei ola ta queries kai emfanizei ta apotelesmata
-    // printf("fewwefew %d\n",check_if_in(&relations_array[0].my_relations[0],5745));
 
     free_structs(relations_array,num_lines);
 

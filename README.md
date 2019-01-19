@@ -1,4 +1,4 @@
-# project part 2
+# project part 3
 
 Εκτέλεση επερωτήσεων
 
@@ -9,12 +9,4 @@
 ### Υπολειπόμενα ###
 
 1) done-1s
-2) μετρικες-findNextPredicate-min-max σε subcpy
-3) harness
-4) pos gia ta result
-5) ena init mono
-6) pthread_exit
-7) if se threads,int se uint,if se mutex
-8)512
-9)διαιρεση με 0?
-10)διαγραφη αχρειαστων συναρτησεων
+2) harness

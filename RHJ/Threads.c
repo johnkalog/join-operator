@@ -2,7 +2,6 @@
 
 void* Histogram_thread(void* argp){
 
-  //printf("thread_1\n");
   int Hash_number = pow(2,FirstHash_number);
 
   Sheduler_values *my_args=argp;
@@ -23,7 +22,7 @@ void* Histogram_thread(void* argp){
         exit(1) ;
       }
       if ( my_args->my_Job_list->size<=0 ){
-        //printf("why?\n");
+
         pthread_mutex_unlock(&mtx_xd);
         break;
       }
@@ -67,15 +66,6 @@ void* Histogram_thread(void* argp){
 
 
   }
-  //while den exei erthei shma eksodou
-  //if list kenh wait must send signal from main to end all locked
-  //if there is item
-  //mutex lock
-  //pop
-  //save to my space
-  //mutex unlock
-  ///acomplish my job
-  //printf("I Finished %ld\n", pthread_self());
   pthread_exit(NULL);
 
 }
@@ -99,7 +89,7 @@ void* NewRel_thread(void* argp){
       exit(1) ;
     }
     if ( my_args->my_Job_list->size<=0 ){
-      //printf("why?\n");
+
       pthread_mutex_unlock(&mtx_xd);
       break;
     }
@@ -212,8 +202,7 @@ void* Bucket_thread(void* argp){
 
   free(TheHashBucket->bucket);
   free(TheHashBucket);
-
-  //pthread_mutex_unlock(&mtx_forlist);
+  
   pthread_exit(NULL);
 
 }

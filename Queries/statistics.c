@@ -25,27 +25,18 @@ int *enumeration(predicate *rel_predicate,int condition_num,full_relation **rel_
     push_list(&(inter_resuts[i].visited),row_for_insert);
     inter_resuts[i].I_metadata = metadata_array_creation(rel_pointers,rel_num);
     inter_resuts[i].cur_sum = update_metadata_array(inter_resuts[i].I_metadata,&rel_predicate[condition_num-1]);
-    // printf("cur sum is %d\n",inter_resuts[i].cur_sum );
-    //upbdate metadata
   }
 
   for(i=0;i<condition_num;i++) {
-    //order[i] = malloc(condition_num*sizeof(int));
     order[i][1] = i;
     if( i == order[i][0] || !(search_list(inter_resuts[i].visited,rel_predicate[i].right.row) || search_list(inter_resuts[i].visited,rel_predicate[i].left.row))) {
-      //printf("insede i is %d\n",i );
       inter_resuts[i].cur_sum = -1;
       continue;
     }
-    //printf("i is %d\n",i );
     push_list(&(inter_resuts[i].visited),rel_predicate[i].right.row);
     push_list(&(inter_resuts[i].visited),rel_predicate[i].left.row);
     inter_resuts[i].cur_sum += update_metadata_array(inter_resuts[i].I_metadata,&rel_predicate[i]);
-
-    // printf("cur sum is %d\n",inter_resuts[i].cur_sum );
-    //upbdate metadata
   }
-
 
   for(i=2;i<condition_num;i++) { //gia styles
 
@@ -55,25 +46,19 @@ int *enumeration(predicate *rel_predicate,int condition_num,full_relation **rel_
       int cur = i;
       int best_f,new_f;
       if(inter_resuts[k].cur_sum == -1) {
-        //printf("curr sum is -1\n" );
         continue;
       }
 
       int j;
       for(j=0;j<condition_num-1;j++) { //gia ola ta pithana
-        //printf("i: %d line: %d  cur_size: %d\n",i,k,inter_resuts[k].cur_sum );
         if(allready_inside(order[k],i,j) || !(search_list(inter_resuts[k].visited,rel_predicate[j].right.row) || search_list(inter_resuts[k].visited,rel_predicate[j].left.row))) {
           continue;
         }
         intermidiate_results *tmp_line = cpy_intermmediate(&inter_resuts[k],rel_num);
-        //printf("perasa %d %d\n",order[k][0],j);
-        //list *tmp_list = copy_list(inter_resuts[k].visited);
         new_f = update_metadata_array(tmp_line->I_metadata,&rel_predicate[j]);
         if(cur==i || best_f > new_f ) {// f > update_metadata_array(new)
           cur = i+1;
           order[k][cur-1] = j;
-          //push_list(&(inter_resuts[k].visited),rel_predicate[j].right.row);
-          //push_list(&(inter_resuts[k].visited),rel_predicate[j].left.row);
           best_f = new_f;
         }
         freeList(tmp_line->visited);
@@ -152,11 +137,9 @@ int allready_inside(int *order,int cur,int j){
   int k;
   for(k=0;k<cur;k++) {
     if(order[k] == j) {
-      //printf("order is 1\n" );
       return 1;
     }
   }
-  //printf("order is 0\n" );
   return 0;
 }
 

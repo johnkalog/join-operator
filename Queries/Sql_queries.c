@@ -34,9 +34,6 @@ void sql_queries(char *filepath,full_relation *relations_array){
             int rel_num;
             full_relation **rel_pointers=string2rel_pointers(relations_array,tok1,&rel_num);  //pinakas deitkwv sthn arxikh domh
                                                                     // twn sxesewn pou uparxoun sto query
-            // for ( i=0; i<rel_num; i++ ) {
-            //   printf("relation number columns: %ld\n",rel_pointers[i]->my_metadata.num_columns);
-            // }
             full_relation *cpy_tuple_array = subcpy_full_relation(rel_pointers,rel_num);  //upopinakas ths arxikhs domhs mono twn sxesewn tou
                                                                                 //rel_pointers
 
@@ -49,10 +46,6 @@ void sql_queries(char *filepath,full_relation *relations_array){
 
 
             int *best_order = enumeration(rel_predicate,condition_num,rel_pointers,rel_num);
-
-            // for(i=0;i<condition_num;i++) {
-            //   printf("%d\n",best_order[i] );
-            // }
 
 
             for(i=0;i<condition_num;i++){
@@ -68,10 +61,8 @@ void sql_queries(char *filepath,full_relation *relations_array){
             int cur_size = 0;
              for ( i=0; i<condition_num; i++ ) {
                int best_pos = best_order[i];
-               //printf("best pos %d\n",best_pos );
-               //metadata *metadata_array=metadata_array_creation(rel_pointers,rel_num);
-               //printf("ddddddddd %ld\n",update_metadata_array(metadata_array,&rel_predicate[best_pos]));
-               //free_metadata_array(metadata_array,rel_num);
+               //palia ylopoihsh
+               //int best_pos = findNextPredicate(rel_predicate,condition_num,head);
 
                if(rel_predicate[best_pos].flag == 0) {
                  if ( rel_predicate[best_pos].left.row==rel_predicate[best_pos].right.row){ //isothta se idia sxesh
@@ -444,9 +435,6 @@ predicate *string2predicate(char* str,int *condition_num) {
 
   condition = strtok(str,"&");
   for ( i=0; i<(*condition_num); i++ ) {
-    // if ( condition==NULL ){
-    //   printf("condition not NULL\n");
-    // }
     rel_condition[i] = strdup(condition);
 
     condition = strtok(NULL,"&");
