@@ -1,5 +1,7 @@
 #include "Sql_queries.h"
 
+// intermidiate_results exei mia lista me visited
+//ta statistika metadata kai to a8roisma twn intermmediate
 typedef struct intermidiate_results {
   list *visited;
   int cur_sum;

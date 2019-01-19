@@ -1,12 +1,13 @@
 #include "statistics.h"
 
 int *enumeration(predicate *rel_predicate,int condition_num,full_relation **rel_pointers,int rel_num) {
+  // epistrefei enan pinaka me thn epi8umhth seira pou prepei na ektelestoun ta predicates
 
   intermidiate_results *inter_resuts = malloc(condition_num*sizeof(intermidiate_results));
-  int **order;
+  int **order; // pinakas me tis epiloges
   order = malloc(condition_num * sizeof(int *));
   int i;
-  for(i=0;i<condition_num;i++) {
+  for(i=0;i<condition_num;i++) { // bale prwta to filtro
     order[i] = malloc(condition_num*sizeof(int));
     order[i][0] = condition_num-1;
     inter_resuts[i].visited = NULL;
@@ -27,10 +28,10 @@ int *enumeration(predicate *rel_predicate,int condition_num,full_relation **rel_
     inter_resuts[i].cur_sum = update_metadata_array(inter_resuts[i].I_metadata,&rel_predicate[condition_num-1]);
   }
 
-  for(i=0;i<condition_num;i++) {
+  for(i=0;i<condition_num;i++) { // bale oles ti dunates epiloges
     order[i][1] = i;
     if( i == order[i][0] || !(search_list(inter_resuts[i].visited,rel_predicate[i].right.row) || search_list(inter_resuts[i].visited,rel_predicate[i].left.row))) {
-      inter_resuts[i].cur_sum = -1;
+      inter_resuts[i].cur_sum = -1; // den uparxei lush gia ayth thn grammh
       continue;
     }
     push_list(&(inter_resuts[i].visited),rel_predicate[i].right.row);
@@ -38,11 +39,11 @@ int *enumeration(predicate *rel_predicate,int condition_num,full_relation **rel_
     inter_resuts[i].cur_sum += update_metadata_array(inter_resuts[i].I_metadata,&rel_predicate[i]);
   }
 
-  for(i=2;i<condition_num;i++) { //gia styles
+  for(i=2;i<condition_num;i++) { //gia tis styles
 
     int k;
     int best_line;
-    for(k=0;k<condition_num;k++) { //gia grammes
+    for(k=0;k<condition_num;k++) { //gia tis grammes
       int cur = i;
       int best_f,new_f;
       if(inter_resuts[k].cur_sum == -1) {
@@ -134,6 +135,7 @@ metadata *cpy_metadata(metadata *from_metadata,int rel_num){
 }
 
 int allready_inside(int *order,int cur,int j){
+  // to stoixeio j brhskete hdh mesa ston pinaka order (epestrepse 1)
   int k;
   for(k=0;k<cur;k++) {
     if(order[k] == j) {
@@ -144,6 +146,8 @@ int allready_inside(int *order,int cur,int j){
 }
 
 uint64_t update_metadata_array(metadata *metadata_array,predicate *the_predicate){
+  // allazei ta statistika sumfwna me thn praksh
+  // epistrefei to megethos tou apotelesmatos
   if ( the_predicate->flag==0 ){
     if ( the_predicate->left.row==the_predicate->right.row){
       uint64_t min=metadata_array[the_predicate->left.row].statistics_array[the_predicate->left.column].min;
@@ -268,7 +272,7 @@ uint64_t update_metadata_array(metadata *metadata_array,predicate *the_predicate
   }
 }
 
-
+// ------- palia ylopoihsh ---------- //
 int findNextPredicate(predicate* rel_predicate,int size,list *head) { //upologismos next predicate gia ektelesh
 
   int i;
