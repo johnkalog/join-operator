@@ -1,7 +1,7 @@
 #include <math.h>
 #include "list_result.h"
 
-#define num_threads 4
+#define num_threads 20
 
 #define FirstHash_number 9
 #define SecondHash_number 11

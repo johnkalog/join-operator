@@ -1,4 +1,4 @@
-OBJS     = testprogram.o list_result.o RadixHashJoin.o RadixFunctions.o Relation.o Full_Relation.o Sql_queries.o Sql_functions.o ThreadFunctions.o Threads.o JobSheduler.o
+OBJS     = testprogram.o list_result.o RadixHashJoin.o RadixFunctions.o Relation.o Full_Relation.o Sql_queries.o Sql_functions.o ThreadFunctions.o Threads.o statistics.o
 OUT      = run
 CC       = gcc
 FLAGS    = -g -c -lm -pthread
@@ -19,14 +19,14 @@ RadixHashJoin.o:../RHJ/RadixHashJoin.c
 RadixFunctions.o:../RHJ/RadixFunctions.c
 	$(CC) $(FLAGS) ../RHJ/RadixFunctions.c
 
+statistics.o:../Queries/statistics.c
+	$(CC) $(FLAGS) ../Queries/statistics.c
+
 Threads.o:../RHJ/Threads.c
 	$(CC) $(FLAGS) ../RHJ/Threads.c
 
 ThreadFunctions.o:../RHJ/ThreadFunctions.c
 	$(CC) $(FLAGS) ../RHJ/ThreadFunctions.c
-
-JobSheduler.o:../RHJ/JobSheduler.c
-	$(CC) $(FLAGS) ../RHJ/JobSheduler.c
 
 Relation.o:../RHJ/Relation.c
 	$(CC) $(FLAGS) ../RHJ/Relation.c

@@ -17,7 +17,7 @@ int check1D(int *array1,int *array2,int n) {
 }
 
 int checkRes(result *A,result *B){
-  if ( A->size!=B->size || A->Tail->pos!=B->Tail->pos ){
+  if ( A->total_records!=B->total_records ){
     return -1;
   }
   // if ( A->size!=0 ){
